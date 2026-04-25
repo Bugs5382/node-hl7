@@ -38,8 +38,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup",
-    "build:dev": "NODE_ENV=development tsup",
+    "build": "tsdown",
+    "build:dev": "NODE_ENV=development tsdown",
     "clean": "rm -rf coverage docs lib temp",
     "docker:build": "docker build -t docker-node-hl7-server:latest .",
     "format:check": "prettier --check '**/*.{md,ts,json,mts}'",
@@ -85,7 +85,7 @@
     "tcp-port-used": "^1.0.2",
     "ts-node": "^10.9.2",
     "tsd": "^0.32.0",
-    "tsup": "^8.5.0",
+    "tsdown": "^0.21.10",
     "typedoc": "^0.28.7",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.36.0",

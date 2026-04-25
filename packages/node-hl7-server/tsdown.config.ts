@@ -1,4 +1,4 @@
-import { defineConfig } from "tsup";
+import { defineConfig } from "tsdown";
 
 const sourcemap = process.env.NODE_ENV === "development";
 
