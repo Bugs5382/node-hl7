@@ -76,8 +76,10 @@ type ValidatedKeys = "port";
 /**
  * @since 1.0.0
  */
-interface ValidatedOptions
-  extends Pick<Required<ListenerOptions>, ValidatedKeys> {
+interface ValidatedOptions extends Pick<
+  Required<ListenerOptions>,
+  ValidatedKeys
+> {
   mshOverrides?: Record<string, string | ((message: Message) => string)>;
   name?: string;
   port: number;

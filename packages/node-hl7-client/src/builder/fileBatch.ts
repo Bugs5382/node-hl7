@@ -234,6 +234,11 @@ export class FileBatch extends RootBase {
   }
 
   /** @internal */
+  protected pathCore(): string[] {
+    return [];
+  }
+
+  /** @internal */
   protected createChild(text: string, _index: number): HL7Node {
     return new Segment(this, text.trim());
   }

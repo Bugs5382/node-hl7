@@ -4,7 +4,9 @@ import {
   ClientBuilderMessageOptions,
   ClientBuilderOptions,
 } from "@/modules/types";
+import { createHL7Date } from "@/utils/createHL7Date";
 import { isHL7Number } from "@/utils/is";
+import { randomString } from "@/utils/randomString";
 import { split } from "@/utils/spilt";
 import { FileBatch } from "./fileBatch";
 import { HL7Node } from "./interface/hL7Node";
@@ -52,11 +54,58 @@ export class Message extends RootBase {
       }
     }
 
-    // if (typeof this._opt.messageHeader !== "undefined") {
-    //   if (this._opt.hl7.checkMSH(this._opt.messageHeader) === true) {
-    //     this._opt.hl7.buildMSH(this._opt.messageHeader, this);
-    //   }
-    // }
+    if (typeof this._opt.messageHeader !== "undefined") {
+      const msh = this._opt.messageHeader as any;
+
+      if (!msh.msh_9_1 || typeof msh.msh_9_2 === "undefined") {
+        throw new Error("MSH.9.1 & MSH 9.2 must be defined.");
+      }
+      if (msh.msh_9_1.length !== 3) {
+        throw new Error("MSH.9.1 must be 3 characters in length.");
+      }
+      if (msh.msh_9_2.length !== 3) {
+        throw new Error("MSH.9.2 must be 3 characters in length.");
+      }
+      if (
+        typeof msh.msh_9_3 !== "undefined" &&
+        (msh.msh_9_3.length < 3 || msh.msh_9_3.length > 10)
+      ) {
+        throw new Error(
+          "MSH.9.3 must be 3 to 10 characters in length if specified.",
+        );
+      }
+      if (
+        typeof msh.msh_10 !== "undefined" &&
+        (msh.msh_10.length < 1 || msh.msh_10.length > 199)
+      ) {
+        throw new Error(
+          "MSH.10 must be greater than 0 and less than 199 characters.",
+        );
+      }
+
+      this.set("MSH.7", createHL7Date(new Date(), this._opt.date));
+      this.set("MSH.9.1", msh.msh_9_1.toString());
+      this.set("MSH.9.2", msh.msh_9_2.toString());
+      this.set(
+        "MSH.9.3",
+        typeof msh.msh_9_3 !== "undefined"
+          ? msh.msh_9_3.toString()
+          : `${msh.msh_9_1}_${msh.msh_9_2}`,
+      );
+      this.set(
+        "MSH.10",
+        typeof msh.msh_10 !== "undefined" ? msh.msh_10.toString() : randomString(),
+      );
+      if (typeof msh.msh_11_1 !== "undefined") {
+        this.set("MSH.11.1", msh.msh_11_1.toString());
+      } else if (typeof msh.msh_11 !== "undefined") {
+        this.set("MSH.11", msh.msh_11.toString());
+      }
+      if (typeof msh.msh_11_2 !== "undefined") {
+        this.set("MSH.11.2", msh.msh_11_2.toString());
+      }
+      this.set("MSH.12", "2.7");
+    }
   }
 
   /**

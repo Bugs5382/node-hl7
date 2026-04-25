@@ -55,12 +55,15 @@ export class Segment extends NodeBase {
     }
 
     if (typeof path === "string") {
+      const resolvedPath = /^\d+(\.\d+)*$/.test(path)
+        ? `${this._segmentName}.${path}`
+        : path;
       if (Array.isArray(value)) {
         for (let i = 0; i < value.length; i++) {
-          this.set(`${path}.${i + 1}`, value[i]);
+          this.set(`${resolvedPath}.${i + 1}`, value[i]);
         }
       } else {
-        const _path = this.preparePath(path);
+        const _path = this.preparePath(resolvedPath);
         this.write(_path, this.prepareValue(value));
       }
 

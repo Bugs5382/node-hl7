@@ -1,0 +1,6 @@
+export const TABLE_0078 = [
+  "<", ">", "A", "AA", "B", "D", "DET", "H", "HH", "HM", "HU", "I",
+  "IE", "IND", "L", "LL", "LM", "MS", "N", "ND", "NEG", "NR", "NS",
+  "null", "OBX", "POS", "QCF", "R", "RR", "S", "SDD", "SYN-R", "SYN-S",
+  "TOX", "U", "UNE", "VS", "W", "WR",
+];

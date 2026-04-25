@@ -6,6 +6,8 @@ packages/*/dist/
 packages/*/coverage/
 packages/*/.nyc_output/
 packages/*/temp/
+temp
 *.log
 .DS_Store
-/package-lock.json
+package-lock.json
+.claude

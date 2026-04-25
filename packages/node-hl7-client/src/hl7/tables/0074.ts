@@ -1,0 +1,6 @@
+export const TABLE_0074 = [
+  "AU", "BG", "CUS", "CT", "CH", "CP", "EC", "EN", "HM", "IMM", "LAB",
+  "MB", "MCB", "MYC", "NMR", "NMS", "NRS", "OSL", "OT", "OTH", "PAR",
+  "PAT", "PF", "PHR", "PHY", "PT", "RAD", "RCB", "RT", "RUS", "RX",
+  "SP", "SR", "TX", "URN", "VR", "VUS", "XRC",
+];

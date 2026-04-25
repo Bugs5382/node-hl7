@@ -1,9 +1,15 @@
 import { BaseSendResponse } from "@/declaration/baseSendRequest";
-import { MLLPCodec } from "@/utils/codec";
 import { ListenerOptions, normalizeListenerOptions } from "@/utils/normalize";
 import EventEmitter from "events";
 import net, { Socket } from "net";
-import { Batch, FileBatch, Message, isBatch, isFile } from "node-hl7-client";
+import {
+  Batch,
+  FileBatch,
+  MLLPCodec,
+  Message,
+  isBatch,
+  isFile,
+} from "node-hl7-client";
 import tls from "tls";
 import { InboundRequest } from "./modules/inboundRequest";
 import { SendResponse } from "./modules/sendResponse";
@@ -187,7 +193,7 @@ export class Inbound extends EventEmitter implements IInbound {
       socket.cork();
 
       try {
-        this._dataResult = this._codec?.receiveData(buffer);
+        this._dataResult = this._codec?.receiveData(buffer as Buffer);
       } catch (err) {
         this.emit("data.error", err);
       }

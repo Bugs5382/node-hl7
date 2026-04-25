@@ -1,0 +1,22 @@
+import { HL7_2_1_PV1 } from "@/hl7/2.1/pv1";
+import { TABLE_0326 } from "@/hl7/tables/0326";
+
+/** HL7 2.2 PV1 - extends 2.1 with fields 45-52 */
+export interface HL7_2_2_PV1 extends HL7_2_1_PV1 {
+  /** PV1.45 - Discharge Date/Time */
+  pv1_45?: Date | string;
+  /** PV1.46 - Current Patient Balance */
+  pv1_46?: string;
+  /** PV1.47 - Total Charges */
+  pv1_47?: string;
+  /** PV1.48 - Total Adjustments */
+  pv1_48?: string;
+  /** PV1.49 - Total Payments */
+  pv1_49?: string;
+  /** PV1.50 - Alternate Visit ID (max 15) */
+  pv1_50?: string;
+  /** PV1.51 - Visit Indicator */
+  pv1_51?: (typeof TABLE_0326)[number];
+  /** PV1.52 - Other Healthcare Provider */
+  pv1_52?: string;
+}
