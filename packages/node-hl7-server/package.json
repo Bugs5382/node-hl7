@@ -1,0 +1,102 @@
+{
+  "name": "node-hl7-server",
+  "version": "3.3.0",
+  "description": "Node.js client library for creating a HL7 Server which can accept incoming a properly formatted HL7 message(s), and then parses the HL7 message. Once the message has been parsed you can then do something with the final result that you so desire.",
+  "keywords": [
+    "hl7",
+    "hl7-parser",
+    "hl7-client",
+    "hl7-server",
+    "hl7-builder",
+    "hl7-speffications",
+    "hl7-validation"
+  ],
+  "homepage": "https://github.com/Bugs5382/node-hl7-server#readme",
+  "bugs": {
+    "url": "https://github.com/Bugs5382/node-hl7-server/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bugs5382/node-hl7-server.git"
+  },
+  "license": "MIT",
+  "author": "Shane Froebel",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "import": "./lib/esm/index.mjs",
+      "require": "./lib/cjs/index.js",
+      "default": "./lib/cjs/index.js"
+    }
+  },
+  "main": "./lib/cjs/index.js",
+  "module": "./lib/esm/index.mjs",
+  "types": "./lib/types/index.d.ts",
+  "files": [
+    "lib/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "build:dev": "NODE_ENV=development tsup",
+    "clean": "rm -rf coverage docs lib temp",
+    "docker:build": "docker build -t docker-node-hl7-server:latest .",
+    "format:check": "prettier --check '**/*.{md,ts,json,mts}'",
+    "format:write": "prettier --write '**/*.{md,ts,json,mts}'",
+    "lint": "npm run lint:npm && eslint | snazzy && npm run format:check",
+    "lint:fix": "npm run lint:npm && eslint --fix | snazzy && npm run format:write",
+    "lint:npm": "npmPkgJsonLint .",
+    "lint:package": "npx sort-package-json",
+    "pack": "npm pack",
+    "prepublishOnly": "npm run clean && npm run build && npm run pack",
+    "test": "vitest run",
+    "test:coverage": "vitest --coverage",
+    "test:verbose": "vitest run --reporter verbose",
+    "test:watch": "vitest watch",
+    "typedoc": "typedoc",
+    "typedoc:watch": "typedoc -watch",
+    "update": "npx npm-check-updates -u --enginesNode && npm run update:post-update",
+    "update:post-update": "npm install && npm run test"
+  },
+  "dependencies": {
+    "node-hl7-client": "^3.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.5.1",
+    "@shipgirl/typedoc-plugin-versions": "^0.3.1",
+    "@types/node": "^24.12.2",
+    "@types/tcp-port-used": "^1.0.4",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
+    "eslint": "^9.31.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.1",
+    "eslint-plugin-sort-class-members": "^1.21.0",
+    "globals": "^16.3.0",
+    "npm-check-updates": "^18.0.1",
+    "npm-package-json-lint": "^9.0.0",
+    "npm-package-json-lint-config-default": "^8.0.1",
+    "portfinder": "^1.0.37",
+    "pre-commit": "^1.2.2",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "snazzy": "^9.0.0",
+    "tcp-port-used": "^1.0.2",
+    "ts-node": "^10.9.2",
+    "tsd": "^0.32.0",
+    "tsup": "^8.5.0",
+    "typedoc": "^0.28.7",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.36.0",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=20.15.0"
+  },
+  "precommit": [
+    "format:write",
+    "lint:fix",
+    "build"
+  ]
+}
