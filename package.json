@@ -1,0 +1,17 @@
+{
+  "name": "node-hl7",
+  "private": true,
+  "description": "HL7 monorepo — node-hl7-client and node-hl7-server",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "clean": "find packages -name 'node_modules' -maxdepth 2 -type d -exec rm -rf {} + 2>/dev/null; find packages -name 'lib' -maxdepth 2 -type d -exec rm -rf {} + 2>/dev/null; find packages -name 'dist' -maxdepth 2 -type d -exec rm -rf {} + 2>/dev/null; true"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
