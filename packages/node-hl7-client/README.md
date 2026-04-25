@@ -6,12 +6,12 @@
 
 ## ✨ Features
 
-* ⚡ **Zero External Dependencies** – Ultra-fast performance with no bloat.
-* 🔁 **Auto Reconnect & Retry** – Automatically handles connection interruptions.
-* 🧠 **TypeScript + Typed Definitions** – Fully typed for modern development environments.
-* 🤝 **Companion Package Available** – Use alongside [`node-hl7-server`](https://www.npmjs.com/package/node-hl7-server) for a complete HL7 solution.
-* 💻 **Cross-Platform Support** – Works on Windows, macOS, and Linux.
-* 🧭 **Standards-Based** – Typed builders ensure MSH, BHS, and FHS segments follow HL7.org specifications.
+- ⚡ **Zero External Dependencies** – Ultra-fast performance with no bloat.
+- 🔁 **Auto Reconnect & Retry** – Automatically handles connection interruptions.
+- 🧠 **TypeScript + Typed Definitions** – Fully typed for modern development environments.
+- 🤝 **Companion Package Available** – Use alongside [`node-hl7-server`](https://www.npmjs.com/package/node-hl7-server) for a complete HL7 solution.
+- 💻 **Cross-Platform Support** – Works on Windows, macOS, and Linux.
+- 🧭 **Standards-Based** – Typed builders ensure MSH, BHS, and FHS segments follow HL7.org specifications.
 
 ## 📦 Install
 
@@ -21,9 +21,9 @@ npm install node-hl7-client
 
 ## 📚 What's Included?
 
-* **HL7 Client** – Connects to a remote HL7 server, sends messages, and processes responses.
-* **HL7 Parser** – Parses raw HL7 message strings into accessible segments.
-* **HL7 Builder** – Builds valid HL7 messages, batches, or complete HL7 batch files.
+- **HL7 Client** – Connects to a remote HL7 server, sends messages, and processes responses.
+- **HL7 Parser** – Parses raw HL7 message strings into accessible segments.
+- **HL7 Builder** – Builds valid HL7 messages, batches, or complete HL7 batch files.
 
 ## 🧾 Table of Contents
 
@@ -38,11 +38,11 @@ This NPM package is designed to support medical applications with potential impa
 
 Keywords such as **"MUST"**, **"MUST NOT"**, **"REQUIRED"**, **"SHALL"**, **"SHALL NOT"**, **"SHOULD"**, **"SHOULD NOT"**, **"RECOMMENDED"**, **"MAY"**, and **"OPTIONAL"** are used consistently throughout the documentation. These terms retain their meaning even when not capitalized.
 
-* **MUST** – This word, or the terms **"REQUIRED"** or **"SHALL"**, indicates an absolute requirement of the specification.
-* **MUST NOT** – This phrase, or the phrase **"SHALL NOT"**, indicates an absolute prohibition of the specification.
-* **SHOULD** – This word, or the adjective **"RECOMMENDED"**, means that there may be valid reasons in particular circumstances to ignore a particular item, but the full implications must be understood and carefully weighed before doing so.
-* **SHOULD NOT** – This phrase, or the phrase **"NOT RECOMMENDED"**, means that there may be valid reasons in particular circumstances when the behavior is acceptable or even useful. The full implications should be understood and the case carefully weighed before implementation.
-* **MAY** – This word, or the adjective **"OPTIONAL"**, means that the item is truly optional. Implementations that do not include a particular option MUST still interoperate with those that do, though possibly with reduced functionality. Likewise, implementations that include an option MUST interoperate with those that do not (except, of course, for the specific feature provided by the option).
+- **MUST** – This word, or the terms **"REQUIRED"** or **"SHALL"**, indicates an absolute requirement of the specification.
+- **MUST NOT** – This phrase, or the phrase **"SHALL NOT"**, indicates an absolute prohibition of the specification.
+- **SHOULD** – This word, or the adjective **"RECOMMENDED"**, means that there may be valid reasons in particular circumstances to ignore a particular item, but the full implications must be understood and carefully weighed before doing so.
+- **SHOULD NOT** – This phrase, or the phrase **"NOT RECOMMENDED"**, means that there may be valid reasons in particular circumstances when the behavior is acceptable or even useful. The full implications should be understood and the case carefully weighed before implementation.
+- **MAY** – This word, or the adjective **"OPTIONAL"**, means that the item is truly optional. Implementations that do not include a particular option MUST still interoperate with those that do, though possibly with reduced functionality. Likewise, implementations that include an option MUST interoperate with those that do not (except, of course, for the specific feature provided by the option).
 
 ## 📖 Documentation
 
@@ -51,12 +51,10 @@ Full API documentation, usage examples, and advanced configurations are availabl
 
 ## 🙏 Acknowledgements
 
-* [`node-rabbitmq-client`](https://github.com/cody-greene/node-rabbitmq-client) – Connection logic inspiration.
-* [`artifacthealth/hl7parser`](https://github.com/artifacthealth/hl7parser) – Design reference for parser and builder.
-* My wife and baby girl – for their love, patience, and inspiration.
-
+- [`node-rabbitmq-client`](https://github.com/cody-greene/node-rabbitmq-client) – Connection logic inspiration.
+- [`artifacthealth/hl7parser`](https://github.com/artifacthealth/hl7parser) – Design reference for parser and builder.
+- My wife and baby girl – for their love, patience, and inspiration.
 
 ## 📄 License
 
 MIT © [LICENSE](LICENSE)
-

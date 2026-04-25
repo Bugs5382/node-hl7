@@ -1,0 +1,1482 @@
+import {
+  Batch,
+  createHL7Date,
+  EmptyNode,
+  FileBatch,
+  HL7FatalError,
+  HL7Node,
+  Message,
+} from "node-hl7-client/src";
+import { HL7ValidationError } from "node-hl7-client/src/helpers";
+import { HL7_2_1 } from "node-hl7-client/src/hl7/2.1";
+import { HL7_2_2 } from "node-hl7-client/src/hl7/2.2";
+import { HL7_2_3 } from "node-hl7-client/src/hl7/2.3";
+import { HL7_2_3_1 } from "node-hl7-client/src/hl7/2.3.1";
+import { HL7_2_4 } from "node-hl7-client/src/hl7/2.4";
+import { HL7_2_5 } from "node-hl7-client/src/hl7/2.5";
+import { HL7_2_5_1 } from "node-hl7-client/src/hl7/2.5.1";
+import { HL7_2_6 } from "node-hl7-client/src/hl7/2.6";
+import { HL7_2_7 } from "node-hl7-client/src/hl7/2.7";
+import { HL7_2_7_1 } from "node-hl7-client/src/hl7/2.7.1";
+import { HL7_2_8 } from "node-hl7-client/src/hl7/2.8";
+import { randomUUID } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { MSH_HEADER } from "./__data__/constants";
+import { sleep } from "./__utils__";
+
+describe("node hl7 client - builder tests", () => {
+  describe("build message basics", () => {
+    let message: Message;
+    const randomControlID = randomUUID();
+
+    beforeEach(async () => {
+      message = new Message({
+        // @ts-expect-error not filling this out for unit testing
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: randomControlID,
+        },
+      });
+    });
+
+    test("...initial build", async () => {
+      expect(message.toString()).toContain("MSH|^~\\&");
+      expect(message.toString()).toContain(
+        `|ADT^A01^ADT_A01|${randomControlID}||2.7`,
+      );
+    });
+
+    test("... can't have two MSH headers", async () => {
+      const builder = new HL7_2_1();
+      builder.buildMSH({ msh_9: "ACK", msh_10: "12345", msh_11: "T" });
+      try {
+        builder.buildMSH({ msh_9: "ACK", msh_10: "12345", msh_11: "T" });
+      } catch (err) {
+        expect(err).toEqual(
+          new HL7FatalError(
+            "You can only have one MSH Header per HL7 Message.",
+          ),
+        );
+      }
+    });
+
+    test("... ADD segment can't follow MSH", async () => {
+      const builder = new HL7_2_1();
+      builder.buildMSH({ msh_9: "ACK", msh_10: "12345", msh_11: "T" });
+      try {
+        builder.buildADD({
+          add_1: "Fail cause you can't have this after MSH",
+        });
+      } catch (err) {
+        expect(err).toEqual(
+          new HL7ValidationError(
+            "This segment must not follow a MSH, BHS, or FHS",
+          ),
+        );
+      }
+    });
+
+    test("...extend Message build", async () => {
+      const newMessage = () => {
+        return new Message({
+          messageHeader: {
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_11: "P",
+          },
+        });
+      };
+
+      // this is the original message creation at line 17
+      expect(message.toString()).toContain("MSH|^~\\&");
+      expect(message.toString()).toContain(
+        `|ADT^A01^ADT_A01|${randomControlID}||2.7`,
+      );
+
+      // this is creating a new message using a function that returns the message object
+      const newResult = newMessage();
+      expect(newResult.toString()).not.toContain(randomControlID);
+
+      const newRandomControlID = newResult.get("MSH.10").toString();
+
+      // again, this is creating a new message using a function that returns the message object
+      const newResultTwo = newMessage();
+      expect(newResultTwo.toString()).not.toContain(newRandomControlID);
+    });
+
+    test("...verify MSH header is correct", async () => {
+      expect(message.toString().substring(0, 8)).toBe("MSH|^~\\&");
+      expect(message.get("MSH.3").exists("")).toBe(false);
+      expect(message.get("MSH.9.1").toString()).toBe("ADT");
+      expect(message.get("MSH.9.2").toString()).toBe("A01");
+      expect(message.get("MSH.9.3").toString()).toBe("ADT_A01");
+      expect(message.get("MSH.10").toString()).toBe(randomControlID);
+      expect(message.get("MSH.12").toString()).toBe("2.7");
+    });
+
+    test("...add onto the MSH header", async () => {
+      message.set("MSH.3", "SendingApp");
+      message.set("MSH.4", "SendingFacility");
+      message.set("MSH.5", "ReceivingApp");
+      message.set("MSH.6", "ReceivingFacility");
+
+      expect(message.get("MSH.3").toString()).toBe("SendingApp");
+      expect(message.get("MSH.4").toString()).toBe("SendingFacility");
+      expect(message.get("MSH.5").toString()).toBe("ReceivingApp");
+      expect(message.get("MSH.6").toString()).toBe("ReceivingFacility");
+    });
+
+    test("...MSH.3.1 can be gotten with MSH.3", async () => {
+      message.set("MSH.3.1", "SendingApp");
+      expect(message.get("MSH.3").toString()).toBe("SendingApp");
+    });
+
+    test("...MSH.3 can be gotten with MSH.3.1", async () => {
+      message.set("MSH.3", "SendingApp");
+      expect(message.get("MSH.3.1").toString()).toBe("SendingApp");
+    });
+  });
+
+  describe("builder message - all versions", () => {
+    const useThisDate = new Date();
+    describe("2.1", async () => {
+      let message_HL7_2_1: HL7_2_1, baseResult_HL7_2_1: string;
+
+      beforeEach(async () => {
+        // create new Hl7 2.1
+        message_HL7_2_1 = new HL7_2_1();
+
+        // build the MSH Header
+        message_HL7_2_1.buildMSH({
+          msh_7: useThisDate,
+          msh_9: "ACK",
+          msh_10: "12345",
+          msh_11: "T",
+        });
+
+        // this is the base result
+        baseResult_HL7_2_1 = `MSH|^~\\&|||||${createHL7Date(useThisDate)}||ACK|12345|T|2.1`;
+      });
+      test("... basic", async () => {
+        // build MSH Header
+        expect(message_HL7_2_1.toString()).toBe(baseResult_HL7_2_1);
+      });
+
+      test("... add Event (EVN)", async () => {
+        message_HL7_2_1.buildEVN({
+          evn_1: "A01",
+          evn_2: useThisDate,
+        });
+        expect(message_HL7_2_1.toString()).toBe(
+          baseResult_HL7_2_1 + `\rEVN|A01|${createHL7Date(useThisDate)}||`,
+        );
+      });
+
+      test("... add Financial Transaction (FT1)", async () => {
+        message_HL7_2_1.buildFT1({
+          ft1_4: useThisDate,
+          ft1_6: "ADD",
+          ft1_7: "HELLO",
+        });
+        expect(message_HL7_2_1.toString()).toBe(
+          baseResult_HL7_2_1 +
+            `\rFT1||||${createHL7Date(useThisDate, "8")}||ADD|HELLO|||||||||||||||`,
+        );
+      });
+
+      test("... add System Clock (NCK)", async () => {
+        message_HL7_2_1.buildNCK();
+        const result = message_HL7_2_1.toString();
+        expect(result).toContain(baseResult_HL7_2_1);
+        expect(result).toMatch(/\rNCK\|\d{14,19}/);
+      });
+    });
+
+    describe("2.2", async () => {
+      let builder: HL7_2_2;
+      const useThisDate = new Date();
+
+      beforeEach(async () => {
+        builder = new HL7_2_2();
+      });
+
+      test("... basic", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11: "T",
+        });
+        const result = builder.toString();
+        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(`|ADT^A01|CONTROL_ID|T|2.2`);
+      });
+
+      test("... optional - sending/receiving app and facility", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ORM",
+          msh_9_2: "O01",
+          msh_10: "MSG001",
+          msh_11: "P",
+          msh_3: "SENDAPP",
+          msh_4: "SENDFAC",
+          msh_5: "RECVAPP",
+          msh_6: "RECVFAC",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|SENDAPP|SENDFAC|RECVAPP|RECVFAC|");
+        expect(result).toContain("|ORM^O01|MSG001|P|2.2");
+      });
+
+      test("... checkMSH - passes for valid input", async () => {
+        expect(
+          builder.checkMSH({
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_10: "MSG001",
+            msh_11: "P",
+          }),
+        ).toBe(true);
+      });
+
+      test("... checkMSH - throws if msh_9_1 is not 3 chars", async () => {
+        expect(() =>
+          builder.checkMSH({ msh_9_1: "ADTY", msh_9_2: "A01" }),
+        ).toThrow("MSH.9.1 must be 3 characters in length.");
+      });
+
+      test("... checkMSH - throws if msh_9_2 is not 3 chars", async () => {
+        expect(() =>
+          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01Y" }),
+        ).toThrow("MSH.9.2 must be 3 characters in length.");
+      });
+
+      test("... checkMSH - throws if msh_10 exceeds 20 chars", async () => {
+        expect(() =>
+          builder.checkMSH({
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_10: "A".repeat(21),
+          }),
+        ).toThrow("MSH.10 must be greater than 0 and less than 20 characters.");
+      });
+
+      test("... buildMSH - throws if msh_11 is missing (required)", async () => {
+        expect(() =>
+          builder.buildMSH({
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_10: "MSG001",
+          }),
+        ).toThrow();
+      });
+    });
+
+    describe("2.3", async () => {
+      let builder: HL7_2_3;
+      const useThisDate = new Date();
+
+      beforeEach(async () => {
+        builder = new HL7_2_3();
+      });
+
+      test("... basic", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "T",
+        });
+        const result = builder.toString();
+        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(`|ADT^A01|CONTROL_ID|T|2.3`);
+      });
+
+      test("... optional - msh_11_2 processing mode", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+          msh_11_2: "I",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|P^I|2.3");
+      });
+
+      test("... optional - msh_15 and msh_16 ack types", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+          msh_15: "AL",
+          msh_16: "NE",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|AL|NE|");
+        expect(result).toContain("|2.3");
+      });
+
+      test("... checkMSH - passes for valid input", async () => {
+        expect(
+          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "T" }),
+        ).toBe(true);
+      });
+
+      test("... checkMSH - throws if msh_11_1 is more than 1 char", async () => {
+        expect(() =>
+          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "PT" }),
+        ).toThrow("MSH.11.1 has to be 1 character long.");
+      });
+
+      test("... checkMSH - throws if msh_11_2 is empty string", async () => {
+        expect(() =>
+          builder.checkMSH({
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_11_1: "T",
+            msh_11_2: "",
+          }),
+        ).toThrow(
+          "MSH.11.2 can either be undefined/blank and 1 character long.",
+        );
+      });
+
+      test("... checkMSH - debug mode (D) is valid", async () => {
+        expect(
+          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "D" }),
+        ).toBe(true);
+      });
+    });
+
+    describe("2.3.1", async () => {
+      let builder: HL7_2_3_1;
+      const useThisDate = new Date();
+
+      beforeEach(async () => {
+        builder = new HL7_2_3_1();
+      });
+
+      test("... basic", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+        });
+        const result = builder.toString();
+        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(`|ADT^A01|CONTROL_ID|P|2.3.1`);
+      });
+
+      test("... optional - msh_19 principal language", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+          msh_19: "ENG",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|ENG");
+        expect(result).toContain("|2.3.1");
+      });
+
+      test("... checkMSH - passes for valid input", async () => {
+        expect(
+          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "P" }),
+        ).toBe(true);
+      });
+    });
+
+    describe("2.4", async () => {
+      let builder: HL7_2_4;
+      const useThisDate = new Date();
+
+      beforeEach(async () => {
+        builder = new HL7_2_4();
+      });
+
+      test("... basic - msh_9_3 auto-generated", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "T",
+        });
+        const result = builder.toString();
+        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(`|ADT^A01^ADT_A01|CONTROL_ID|T|2.4`);
+      });
+
+      test("... optional - explicit msh_9_3", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_9_3: "ADT_A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|ADT^A01^ADT_A01|");
+      });
+
+      test("... optional - msh_11_2 T (added in 2.4)", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+          msh_11_2: "T",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|P^T|2.4");
+      });
+
+      test("... checkMSH - passes for valid input with msh_9_3", async () => {
+        expect(
+          builder.checkMSH({
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_9_3: "ADT_A01",
+            msh_11_1: "T",
+          }),
+        ).toBe(true);
+      });
+
+      test("... checkMSH - throws if msh_9_3 is less than 3 chars", async () => {
+        expect(() =>
+          builder.checkMSH({
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_9_3: "AD",
+            msh_11_1: "T",
+          }),
+        ).toThrow("MSH.9.3 must be 3 to 10 characters in length if specified.");
+      });
+
+      test("... checkMSH - throws if msh_9_3 is more than 10 chars", async () => {
+        expect(() =>
+          builder.checkMSH({
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_9_3: "ADT_A01_ABCDE",
+            msh_11_1: "T",
+          }),
+        ).toThrow("MSH.9.3 must be 3 to 10 characters in length if specified.");
+      });
+    });
+
+    describe("2.5", async () => {
+      let builder: HL7_2_5;
+      const useThisDate = new Date();
+
+      beforeEach(async () => {
+        builder = new HL7_2_5();
+      });
+
+      test("... basic", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "T",
+        });
+        const result = builder.toString();
+        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(`|ADT^A01^ADT_A01|CONTROL_ID|T|2.5`);
+      });
+
+      test("... optional - sending application and facility", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ORU",
+          msh_9_2: "R01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+          msh_3: "LABSYS",
+          msh_4: "LABFAC",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|LABSYS|LABFAC|");
+        expect(result).toContain("|ORU^R01^ORU_R01|CONTROL_ID|P|2.5");
+      });
+
+      test("... checkMSH - passes for valid input", async () => {
+        expect(
+          builder.checkMSH({ msh_9_1: "ORU", msh_9_2: "R01", msh_11_1: "P" }),
+        ).toBe(true);
+      });
+    });
+
+    describe("2.5.1", async () => {
+      let builder: HL7_2_5_1;
+      const useThisDate = new Date();
+
+      beforeEach(async () => {
+        builder = new HL7_2_5_1();
+      });
+
+      test("... basic", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A04",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+        });
+        const result = builder.toString();
+        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(`|ADT^A04^ADT_A04|CONTROL_ID|P|2.5.1`);
+      });
+
+      test("... optional - sending application and facility", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A04",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+          msh_3: "EMISYS",
+          msh_4: "EMIFAC",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|EMISYS|EMIFAC|");
+        expect(result).toContain("|2.5.1");
+      });
+
+      test("... checkMSH - passes for valid input", async () => {
+        expect(
+          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A04", msh_11_1: "P" }),
+        ).toBe(true);
+      });
+    });
+
+    describe("2.6", async () => {
+      let builder: HL7_2_6;
+      const useThisDate = new Date();
+
+      beforeEach(async () => {
+        builder = new HL7_2_6();
+      });
+
+      test("... basic", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "D",
+        });
+        const result = builder.toString();
+        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(`|ADT^A01^ADT_A01|CONTROL_ID|D|2.6`);
+      });
+
+      test("... optional - sending and receiving application", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+          msh_3: "SRCSYS",
+          msh_5: "TGTSYS",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|SRCSYS||TGTSYS|");
+        expect(result).toContain("|2.6");
+      });
+
+      test("... checkMSH - passes for valid input", async () => {
+        expect(
+          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "D" }),
+        ).toBe(true);
+      });
+    });
+
+    describe("2.7", async () => {
+      let builder: HL7_2_7;
+      const useThisDate = new Date();
+
+      beforeEach(async () => {
+        builder = new HL7_2_7();
+      });
+
+      test("... basic", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+        });
+        const result = builder.toString();
+        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(`|ADT^A01^ADT_A01|CONTROL_ID|P|2.7`);
+      });
+
+      test("... optional - sending application (up to 227 chars in 2.7)", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+          msh_3: "LABSYSTEM",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|LABSYSTEM||||");
+        expect(result).toContain("|2.7");
+      });
+
+      test("... optional - msh_11_2 processing mode I (archive)", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+          msh_11_2: "A",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|P^A|2.7");
+      });
+
+      test("... checkMSH - passes for valid input", async () => {
+        expect(
+          builder.checkMSH({
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_9_3: "ADT_A01",
+            msh_11_1: "P",
+          }),
+        ).toBe(true);
+      });
+
+      test("... checkMSH - throws if msh_10 exceeds 199 chars (2.7 limit)", async () => {
+        expect(() =>
+          builder.checkMSH({
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_11_1: "P",
+            msh_10: "A".repeat(200),
+          }),
+        ).toThrow(
+          "MSH.10 must be greater than 0 and less than 199 characters.",
+        );
+      });
+    });
+
+    describe("2.7.1", async () => {
+      let builder: HL7_2_7_1;
+      const useThisDate = new Date();
+
+      beforeEach(async () => {
+        builder = new HL7_2_7_1();
+      });
+
+      test("... basic", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ORM",
+          msh_9_2: "O01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+        });
+        const result = builder.toString();
+        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(`|ORM^O01^ORM_O01|CONTROL_ID|P|2.7.1`);
+      });
+
+      test("... optional - msh_11_2 R (restore)", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ORM",
+          msh_9_2: "O01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+          msh_11_2: "R",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|P^R|2.7.1");
+      });
+
+      test("... checkMSH - passes for valid input", async () => {
+        expect(
+          builder.checkMSH({ msh_9_1: "ORM", msh_9_2: "O01", msh_11_1: "P" }),
+        ).toBe(true);
+      });
+    });
+
+    describe("2.8", async () => {
+      let builder: HL7_2_8;
+      const useThisDate = new Date();
+
+      beforeEach(async () => {
+        builder = new HL7_2_8();
+      });
+
+      test("... basic", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+        });
+        const result = builder.toString();
+        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(`|ADT^A01^ADT_A01|CONTROL_ID|P|2.8`);
+      });
+
+      test("... optional - msh_9_3 explicit structure", async () => {
+        builder.buildMSH({
+          msh_7: useThisDate,
+          msh_9_1: "ORU",
+          msh_9_2: "R01",
+          msh_9_3: "ORU_R01",
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+        });
+        const result = builder.toString();
+        expect(result).toContain("|ORU^R01^ORU_R01|");
+        expect(result).toContain("|2.8");
+      });
+
+      test("... checkMSH - passes for valid input", async () => {
+        expect(
+          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "P" }),
+        ).toBe(true);
+      });
+
+      test("... checkMSH - throws if msh_9_1 wrong length", async () => {
+        expect(() =>
+          builder.checkMSH({ msh_9_1: "ADTY", msh_9_2: "A01", msh_11_1: "P" }),
+        ).toThrow("MSH.9.1 must be 3 characters in length.");
+      });
+
+      test("... checkMSH - throws if msh_10 exceeds 199 chars (inherits 2.7 limit)", async () => {
+        expect(() =>
+          builder.checkMSH({
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            msh_11_1: "P",
+            msh_10: "A".repeat(200),
+          }),
+        ).toThrow(
+          "MSH.10 must be greater than 0 and less than 199 characters.",
+        );
+      });
+    });
+  });
+
+  describe("complex builder message", () => {
+    let message: Message;
+
+    beforeEach(async () => {
+      message = new Message({
+        messageHeader: {
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
+          msh_10: "12345",
+          msh_11_1: "D",
+        },
+      });
+      message.set("MSH.7", "20081231");
+    });
+
+    test("...real basic", async () => {
+      expect(message.toString()).toBe(
+        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7",
+      );
+    });
+
+    test("...should accept a number as a value", async () => {
+      message.set("EVN.2", 1);
+      expect(message.toString()).toContain("EVN||1");
+    });
+
+    test("...should accept a Date without time as a value", () => {
+      message.set("PV1.1", new Date(2012, 9, 31));
+      expect(message.toString()).toContain("PV1|20121031");
+    });
+
+    test("...should accept a Date with time as a value", () => {
+      message.set("PV1.1", new Date(2012, 9, 31, 22, 51, 13));
+      expect(message.toString()).toContain("PV1|20121031225113");
+    });
+
+    test("...should accept a float as a value", () => {
+      message.set("PV1.1", 1.2);
+      expect(message.toString()).toContain("PV1|1.2");
+    });
+
+    test("...should accept a boolean as a value", () => {
+      message.set("PV1.1", true);
+      expect(message.toString()).toContain("PV1|Y");
+      message.set("PV1.1", false);
+      expect(message.toString()).toContain("PV1|N");
+    });
+
+    test("...should set the specified field", () => {
+      message.set("PID.4", "1273462894723");
+      expect(message.toString()).toContain("PID||||1273462894723");
+    });
+
+    test("...should be able to set more than one field on the same segment", () => {
+      message.set("PID.4", "1273462894723");
+      message.set("PID.10", "TEST");
+      expect(message.toString()).toContain("PID||||1273462894723||||||TEST");
+    });
+
+    test("...should set the specified component", () => {
+      message.set("PV1.7.2", "Jones");
+      expect(message.toString()).toContain("PV1|||||||^Jones");
+    });
+
+    test("...should be able to set more that one component on the same field", () => {
+      message.set("PV1.7.2", "Jones");
+      message.set("PV1.7.3", "John");
+      expect(message.toString()).toContain("PV1|||||||^Jones^John");
+    });
+
+    test("...should be able to set repeating fields", async () => {
+      message.set("PID.3").set(0).set("PID.3.1", "abc");
+      message.set("PID.3").set(0).set("PID.3.5", "MRN");
+      message.set("PID.3").set(1).set("PID.3.1", 123);
+      message.set("PID.3").set(1).set("PID.3.5", "ID");
+      expect(message.toString()).toContain("PID|||abc^^^^MRN~123^^^^ID");
+    });
+
+    test("...can chain component setters", async () => {
+      message
+        .set("PV1.7")
+        .set(0)
+        .set("PV1.7.2", "Jones")
+        .set("PV1.7.3", "John");
+      message.set("PV1.7").set(1).set("PV1.7.2", "Smith").set("PV1.7.3", "Bob");
+      expect(message.toString()).toContain("PV1|||||||^Jones^John~^Smith^Bob");
+    });
+
+    test("...can chain component setters with numeric indexers", async () => {
+      message.set("PV1.7").set(0).set(1, "Jones").set(2, "John");
+      message.set("PV1.7").set(1).set(1, "Smith").set(2, "Bob");
+      expect(message.toString()).toContain("PV1|||||||^Jones^John~^Smith^Bob");
+    });
+
+    test("...can set field component by number", async () => {
+      message.set("PV1.7").set(0).set(1, "Jones").set(2, "John");
+      expect(message.toString()).toContain("PV1|||||||^Jones^John");
+    });
+
+    test("...can set field component by number and array", async () => {
+      message
+        .set("PV1.7")
+        .set(0, ["", "Jones", "John"])
+        .set(1, ["", "Smith", "Bob"]);
+      expect(message.toString()).toContain("PV1|||||||^Jones^John~^Smith^Bob");
+    });
+
+    test("... add segment EVN field - using full path", async () => {
+      const segment = message.addSegment("EVN");
+      segment.set("EVN.2.1", "20081231");
+      expect(message.toString()).toBe(
+        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231",
+      );
+    });
+
+    test("...add segment EVN field - using number path", async () => {
+      const segment = message.addSegment("EVN");
+      segment.set("2.1", "20081231");
+      expect(message.toString()).toBe(
+        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231",
+      );
+    });
+
+    test("...add segment EVN field - using simple number path", async () => {
+      const segment = message.addSegment("EVN");
+      segment.set("2", "20081231");
+      expect(message.toString()).toBe(
+        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231",
+      );
+    });
+
+    test("...add segment EVN field - using simple number", async () => {
+      const segment = message.addSegment("EVN");
+      segment.set(2, "20081231");
+      expect(message.toString()).toBe(
+        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7\rEVN||20081231",
+      );
+    });
+  });
+
+  describe("basic batch basics", () => {
+    let batch: Batch;
+
+    beforeEach(async () => {
+      batch = new Batch();
+      batch.start();
+    });
+
+    test("...initial build", async () => {
+      batch.end();
+      expect(batch.toString()).toContain("BHS|^~\\&");
+      expect(batch.toString()).toContain("BTS|0");
+    });
+
+    test("...verify BHS header is correct", async () => {
+      batch.set("BHS.7", "20081231");
+      batch.end();
+      expect(batch.get("BHS.7").toString()).toBe("20081231");
+      expect(batch.toString()).toBe("BHS|^~\\&|||||20081231\rBTS|0");
+    });
+
+    test("...add onto the BHS header", async () => {
+      batch.set("BHS.7", "20081231");
+      batch.set("BHS.3", "SendingApp");
+      batch.set("BHS.4", "SendingFacility");
+      batch.set("BHS.5", "ReceivingApp");
+      batch.set("BHS.6", "ReceivingFacility");
+      batch.end();
+
+      expect(batch.get("BHS.3").toString()).toBe("SendingApp");
+      expect(batch.get("BHS.4").toString()).toBe("SendingFacility");
+      expect(batch.get("BHS.5").toString()).toBe("ReceivingApp");
+      expect(batch.get("BHS.6").toString()).toBe("ReceivingFacility");
+      expect(batch.toString()).toBe(
+        "BHS|^~\\&|SendingApp|SendingFacility|ReceivingApp|ReceivingFacility|20081231\rBTS|0",
+      );
+    });
+  });
+
+  describe("complex builder batch", () => {
+    let batch: Batch;
+    let message: Message;
+    const date = createHL7Date(new Date(), "8");
+
+    beforeEach(async () => {
+      batch = new Batch();
+      batch.start();
+      batch.set("BHS.7", date);
+    });
+
+    test("...add single message to batch", async () => {
+      message = new Message({
+        messageHeader: {
+          ...MSH_HEADER,
+          msh_10: "CONTROL_ID",
+        },
+      });
+      message.set("MSH.7", date);
+
+      batch.add(message);
+      batch.end();
+      expect(batch.toString()).toBe(
+        [
+          `BHS|^~\\&|||||${date}`,
+          `MSH|^~\\&|||||${date}||ADT^A01^ADT_A01|CONTROL_ID|D|2.7`,
+          "BTS|1",
+        ].join("\r"),
+      );
+    });
+
+    test("...add 10 message to batch", async () => {
+      message = new Message({
+        messageHeader: {
+          ...MSH_HEADER,
+          msh_10: "CONTROL_ID",
+        },
+      });
+      message.set("MSH.7", date);
+
+      for (let i = 0; i < 10; i++) {
+        batch.add(message);
+      }
+      batch.end();
+      expect(batch.toString()).toContain("BTS|10");
+    });
+
+    test("...add message to batch with additional segments in message", async () => {
+      message = new Message({
+        messageHeader: {
+          ...MSH_HEADER,
+          msh_10: "CONTROL_ID",
+        },
+      });
+      message.set("MSH.7", "20231208");
+
+      const segment = message.addSegment("EVN");
+      segment.set(2, "20081231");
+
+      batch.add(message);
+      batch.end();
+      expect(batch.toString()).toBe(
+        `BHS|^~\\&|||||${date}\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID|D|2.7\rEVN||20081231\rBTS|1`,
+      );
+    });
+
+    test("...add message to batch with 2x additional segments in message", async () => {
+      message = new Message({
+        messageHeader: {
+          ...MSH_HEADER,
+          msh_10: "CONTROL_ID",
+        },
+      });
+      message.set("MSH.7", "20231208");
+
+      let segment = message.addSegment("EVN");
+      segment.set(2, "20081231");
+
+      segment = message.addSegment("EVN");
+      segment.set(2, "20081231");
+
+      batch.add(message);
+      batch.end();
+      expect(batch.toString()).toBe(
+        `BHS|^~\\&|||||${date}\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID|D|2.7\rEVN||20081231\rEVN||20081231\rBTS|1`,
+      );
+    });
+  });
+
+  describe("basic file basics", () => {
+    let file: FileBatch;
+
+    beforeEach(async () => {
+      file = new FileBatch();
+      file.start();
+      file.set("FHS.7", "20081231");
+    });
+
+    test("...initial build", async () => {
+      let message: Message;
+
+      message = new Message({
+        messageHeader: {
+          ...MSH_HEADER,
+          msh_10: "CONTROL_ID",
+        },
+      });
+      message.set("MSH.7", "20081231");
+
+      // add this message to the file
+      file.add(message);
+
+      // end making a file batch
+      file.end();
+
+      // unit checking
+      expect(file.toString()).toBe(
+        [
+          "FHS|^~\\&|||||20081231",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID|D|2.7",
+          "FTS|1",
+        ].join("\r"),
+      );
+    });
+
+    test("...add 10 message", async () => {
+      let message: Message;
+
+      for (let i = 0; i < 10; i++) {
+        message = new Message({
+          messageHeader: {
+            ...MSH_HEADER,
+            msh_10: `CONTROL_ID${i + 1}`,
+          },
+        });
+        message.set("MSH.7", "20081231");
+
+        // add this message to the file
+        file.add(message);
+      }
+
+      // end making a file batch
+      file.end();
+
+      // unit checking
+      expect(file.toString()).toBe(
+        [
+          "FHS|^~\\&|||||20081231",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID1|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID2|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID3|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID4|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID5|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID6|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID7|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID8|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID9|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID10|D|2.7",
+          "FTS|10",
+        ].join("\r"),
+      );
+    });
+
+    test("...add single a batch", async () => {
+      // basic batch
+      const batch = new Batch();
+      batch.start();
+      batch.set("BHS.7", "20081231");
+      batch.end();
+
+      // add this message to the file
+      file.add(batch);
+
+      // end making a file batch for output
+      file.end();
+
+      // unit checking
+      expect(file.toString()).toBe(
+        [
+          "FHS|^~\\&|||||20081231",
+          "BHS|^~\\&|||||20081231",
+          "BTS|0",
+          "FTS|1",
+        ].join("\r"),
+      );
+    });
+
+    test("...add single a batch with a single message", async () => {
+      const batch = new Batch();
+      batch.start();
+      batch.set("BHS.7", "20081231");
+
+      const message = new Message({
+        messageHeader: {
+          ...MSH_HEADER,
+          msh_10: "CONTROL_ID",
+        },
+      });
+      message.set("MSH.7", "20081231");
+
+      // add message to the batch
+      batch.add(message);
+
+      // batch ended
+      batch.end();
+
+      // add this message to the file
+      file.add(batch);
+
+      // end making a file batch
+      file.end();
+
+      // unit checking
+      expect(file.toString()).toBe(
+        [
+          "FHS|^~\\&|||||20081231",
+          "BHS|^~\\&|||||20081231",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID|D|2.7",
+          "BTS|1",
+          "FTS|1",
+        ].join("\r"),
+      );
+    });
+
+    test("...add single a batch with a single message, if add a message to the file, it should add it to the batch", async () => {
+      const batch = new Batch();
+      batch.start();
+      batch.set("BHS.7", "20081231");
+
+      let message = new Message({
+        messageHeader: {
+          ...MSH_HEADER,
+          msh_10: "CONTROL_ID1",
+        },
+      });
+      message.set("MSH.7", "20081231");
+
+      // add message to the batch
+      batch.add(message);
+
+      // batch ended
+      batch.end();
+
+      // add this message to the file
+      file.add(batch);
+
+      // create a new message
+      message = new Message({
+        messageHeader: {
+          ...MSH_HEADER,
+          msh_10: "CONTROL_ID2",
+        },
+      });
+      message.set("MSH.7", "20081231");
+
+      // add this message to the file, but it will get added to the batch segment since there is a batch segment,
+      // and you can't add a msh outside the BHS if it exists already
+      file.add(message);
+
+      message = new Message({
+        messageHeader: {
+          ...MSH_HEADER,
+          msh_10: "CONTROL_ID3",
+        },
+      });
+      message.set("MSH.7", "20081231");
+
+      // add this message to the file, but it will get added to the batch segment since there is a batch segment,
+      // and you can't add a msh outside the BHS if it exists already
+      file.add(message);
+
+      // end making a file batch
+      file.end();
+
+      // unit checking
+      expect(file.toString()).toBe(
+        [
+          "FHS|^~\\&|||||20081231",
+          "BHS|^~\\&|||||20081231",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID1|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID2|D|2.7",
+          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID3|D|2.7",
+          "BTS|3",
+          "FTS|1",
+        ].join("\r"),
+      );
+    });
+
+    test("...add 2 batch", async () => {
+      let batch = new Batch();
+      batch.start();
+      batch.set("BHS.7", "20081231");
+      batch.end();
+
+      // add this message to the file
+      file.add(batch);
+
+      batch = new Batch();
+      batch.start();
+      batch.set("BHS.7", "20081231");
+      batch.end();
+
+      file.add(batch);
+
+      // end making a file batch
+      file.end();
+
+      // unit checking
+      expect(file.toString()).toBe(
+        [
+          "FHS|^~\\&|||||20081231",
+          "BHS|^~\\&|||||20081231",
+          "BTS|0",
+          "BHS|^~\\&|||||20081231",
+          "BTS|0",
+          "FTS|2",
+        ].join("\r"),
+      );
+    });
+  });
+
+  describe("complex file generation", () => {
+    beforeAll(async () => {
+      fs.readdir("temp/", (err, files) => {
+        if (err != null) return;
+        for (const file of files) {
+          fs.unlink(path.join("temp/", file), (err) => {
+            if (err != null) throw err;
+          });
+        }
+      });
+
+      await sleep(5);
+    });
+
+    test("...create file", async () => {
+      const file = new FileBatch({ location: "temp/" });
+      file.start();
+      file.set("FHS.7", "20081231");
+      file.end();
+      file.createFile("HELLO");
+    });
+
+    test("...create file from message", async () => {
+      const message = new Message({
+        messageHeader: {
+          ...MSH_HEADER,
+          msh_10: "CONTROL_ID",
+        },
+      });
+      message.set("MSH.7", "20081231");
+      message.toFile("ADT", true, "temp/");
+    });
+
+    test("...create file from batch", async () => {
+      const batch = new Batch();
+      batch.start();
+      batch.set("BHS.7", "20081231");
+      batch.end();
+      batch.toFile("ADTs", true, "temp/");
+    });
+  });
+
+  describe("non standard tests", () => {
+    test("...returns true if specified path exists", () => {
+      const message = new Message({ text: "MSH|^~\\&|value\rPV1|" });
+      expect(message.exists("MSH.3")).toBe(true);
+      expect(message.exists("PV1")).toBe(true);
+    });
+
+    test("...returns false if specified path does not exists", () => {
+      const message = new Message({ text: "MSH|^~\\&|value" });
+      expect(message.exists("MSH.4")).toBe(false);
+      expect(message.exists("PV1")).toBe(false);
+    });
+
+    test("...should return EmptyNode for out-of-range indexes", () => {
+      const message = new Message({ text: "MSH|^~\\&|" });
+      expect(message.get(10)).toBeInstanceOf(EmptyNode);
+      expect(message.get("PV1").get(10)).toBeInstanceOf(EmptyNode);
+    });
+
+    test("...should resolve escape sequence for hex character sequence", () => {
+      const field = new Message({ text: "MSH|^~\\&|\\X0D\\" }).get("MSH.3");
+      expect(field.toString()).toBe("\r");
+    });
+
+    test("...should pass through invalid escape sequences", () => {
+      expect(
+        new Message({ text: "MSH|^~\\&|\\a\\" }).get("MSH.3").toString(),
+      ).toBe("\\a\\");
+    });
+
+    test("...count 2x EVN segments as nodes", async () => {
+      const message = new Message({
+        messageHeader: {
+          ...MSH_HEADER,
+          msh_10: "CONTROL_ID",
+        },
+      });
+
+      let segment = message.addSegment("EVN");
+      segment.set(2, "20081231");
+
+      segment = message.addSegment("EVN");
+      segment.set(2, "20081231");
+
+      let count: number = 0;
+      message.get("EVN").forEach((segment: HL7Node): void => {
+        expect(segment.name).toBe("EVN");
+        count++;
+      });
+
+      expect(count).toBe(2);
+    });
+  });
+
+  describe("file tests", () => {
+    const hl7_string: string =
+      "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231";
+    const hl7_batch: string =
+      "BHS|^~\\&|||||20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1";
+
+    beforeAll(async () => {
+      fs.readdir("temp/", (err, files) => {
+        if (err != null) return;
+        for (const file of files) {
+          fs.unlink(path.join("temp/", file), (err) => {
+            if (err != null) throw err;
+          });
+        }
+      });
+
+      await sleep(2);
+
+      const message = new Message({ text: hl7_string });
+      message.toFile("readTestMSH", true, "temp/");
+
+      const batch = new Batch({ text: hl7_batch });
+      batch.toFile("readTestBHS", true, "temp/");
+
+      await sleep(2);
+    });
+
+    beforeEach(async () => {
+      await sleep(1);
+    });
+
+    test("...test parsing - file path", async () => {
+      const fileBatch_one = new FileBatch({
+        fullFilePath: path.join("temp/", "hl7.readTestMSH.20081231.hl7"),
+      });
+      expect(fileBatch_one._opt.text).toContain(hl7_string);
+
+      const fileBatch_two = new FileBatch({
+        fullFilePath: path.join("temp/", "hl7.readTestBHS.20231208.hl7"),
+      });
+      expect(fileBatch_two._opt.text).toContain(hl7_batch);
+    });
+
+    test("...test parsing - buffer", async () => {
+      const fileBatch_one = new FileBatch({
+        fileBuffer: fs.readFileSync(
+          path.join("temp/", "hl7.readTestMSH.20081231.hl7"),
+        ),
+      });
+      expect(fileBatch_one._opt.text).toContain(hl7_string);
+
+      const fileBatch_two = new FileBatch({
+        fileBuffer: fs.readFileSync(
+          path.join("temp/", "hl7.readTestBHS.20231208.hl7"),
+        ),
+      });
+      expect(fileBatch_two._opt.text).toContain(hl7_batch);
+    });
+
+    test("...get MSH", async () => {
+      const fileBatch = new FileBatch({
+        fullFilePath: path.join("temp/", "hl7.readTestMSH.20081231.hl7"),
+      });
+      expect(fileBatch._opt.text).toContain(hl7_string);
+
+      const messages = fileBatch.messages();
+      expect(messages.length).toBe(1);
+
+      messages.forEach((message: Message): void => {
+        let count: number = 0;
+        message.get("EVN").forEach((segment: HL7Node): void => {
+          expect(segment.name).toBe("EVN");
+          count++;
+        });
+        expect(count).toBe(1);
+      });
+    });
+
+    test("...get MSH in a BHS", async () => {
+      const fileBatch = new FileBatch({
+        fullFilePath: path.join("temp/", "hl7.readTestBHS.20231208.hl7"),
+      });
+      expect(fileBatch._opt.text).toContain(hl7_batch);
+
+      const messages = fileBatch.messages();
+      expect(messages.length).toBe(1);
+
+      messages.forEach((message: Message): void => {
+        let count: number = 0;
+        message.get("EVN").forEach((segment: HL7Node): void => {
+          expect(segment.name).toBe("EVN");
+          count++;
+        });
+        expect(count).toBe(2);
+      });
+    });
+  });
+});

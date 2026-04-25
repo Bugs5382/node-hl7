@@ -51,10 +51,9 @@ export function normalizedClientMessageParserOptions(
     props.date = "14";
   }
 
-  // if (props.text === "") {
-  //   props.text = `MSH${props.separatorField as string}${props.separatorComponent as string}${props.separatorRepetition as string}${props.separatorEscape as string}${props.separatorSubComponent as string}`;
-  // } else
-  if (typeof props.text !== "undefined" && props.text !== "") {
+  if (props.text === "" && typeof props.messageHeader !== "undefined") {
+    props.text = `MSH${props.separatorField as string}${props.separatorComponent as string}${props.separatorRepetition as string}${props.separatorEscape as string}${props.separatorSubComponent as string}`;
+  } else if (typeof props.text !== "undefined" && props.text !== "") {
     const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8));
     // check to make sure that we set the correct properties
     props.newLine = props.text.includes("\r") ? "\r" : "\n";

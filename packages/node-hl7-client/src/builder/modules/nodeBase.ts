@@ -22,7 +22,7 @@ export class NodeBase extends EventEmitter implements HL7Node {
   private _delimiterText: string;
   private _children: HL7Node[];
   private _message: Message | Batch | undefined;
-  private _path: string[];
+  private _path: string[] | undefined;
   private _dirty: boolean;
 
   constructor(
@@ -38,7 +38,6 @@ export class NodeBase extends EventEmitter implements HL7Node {
     this._delimiterText = "";
     this._dirty = false;
     this._name = "";
-    this._path = [];
     this._text = text;
   }
 

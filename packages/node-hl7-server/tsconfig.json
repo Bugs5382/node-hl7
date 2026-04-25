@@ -1,21 +1,10 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "declaration": true,
-    "declarationMap": true,
-    "moduleResolution": "Bundler",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
     "paths": {
-      "@/*": ["./src/*"]
-    },
-    "types": ["node"]
+      "@/*": ["./src/*"],
+      "node-hl7-client": ["../node-hl7-client/src/index.ts"],
+    }
   },
-  "include": ["src", "__tests__"]
+  "include": ["src", "../../__tests__/server"]
 }

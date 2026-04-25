@@ -1,0 +1,7 @@
+export const TABLE_0119 = [
+  "AF", "CA", "CH", "CN", "CR", "DC", "DE", "DF", "DR", "FU", "HD",
+  "HR", "LI", "MC", "NA", "NW", "OC", "OD", "OE", "OF", "OH", "OK",
+  "OP", "OR", "PA", "PR", "PY", "RE", "RL", "RO", "RP", "RQ", "RR",
+  "RU", "SC", "SN", "SS", "UA", "UC", "UD", "UF", "UH", "UM", "UN",
+  "UR", "UX", "XO", "XR", "XX",
+];

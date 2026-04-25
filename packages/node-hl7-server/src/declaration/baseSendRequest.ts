@@ -1,5 +1,4 @@
 import { ISendRequest } from "@/declaration/ISendRequest";
-import { MLLPCodec } from "@/utils/codec";
 import {
   MSA_1_VALUES_v2_1,
   MSA_1_VALUES_v2_x,
@@ -8,7 +7,7 @@ import {
 import { HL7ServerError } from "@/utils/exception";
 import { ListenerOptions } from "@/utils/normalize";
 import { Socket } from "net";
-import { Message } from "node-hl7-client";
+import { Message, MLLPCodec } from "node-hl7-client";
 import EventEmitter from "node:events";
 
 /**

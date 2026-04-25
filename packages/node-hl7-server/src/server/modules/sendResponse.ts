@@ -48,7 +48,7 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
    * "AE" (Application Error) will be automatically sent if there is a problem creating either an "AA" or "AR"
    * message from the original message sent because the original message structure sent wrong in the first place.
    *
-   * If the specification of the Hl7 message you get from the client is 2.1, the value sent back can be  "AA", "AR", "AE".
+   * If the specification of the Hl7 message you get from the client is 2.1, the value sent back can be "AA", "AR", "AE".
    * Anything above 2.1 and greater fields are valid "AA", "AR", "AE", "CA", "CR", and "CE".
    * If a CE is sent back with 2.1, the system will send an error in which
    * the server will have failed to respond properly back to the client.

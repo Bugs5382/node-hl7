@@ -1,7 +1,6 @@
-import { MLLPCodec } from "@/utils/codec";
 import { validMSA1 } from "@/utils/constants";
 import { Socket } from "net";
-import { Message } from "node-hl7-client";
+import { Message, MLLPCodec } from "node-hl7-client";
 
 /**
  *

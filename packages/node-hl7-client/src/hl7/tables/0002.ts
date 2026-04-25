@@ -1,0 +1,1 @@
+export const TABLE_0002 = ["A", "B", "C", "D", "G", "M", "N", "O", "P", "R", "S", "T", "U", "W"];
