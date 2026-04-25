@@ -193,7 +193,7 @@ export class Inbound extends EventEmitter implements IInbound {
       socket.cork();
 
       try {
-        this._dataResult = this._codec?.receiveData(buffer as Buffer);
+        this._dataResult = this._codec?.receiveData(buffer);
       } catch (err) {
         this.emit("data.error", err);
       }

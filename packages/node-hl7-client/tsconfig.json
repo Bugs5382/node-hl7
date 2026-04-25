@@ -4,6 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
+      "node-hl7-client/src": ["src/index.ts"],
+      "node-hl7-client/src/*": ["src/*"],
       "node-hl7-server": ["../node-hl7-server/src/index.ts"],
     }
   },

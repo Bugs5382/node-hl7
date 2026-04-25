@@ -1,4 +1,4 @@
-import { Message } from "../../builder/message";
+import { Message } from "../builder/message";
 
 /**
  * Inbound Request

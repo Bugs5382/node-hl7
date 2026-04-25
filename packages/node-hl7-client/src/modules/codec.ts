@@ -70,8 +70,10 @@ export class MLLPCodec {
    * @since 3.1.0
    * @param data
    */
-  public receiveData(data: Buffer): boolean {
-    this.dataBuffer = Buffer.concat([this.dataBuffer, data]);
+  public receiveData(data: Buffer | string): boolean {
+    const buf =
+      typeof data === "string" ? Buffer.from(data, this._encoding) : data;
+    this.dataBuffer = Buffer.concat([this.dataBuffer, buf]);
 
     // only go into this code see that the last part of the dataBuffer contains the end and footer protocol
     if (this.dataBuffer.includes(0x1c) && this.dataBuffer.includes(0x0d)) {

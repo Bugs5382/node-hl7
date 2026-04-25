@@ -46,7 +46,7 @@ describe("node hl7 client - sanity tests", () => {
     test("error - Message Object - msh 9.1 is empty ", async () => {
       try {
         new Message({
-          // @ts-expect-error 9.1 should be not empty
+          // @ts-expect-error msh 9.1 is empty
           messageHeader: {
             msh_9_1: "",
           },
@@ -59,7 +59,9 @@ describe("node hl7 client - sanity tests", () => {
     test("error - Message Object - msh 9.2 is empty ", async () => {
       try {
         new Message({
-          // @ts-expect-error 9.2 should be not empty
+          /**
+           * @ts-expect-error 9.2 should be not empty
+           */
           messageHeader: {
             msh_9_1: "ADT",
             msh_9_2: "",
@@ -75,7 +77,9 @@ describe("node hl7 client - sanity tests", () => {
     test("error - Message Object - msh 9.1 is not 3 character long ", async () => {
       try {
         new Message({
-          // @ts-expect-error not filling this out for unit testing
+          /**
+           * @ts-expect-error not filling this out for unit testing
+           */
           messageHeader: {
             msh_9_1: "ADTY",
             msh_9_2: "A01",
@@ -92,7 +96,9 @@ describe("node hl7 client - sanity tests", () => {
     test("error - Message Object - msh 9.2 is not 3 character long ", async () => {
       try {
         new Message({
-          // @ts-expect-error not filling this out for unit testing
+          /**
+           * @ts-expect-error not filling this out for unit testing
+           */
           messageHeader: {
             msh_9_1: "ADT",
             msh_9_2: "A01Y",
@@ -109,7 +115,9 @@ describe("node hl7 client - sanity tests", () => {
     test("error - Message Object - msh 9.3 less than 3.", async () => {
       try {
         new Message({
-          // @ts-expect-error not filling this out for unit testing
+          /**
+           * @ts-expect-error not filling this out for unit testing
+           */
           messageHeader: {
             msh_9_1: "ADT",
             msh_9_2: "A01",
@@ -129,7 +137,9 @@ describe("node hl7 client - sanity tests", () => {
     test("error - Message Object - msh 9.3 more than 10.", async () => {
       try {
         new Message({
-          // @ts-expect-error not filling this out for unit testing
+          /**
+           * @ts-expect-error not filling this out for unit testing
+           */
           messageHeader: {
             msh_9_1: "ADT",
             msh_9_2: "A01",
@@ -149,7 +159,9 @@ describe("node hl7 client - sanity tests", () => {
     test("error - Message Object - msh 10 is more than 199 characters ", async () => {
       try {
         new Message({
-          // @ts-expect-error not filling this out for unit testing
+          /**
+           * @ts-expect-error not filling this out for unit testing
+           */
           messageHeader: {
             msh_9_1: "ADT",
             msh_9_2: "A01",
@@ -169,7 +181,9 @@ describe("node hl7 client - sanity tests", () => {
     test("error - Message Object - msh 10 can not be blank", async () => {
       try {
         new Message({
-          // @ts-expect-error not filling this out for unit testing
+          /**
+           * @ts-expect-error not filling this out for unit testing
+           */
           messageHeader: {
             msh_9_1: "ADT",
             msh_9_2: "A01",
@@ -358,6 +372,31 @@ describe("node hl7 client - sanity tests", () => {
         });
         expect(count).toBe(1);
       });
+    });
+
+    test("...segment name mid-field is not treated as a segment boundary", async () => {
+      // EVN.1 contains "MSH|fake" — old regex would falsely match this as a second MSH segment
+      const message = new Message({
+        text: "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN|MSH|fake|20081231",
+      });
+
+      expect(message.get("EVN.1").toString()).toBe("MSH");
+      expect(message.get("EVN.2").toString()).toBe("fake");
+      expect(message.get("EVN.3").toString()).toBe("20081231");
+
+      let evnCount = 0;
+      message.get("EVN").forEach(() => evnCount++);
+      expect(evnCount).toBe(1);
+    });
+
+    test("...fileBuffer with LF line endings is normalized to CR, not literal backslash-r", async () => {
+      const lf_content =
+        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\nEVN||20081231";
+      const fileBatch = new FileBatch({ fileBuffer: Buffer.from(lf_content) });
+
+      const raw = fileBatch.toString();
+      expect(raw).not.toContain("\\r");
+      expect(raw).toContain("\r");
     });
   });
 });

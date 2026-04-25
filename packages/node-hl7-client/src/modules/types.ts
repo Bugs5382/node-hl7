@@ -1,4 +1,4 @@
-import { InboundResponse } from "@/client/module/inboundResponse";
+import { InboundResponse } from "@/client/inboundResponse";
 import { MSH } from "@/hl7/headers";
 import { TcpSocketConnectOpts } from "node:net";
 import type { ConnectionOptions as TLSOptions } from "tls";

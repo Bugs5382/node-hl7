@@ -1,7 +1,7 @@
 import { Delimiters } from "@/declaration/enum";
 import { HL7FatalError } from "@/helpers/exception";
 import { isHL7Number, isHL7String } from "@/utils/is";
-import { HL7Node } from "../interface/hL7Node";
+import { HL7Node } from "@/builder/interface/hL7Node";
 import { Field } from "./field";
 import { NodeBase } from "./nodeBase";
 import { SubComponent } from "./subComponent";

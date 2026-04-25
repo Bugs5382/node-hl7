@@ -79,7 +79,7 @@ export class BaseSendResponse extends EventEmitter implements ISendRequest {
    * @param _type
    * @param _encoding
    */
-  async sendResponse(_type: validMSA1, _encoding: BufferEncoding) {
+  async sendResponse(_type: validMSA1, _encoding: BufferEncoding = "utf-8") {
     throw new Error("Method not implemented.");
   }
 

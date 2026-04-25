@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 describe("node hl7 server", () => {
   describe("sanity tests - modules", () => {
     test("InboundRequest - message undefined", async () => {
-      // @ts-expect-error
+      // @ts-expect-error message is not defined
       const empty = new InboundRequest(undefined, { type: "file" });
       try {
         empty.getMessage();
@@ -16,7 +16,7 @@ describe("node hl7 server", () => {
     });
 
     test("InboundRequest - type check", async () => {
-      // @ts-expect-error
+      // @ts-expect-error type check
       const req = new InboundRequest("", { type: "file" });
       expect(req.getType()).toBe("file");
     });
@@ -110,7 +110,7 @@ describe("node hl7 server", () => {
     test("error - port not a number", async () => {
       try {
         const server = new Server();
-        // @ts-expect-error port is not specified
+        // @ts-expect-error port is not a number
         server.createInbound({ port: "12345" }, async () => {});
       } catch (err: any) {
         expect(err.message).toBe("port is not a valid number.");

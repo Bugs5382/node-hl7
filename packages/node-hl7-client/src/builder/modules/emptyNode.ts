@@ -1,4 +1,4 @@
-import { HL7Node } from "../interface/hL7Node";
+import { HL7Node } from "@/builder/interface/hL7Node";
 
 /**
  * Empty Node

@@ -8,7 +8,7 @@ import { Segment } from "./builder/modules/segment";
 import { SegmentList } from "./builder/modules/segmentList";
 import { Client } from "./client/client";
 import { Connection, IConnection } from "./client/connection";
-import { InboundResponse } from "./client/module/inboundResponse";
+import { InboundResponse } from "./client/inboundResponse";
 import { Delimiters, ReadyState } from "./declaration/enum";
 import {
   FallBackHandler,

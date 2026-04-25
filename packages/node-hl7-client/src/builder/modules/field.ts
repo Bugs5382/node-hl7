@@ -1,5 +1,5 @@
 import { Delimiters } from "@/declaration/enum";
-import { HL7Node } from "../interface/hL7Node";
+import { HL7Node } from "@/builder/interface/hL7Node";
 import { FieldRepetition } from "./fieldRepetition";
 import { NodeBase } from "./nodeBase";
 import { ValueNode } from "./valueNode";

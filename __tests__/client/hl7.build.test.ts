@@ -33,7 +33,9 @@ describe("node hl7 client - builder tests", () => {
 
     beforeEach(async () => {
       message = new Message({
-        // @ts-expect-error not filling this out for unit testing
+        /**
+         * @ts-expect-error not filling this out for unit testing
+         */
         messageHeader: {
           msh_9_1: "ADT",
           msh_9_2: "A01",
@@ -334,7 +336,12 @@ describe("node hl7 client - builder tests", () => {
 
       test("... checkMSH - throws if msh_11_1 is more than 1 char", async () => {
         expect(() =>
-          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "PT" }),
+          builder.checkMSH({
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+            // @ts-expect-error msh_11_1 has to be 1 character long
+            msh_11_1: "PT",
+          }),
         ).toThrow("MSH.11.1 has to be 1 character long.");
       });
 
@@ -441,6 +448,7 @@ describe("node hl7 client - builder tests", () => {
           msh_9_2: "A01",
           msh_10: "CONTROL_ID",
           msh_11_1: "P",
+          // @ts-expect-error msh_11_2 has to be "T"
           msh_11_2: "T",
         });
         const result = builder.toString();

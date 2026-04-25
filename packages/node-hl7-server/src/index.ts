@@ -1,7 +1,7 @@
 import { Server } from "./server/server";
 
 export default Server;
-export { MLLPCodec } from "node-hl7-client";
+export { InboundResponse, MLLPCodec } from "node-hl7-client";
 export { Inbound } from "./server/inbound";
 export type { InboundHandler } from "./server/inbound";
 export { InboundRequest } from "./server/modules/inboundRequest";

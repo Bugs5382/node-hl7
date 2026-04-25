@@ -13,6 +13,7 @@
     "format:check:local": "prettier --check 'pages/**/*.md' '__tests__/**/*.ts'",
     "format:write:local": "prettier --write 'pages/**/*.md' '__tests__/**/*.ts'",
     "lint": "npm run lint --workspaces --if-present",
+    "lint:local": "npm run lint",
     "test": "vitest run",
     "test:coverage": "vitest --coverage",
     "test:verbose": "vitest run --reporter verbose",

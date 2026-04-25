@@ -9,11 +9,11 @@ import { isHL7Number } from "@/utils/is";
 import { randomString } from "@/utils/randomString";
 import { split } from "@/utils/spilt";
 import { FileBatch } from "./fileBatch";
-import { HL7Node } from "./interface/hL7Node";
+import { HL7Node } from "@/builder/interface/hL7Node";
 import { NodeBase } from "./modules/nodeBase";
 import { RootBase } from "./modules/rootBase";
 import { Segment } from "./modules/segment";
-import { SegmentList } from "./modules/segmentList";
+import { SegmentList } from "@/builder/modules/segmentList";
 
 /**
  * Message Class
@@ -48,7 +48,7 @@ export class Message extends RootBase {
     this._opt = opt;
 
     if (typeof opt.text !== "undefined" && opt.text !== "") {
-      const totalMsh = split(opt.text).filter((line) => line.startsWith("MSH"));
+      const totalMsh = split(opt.text).filter((line: string) => line.startsWith("MSH"));
       if (totalMsh.length !== 0 && totalMsh.length !== 1) {
         throw new HL7FatalError("Multiple MSH segments found. Use Batch.");
       }

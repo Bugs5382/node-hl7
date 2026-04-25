@@ -1,5 +1,5 @@
 import fs from "fs";
-import Client, { Batch, Message } from "node-hl7-client/src";
+import Client, { Batch, InboundResponse, Message } from "node-hl7-client/src";
 import Server, { HL7ServerError } from "node-hl7-server/src";
 import path from "node:path";
 import portfinder from "portfinder";
@@ -44,11 +44,14 @@ describe("node hl7 end to end - client", () => {
 
       const client = new Client({ host: "0.0.0.0" });
 
-      const outbound = client.createConnection({ port }, async (res) => {
-        const messageRes = res.getMessage();
-        expect(messageRes.get("MSA.1").toString()).toBe("AA");
-        dfd.resolve();
-      });
+      const outbound = client.createConnection(
+        { port },
+        async (res: InboundResponse) => {
+          const messageRes = res.getMessage();
+          expect(messageRes.get("MSA.1").toString()).toBe("AA");
+          dfd.resolve();
+        },
+      );
 
       await expectEvent(outbound, "connect");
 
@@ -82,11 +85,14 @@ describe("node hl7 end to end - client", () => {
 
       const client = new Client({ host: "0.0.0.0" });
 
-      const outbound = client.createConnection({ port }, async (res) => {
-        const messageRes = res.getMessage();
-        expect(messageRes.get("MSA.1").toString()).toBe("AR");
-        dfd.resolve();
-      });
+      const outbound = client.createConnection(
+        { port },
+        async (res: InboundResponse) => {
+          const messageRes = res.getMessage();
+          expect(messageRes.get("MSA.1").toString()).toBe("AR");
+          dfd.resolve();
+        },
+      );
 
       await expectEvent(outbound, "connect");
 
@@ -120,11 +126,14 @@ describe("node hl7 end to end - client", () => {
 
       const client = new Client({ host: "0.0.0.0" });
 
-      const outbound = client.createConnection({ port }, async (res) => {
-        const messageRes = res.getMessage();
-        expect(messageRes.get("MSA.1").toString()).toBe("AE");
-        dfd.resolve();
-      });
+      const outbound = client.createConnection(
+        { port },
+        async (res: InboundResponse) => {
+          const messageRes = res.getMessage();
+          expect(messageRes.get("MSA.1").toString()).toBe("AE");
+          dfd.resolve();
+        },
+      );
 
       await expectEvent(outbound, "connect");
 
@@ -158,11 +167,14 @@ describe("node hl7 end to end - client", () => {
 
       const client = new Client({ host: "0.0.0.0" });
 
-      const outbound = client.createConnection({ port }, async (res) => {
-        const messageRes = res.getMessage();
-        expect(messageRes.get("MSA.1").toString()).toBe("CA");
-        dfd.resolve();
-      });
+      const outbound = client.createConnection(
+        { port },
+        async (res: InboundResponse) => {
+          const messageRes = res.getMessage();
+          expect(messageRes.get("MSA.1").toString()).toBe("CA");
+          dfd.resolve();
+        },
+      );
 
       await expectEvent(outbound, "connect");
 
@@ -196,11 +208,14 @@ describe("node hl7 end to end - client", () => {
 
       const client = new Client({ host: "0.0.0.0" });
 
-      const outbound = client.createConnection({ port }, async (res) => {
-        const messageRes = res.getMessage();
-        expect(messageRes.get("MSA.1").toString()).toBe("CR");
-        dfd.resolve();
-      });
+      const outbound = client.createConnection(
+        { port },
+        async (res: InboundResponse) => {
+          const messageRes = res.getMessage();
+          expect(messageRes.get("MSA.1").toString()).toBe("CR");
+          dfd.resolve();
+        },
+      );
 
       await expectEvent(outbound, "connect");
 
@@ -234,11 +249,14 @@ describe("node hl7 end to end - client", () => {
 
       const client = new Client({ host: "0.0.0.0" });
 
-      const outbound = client.createConnection({ port }, async (res) => {
-        const messageRes = res.getMessage();
-        expect(messageRes.get("MSA.1").toString()).toBe("CE");
-        dfd.resolve();
-      });
+      const outbound = client.createConnection(
+        { port },
+        async (res: InboundResponse) => {
+          const messageRes = res.getMessage();
+          expect(messageRes.get("MSA.1").toString()).toBe("CE");
+          dfd.resolve();
+        },
+      );
 
       await expectEvent(outbound, "connect");
 
@@ -270,11 +288,14 @@ describe("node hl7 end to end - client", () => {
 
       const client = new Client({ host: "0.0.0.0" });
 
-      const outbound = client.createConnection({ port }, async (res) => {
-        const messageRes = res.getMessage();
-        expect(messageRes.get("MSA.1").toString()).toBe("AE");
-        dfd.resolve();
-      });
+      const outbound = client.createConnection(
+        { port },
+        async (res: InboundResponse) => {
+          const messageRes = res.getMessage();
+          expect(messageRes.get("MSA.1").toString()).toBe("AE");
+          dfd.resolve();
+        },
+      );
 
       await expectEvent(outbound, "connect");
 
@@ -305,7 +326,8 @@ describe("node hl7 end to end - client", () => {
           port,
           mshOverrides: {
             // override: set MSH.7 to timestamp of an original message + 1 ms
-            "7": (message) => `${Number(message.get("MSH.7").toString()) + 1}`,
+            "7": (message: Message) =>
+              `${Number(message.get("MSH.7").toString()) + 1}`,
             // override: set MSH.8 to "FOO" via callback
             "8": () => "FOO",
             // override: set MSH.9.3 to "ACK"
@@ -339,11 +361,14 @@ describe("node hl7 end to end - client", () => {
 
       const client = new Client({ host: "0.0.0.0" });
 
-      const outbound = client.createConnection({ port }, async (res) => {
-        const messageRes = res.getMessage();
-        expect(messageRes.get("MSA.1").toString()).toBe("AA");
-        dfd.resolve();
-      });
+      const outbound = client.createConnection(
+        { port },
+        async (res: InboundResponse) => {
+          const messageRes = res.getMessage();
+          expect(messageRes.get("MSA.1").toString()).toBe("AA");
+          dfd.resolve();
+        },
+      );
 
       await expectEvent(outbound, "connect");
 
@@ -435,11 +460,14 @@ describe("node hl7 end to end - client", () => {
         await expectEvent(inbound, "listen");
 
         const client = new Client({ host: "0.0.0.0" });
-        const outbound = client.createConnection({ port }, async (res) => {
-          const messageRes = res.getMessage();
-          expect(messageRes.get("MSA.1").toString()).toBe("AA");
-          dfd.resolve();
-        });
+        const outbound = client.createConnection(
+          { port },
+          async (res: InboundResponse) => {
+            const messageRes = res.getMessage();
+            expect(messageRes.get("MSA.1").toString()).toBe("AA");
+            dfd.resolve();
+          },
+        );
 
         const batch = new Batch();
         batch.start();
@@ -494,11 +522,14 @@ describe("node hl7 end to end - client", () => {
           host: "0.0.0.0",
           tls: { rejectUnauthorized: false },
         });
-        const outbound = client.createConnection({ port }, async (res) => {
-          const messageRes = res.getMessage();
-          expect(messageRes.get("MSA.1").toString()).toBe("AA");
-          dfd.resolve();
-        });
+        const outbound = client.createConnection(
+          { port },
+          async (res: InboundResponse) => {
+            const messageRes = res.getMessage();
+            expect(messageRes.get("MSA.1").toString()).toBe("AA");
+            dfd.resolve();
+          },
+        );
 
         await expectEvent(outbound, "connect");
 
@@ -533,11 +564,14 @@ describe("node hl7 end to end - client", () => {
 
       const client = new Client({ host: "0.0.0.0" });
 
-      const outbound = client.createConnection({ port }, async (res) => {
-        const messageRes = res.getMessage();
-        expect(messageRes.get("MSA.1").toString()).toBe("AA");
-        dfd.resolve();
-      });
+      const outbound = client.createConnection(
+        { port },
+        async (res: InboundResponse) => {
+          const messageRes = res.getMessage();
+          expect(messageRes.get("MSA.1").toString()).toBe("AA");
+          dfd.resolve();
+        },
+      );
 
       await expectEvent(outbound, "connect");
 

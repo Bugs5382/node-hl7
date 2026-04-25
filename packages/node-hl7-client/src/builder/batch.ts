@@ -4,11 +4,11 @@ import { ClientBuilderMessageOptions } from "@/modules/types";
 import { createHL7Date } from "@/utils/createHL7Date";
 import { split } from "@/utils/spilt";
 import { FileBatch } from "./fileBatch";
-import { HL7Node } from "./interface/hL7Node";
+import { HL7Node } from "@/builder/interface/hL7Node";
 import { Message } from "./message";
 import { RootBase } from "./modules/rootBase";
 import { Segment } from "./modules/segment";
-import { SegmentList } from "./modules/segmentList";
+import { SegmentList } from "@/builder/modules/segmentList";
 
 /**
  * Batch Class
@@ -37,7 +37,7 @@ export class Batch extends RootBase {
     this._messagesCount = 0;
 
     if (typeof opt.text !== "undefined" && opt.text !== "") {
-      this._lines = split(opt.text).filter((line) => line.startsWith("MSH"));
+      this._lines = split(opt.text).filter((line: string) => line.startsWith("MSH"));
     } else {
       this.set("BHS.7", createHL7Date(new Date(), this._opt.date));
     }

@@ -18,7 +18,7 @@ import tls from "node:tls";
 import { Batch, FileBatch, Message } from "../builder/index";
 import { isBatch, MessageItem } from "../index";
 import { Client } from "./client";
-import { InboundResponse } from "./module/inboundResponse";
+import { InboundResponse } from "./inboundResponse";
 
 export interface IConnection extends EventEmitter {
   /** The connection has been closed manually. You have to start the connection again. */
@@ -476,7 +476,7 @@ export class Connection extends EventEmitter implements IConnection {
       // reset retryCount count
       this._retryCount = 1;
       // flush queue
-      this._flushQueueFn((msg) => {
+      this._flushQueueFn((msg: MessageItem) => {
         void this.sendMessage(msg);
       }, this._handlePendingUpdate);
       // emit

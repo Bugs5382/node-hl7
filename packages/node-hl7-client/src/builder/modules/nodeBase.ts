@@ -4,7 +4,7 @@ import { padHL7Date } from "@/utils/createHL7Date";
 import { isHL7Number, isHL7String } from "@/utils/is";
 import EventEmitter from "events";
 import { Batch } from "../batch";
-import { HL7Node } from "../interface/hL7Node";
+import { HL7Node } from "@/builder/interface/hL7Node";
 import { Message } from "../message";
 import { EmptyNode } from "./emptyNode";
 

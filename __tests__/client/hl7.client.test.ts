@@ -30,7 +30,7 @@ describe("node hl7 client", () => {
     describe("errors", () => {
       test("error - hostname has to be string", async () => {
         try {
-          // @ts-expect-error this is not a string
+          // @ts-expect-error hostname has to be string
           new Client({ host: 351123 });
         } catch (err: any) {
           expect(err.message).toBe("hostname is not valid string.");
@@ -96,7 +96,7 @@ describe("node hl7 client", () => {
 
     test("error - no port specified", async () => {
       try {
-        // @ts-expect-error port is not specified
+        // @ts-expect-error no port specified
         client.createConnection();
       } catch (err: any) {
         expect(err.message).toBe("port is not defined.");

@@ -60,7 +60,7 @@ export interface ListenerOptions {
    * @default Randomized String */
   name?: string;
   /** The network address to listen on expediently.
-   * Must be set between 0 and 65353 */
+   * Must be set between 0 and 65,353 */
   port: number;
   /** If you need to override the response class sent to the client,
    * you need to extend the base BaseSendResponse class from
