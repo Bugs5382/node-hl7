@@ -48,6 +48,7 @@ export type {
   OutboundHandler,
 };
 
+export { assertNumber } from "@/utils/assertNumber";
 export { createHL7Date, padHL7Date } from "@/utils/createHL7Date";
 export { decodeHexString } from "@/utils/decodeHexString";
 export { escapeForRegExp } from "@/utils/escapeForRegExp";
