@@ -108,4 +108,4 @@ npx vitest run __tests__/server/hl7.issues.test.ts
 1. **MLLP is connection-oriented**, so the load balancer should distribute *connections*, not packets. Most TCP LBs do this by default.
 2. **Sticky sessions are good**. A sender often holds a single TCP connection for the whole shift; routing it to the same backend reduces handshake cost. AWS NLB and HAProxy both support this.
 
-For Kubernetes deployments, see the [client `pages/`](../../client/client/index.md#-scalability--message-reliability-in-kubernetes) for outbound-side scaling guidance.
+For Kubernetes deployments, see the dedicated [☸️ Kubernetes deployment guide](../kubernetes/index.md) — it covers horizontal listener pods, Redis / RabbitMQ workers, sticky sessions, sizing, and the TLS-termination tradeoff (LB vs. in-app). The [client-side k8s notes](../../client/client/index.md#-scalability--message-reliability-in-kubernetes) cover the symmetric pattern when *sending* HL7 from a pod.

@@ -11,13 +11,13 @@
     "hl7-specification",
     "hl7-validation"
   ],
-  "homepage": "https://github.com/Bugs5382/node-hl7-server#readme",
+  "homepage": "https://github.com/Bugs5382/node-hl7#readme",
   "bugs": {
-    "url": "https://github.com/Bugs5382/node-hl7-server/issues"
+    "url": "https://github.com/Bugs5382/node-hl7/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Bugs5382/node-hl7-server.git"
+    "url": "git+https://github.com/Bugs5382/node-hl7.git"
   },
   "license": "MIT",
   "author": "Shane Froebel",

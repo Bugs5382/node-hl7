@@ -1,17 +1,27 @@
-FROM node:20.11.0-alpine3.19
+# Minimal example image for running node-hl7-server in Kubernetes.
+# This is intentionally simple — production deployments should pin the
+# package version and consider a multi-stage build.
+FROM node:22-alpine
 
-# Set working directory in the image
-WORKDIR /home/node/app
+WORKDIR /app
 
-## Copy files over
-COPY docker/package.json .
-COPY docker/server.js .
-COPY docker/tls.server.js .
-COPY certs certs
+# Install only the runtime dependencies. `npm install --omit=dev` keeps
+# the image small.
+COPY docker/package.json docker/package-lock.json* ./
+RUN npm install --omit=dev
 
-## Run
-RUN npm install
-RUN npm i node-hl7-server
+# Copy the example servers.
+COPY docker/server.js ./
+COPY docker/tls.server.js ./
 
-## Expose
+# Run as the unprivileged `node` user that ships with the official image.
+USER node
+
+# Defaults; override at runtime.
+ENV NODE_ENV=production \
+    HL7_PORT=3000
+
+# Plain MLLP listener by default. The TLS variant lives at /app/tls.server.js
+# — point a Kubernetes Deployment's `command:` at it when you need TLS.
 EXPOSE 3000
+CMD ["node", "server.js"]

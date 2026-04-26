@@ -162,7 +162,7 @@ builder.buildMSA({
 
 `buildACC`, `buildBLG`, `buildDG1`, `buildDSC`, `buildEVN`, `buildFT1`, `buildGT1`, `buildIN1`, `buildMRG`, `buildNK1`, `buildNPU`, `buildNTE`, `buildOBR`, `buildORC`, `buildPR1`, `buildPV1`, `buildQRD`, `buildQRF`, `buildRX1`, `buildUB1`, `buildURD`, `buildURS`, `buildSFT`, `buildSPM`, … and more.
 
-> 📚 The complete list per version is in the typedoc API reference; every method links to the corresponding [Caristix HL7 reference](https://hl7-definition.caristix.com/v2/).
+> 📚 **Full segment reference:** see [`pages/client/segments/index.md`](../segments/index.md) for a complete compatibility matrix of every supported segment across HL7 v2.1 → v2.8, plus links to the canonical [Caristix](https://hl7-definition.caristix.com/v2/) field reference.
 
 ---
 

@@ -31,6 +31,7 @@ flowchart LR
 | [📬 Responses](responses/index.md) | Auto ACKs (`sendResponse`), MSH overrides, and **fully custom ACKs** (`sendCustomResponse`). |
 | [🔒 TLS & mTLS](tls/index.md) | Server‑auth and mutual‑auth setups, including the snippet hospitals usually want. |
 | [⚡ Performance](performance/index.md) | Throughput notes, scaling tips, and what `Inbound.stats` actually measures. |
+| [☸️ Kubernetes](kubernetes/index.md) | Horizontal listener + worker deployment, Redis / RabbitMQ wiring, TLS termination patterns. |
 
 ## 📚 Keyword definitions
 

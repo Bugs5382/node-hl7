@@ -1,23 +1,58 @@
-const { Server } = require('node-hl7-server')
+// Minimal node-hl7-server example, suitable for running in a container
+// or a Kubernetes pod. Acknowledges every well-formed HL7 message with AA.
+//
+// Environment variables:
+//   HL7_PORT      — TCP/MLLP listen port (default 3000)
+//   BIND_ADDRESS  — interface to bind to (default 0.0.0.0)
+//
+// Replace the handler with your own logic for production use — typically
+// you would push the parsed message onto a Redis or RabbitMQ queue and ACK
+// fast. See pages/server/kubernetes/index.md.
 
-const server = new Server({ bindAddress: '0.0.0.0' })
+const { Server } = require("node-hl7-server");
 
-const inbound = server.createInbound({ port: 3000 }, async (req, res) => {
-  await res.sendResponse('AA')
-})
+const PORT = Number(process.env.HL7_PORT || 3000);
+const BIND = process.env.BIND_ADDRESS || "0.0.0.0";
 
-inbound.on('client.close', () => {
-  console.log('Client Disconnected')
-})
+const log = (level, message, extra = {}) => {
+  console.log(JSON.stringify({ level, time: new Date().toISOString(), message, ...extra }));
+};
 
-inbound.on('client.connect', () => {
-  console.log('Client Connected')
-})
+const server = new Server({ bindAddress: BIND });
 
-inbound.on('data.raw', (data) => {
-  console.log('Raw Data:', data)
-})
+const inbound = server.createInbound({ port: PORT, name: "hl7-listener" }, async (req, res) => {
+  const msg = req.getMessage();
+  log("info", "received", {
+    controlId: msg.get("MSH.10").toString(),
+    type: msg.get("MSH.9").toString(),
+    from: req.getSocket().remoteAddress,
+  });
+  await res.sendResponse("AA");
+});
 
-inbound.on('listen', () => {
-  console.log('Ready to Listen for Messages')
-})
+inbound.on("listen",        () => log("info",  "listening", { port: PORT, bind: BIND }));
+inbound.on("client.connect", (s) => log("info",  "client.connect", { from: s.remoteAddress }));
+inbound.on("client.close",   (hadError) => log("info", "client.close", { hadError }));
+inbound.on("client.error",   (err) => log("warn", "client.error", { err: String(err) }));
+inbound.on("data.error",     (err) => log("warn", "data.error",   { err: String(err) }));
+inbound.on("response.sent",  () => log("debug", "response.sent"));
+
+// Graceful shutdown — Kubernetes sends SIGTERM before SIGKILL. Drain
+// in-flight ACKs so we don't drop messages mid-flight.
+let shuttingDown = false;
+const shutdown = async (signal) => {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  log("info", "shutdown.start", { signal });
+  try {
+    await inbound.close();
+    log("info", "shutdown.complete");
+    process.exit(0);
+  } catch (err) {
+    log("error", "shutdown.failed", { err: String(err) });
+    process.exit(1);
+  }
+};
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT",  () => shutdown("SIGINT"));

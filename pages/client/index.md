@@ -52,6 +52,7 @@ flowchart LR
 | Section | Purpose |
 |---|---|
 | [🧱 Builder](builder/index.md) | Construct standardized HL7 messages with the new class‑based `HL7_2_x` builders. |
+| [🧬 Segment reference](segments/index.md) | Full compatibility matrix of every supported segment across HL7 v2.1 → v2.8. |
 | [🔌 Client](client/index.md) | Connect to a remote HL7 server, send messages, handle ACKs, customize the queue. |
 | [🔍 Parser](parser/index.md) | Turn raw HL7 strings (single message, batch, or file) back into `Message` objects. |
 | [🏥 Server docs](../server/index.md) | If you also need to **receive** HL7, jump to the server pages. |

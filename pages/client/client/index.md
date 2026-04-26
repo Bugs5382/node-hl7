@@ -16,7 +16,10 @@ Let's walk through how to get started using this library's `Client`.
 
 1. [Introduction](#introduction)
 2. [Basic Usage](#basic-usage)
-3. [Running in Kubernetes](#running-in-kubernetes)
+3. [TLS](#-tls)
+4. [Mutual TLS (mTLS)](#-mutual-tls-mtls)
+5. [Saved Messages](#saved-messages)
+6. [Running in Kubernetes](#running-in-kubernetes)
 
 ## Basic Usage
 
@@ -68,6 +71,81 @@ To permanently close a connection without attempting to reconnect:
 ```ts
 await OB_ADT.close();
 ```
+
+## 🔒 TLS
+
+If the remote HL7 server expects TLS, set `tls` on the `Client` constructor. Two forms are accepted:
+
+**Shorthand** — use Node's default trust store (works for certs chained to public CAs):
+
+```ts
+const client = new Client({ host: "hl7.example.com", tls: true });
+```
+
+**Full options** — anything from Node's [`tls.ConnectionOptions`](https://nodejs.org/api/tls.html#tlsconnectoptions-callback). Use this when the server uses a private/self‑signed CA or you need to tune `servername`, `minVersion`, etc.:
+
+```ts
+import fs from "node:fs";
+import path from "node:path";
+import Client from "node-hl7-client";
+
+const client = new Client({
+  host: "hl7.example.local",
+  tls: {
+    // ✅ Always validate the server certificate in production.
+    rejectUnauthorized: true,
+    // 🪪 Trust this CA for the server cert.
+    ca: fs.readFileSync(path.join("certs", "server-ca-crt.pem")),
+  },
+});
+```
+
+> 🚨 **`rejectUnauthorized: false`** disables cert validation entirely and is meant only for local development. Anything that talks to a real hospital network should set it to `true` and provide a `ca` if needed.
+
+## 🛡️ Mutual TLS (mTLS)
+
+When the remote server demands a **client certificate** (the typical hospital integration pattern), provide your own `key` and `cert` alongside the trusted CA:
+
+```ts
+import fs from "node:fs";
+import path from "node:path";
+import Client from "node-hl7-client";
+
+const client = new Client({
+  host: "hl7.example.local",
+  tls: {
+    // 🔑 The client's own identity (this is the cert the server validates).
+    key: fs.readFileSync(path.join("certs", "client-key.pem")),
+    cert: fs.readFileSync(path.join("certs", "client-crt.pem")),
+
+    // 🪪 CA(s) you trust to issue the server's certificate.
+    ca: fs.readFileSync(path.join("certs", "server-ca-crt.pem")),
+
+    // ✅ Drop the connection if any cert in the chain fails to validate.
+    rejectUnauthorized: true,
+
+    // (Optional) SNI / expected server hostname; defaults to `host`.
+    // servername: "hl7.example.local",
+
+    // (Optional) Passphrase for an encrypted private key.
+    // passphrase: process.env.CLIENT_KEY_PASSPHRASE,
+  },
+});
+
+const OB_ADT = client.createConnection({ port: 6661 }, async (res) => {
+  console.log("✅", res.getMessage().get("MSA.1").toString());
+});
+```
+
+| Field | Purpose |
+|---|---|
+| `key` + `cert` | Your client identity. The server checks these against its `ca` allow-list. |
+| `ca` | Trusted issuer(s) for the **server**'s certificate. |
+| `rejectUnauthorized` | `true` in production, always. Drops the connection on cert validation failure. |
+| `servername` | SNI / expected server hostname when it differs from `host`. |
+| `passphrase` | Decrypts the private key when it was generated with a passphrase. |
+
+> 🤝 The matching server-side mTLS configuration is documented in the [server's TLS pages](../../server/tls/index.md). The two ends MUST agree on which CA(s) issue valid certs in each direction.
 
 ## Saved Messages
 

@@ -1,38 +1,93 @@
+# TLS / mTLS listener — Pattern B from pages/server/kubernetes/index.md.
+# The Node app itself terminates TLS, so the LoadBalancer must pass raw
+# bytes through (no TLS annotation on the Service).
+#
+# Create the cert secret first:
+#   kubectl -n hl7-server create secret generic hl7-tls \
+#     --from-file=tls.key=server-key.pem \
+#     --from-file=tls.crt=server-crt.pem \
+#     --from-file=ca.crt=trusted-client-ca.pem
+#
+# Then apply:
+#   kubectl apply -f docker/yaml/tls.server.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hl7-server
+---
 apiVersion: v1
 kind: Service
 metadata:
   name: tls-hl7-server
   namespace: hl7-server
+  labels:
+    app: tls-hl7-server
 spec:
-  ports:
-    - name: 6001-tcp
-      port: 6001
-      protocol: TCP
-      targetPort: 3000
+  type: LoadBalancer
   selector:
     app: tls-hl7-server
-  type: LoadBalancer
+  ports:
+    - name: hl7-mllp-tls
+      port: 6001
+      targetPort: hl7-mllp
+      protocol: TCP
+  sessionAffinity: ClientIP
+  externalTrafficPolicy: Local
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tls-hl7-server
   namespace: hl7-server
+  labels:
+    app: tls-hl7-server
 spec:
+  replicas: 2
   selector:
     matchLabels:
       app: tls-hl7-server
-  replicas: 1
   template:
     metadata:
       labels:
         app: tls-hl7-server
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
         - name: tls-hl7-server
+          image: docker-node-hl7-server:latest
+          imagePullPolicy: IfNotPresent
           command: ["npm"]
           args: ["run", "server:tls"]
-          image: docker-node-hl7-server:latest
+          env:
+            - { name: NODE_ENV,    value: "production" }
+            - { name: HL7_PORT,    value: "3000" }
+            - { name: BIND_ADDRESS, value: "0.0.0.0" }
+            - { name: TLS_KEY,     value: "/etc/hl7/tls/tls.key" }
+            - { name: TLS_CERT,    value: "/etc/hl7/tls/tls.crt" }
+            # Set TLS_CA + TLS_REQUEST_CLIENT_CERT to enable mTLS.
+            # Comment them out for plain server-auth TLS.
+            - { name: TLS_CA,                  value: "/etc/hl7/tls/ca.crt" }
+            - { name: TLS_REQUEST_CLIENT_CERT, value: "true" }
           ports:
-            - containerPort: 3000
-          imagePullPolicy: IfNotPresent
+            - { name: hl7-mllp, containerPort: 3000, protocol: TCP }
+          volumeMounts:
+            - name: hl7-tls
+              mountPath: /etc/hl7/tls
+              readOnly: true
+          readinessProbe:
+            tcpSocket: { port: hl7-mllp }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket: { port: hl7-mllp }
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "1000m", memory: "512Mi" }
+      volumes:
+        - name: hl7-tls
+          secret:
+            secretName: hl7-tls
+            defaultMode: 0400

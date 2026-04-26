@@ -399,14 +399,60 @@ IB_ADT.on("data.error",     (err) => console.error("💥 parse error", err));
 
 ## 🐳 Docker
 
-The repo ships with a `Dockerfile` that runs `docker/server.js` — a minimal listener that responds `AA` to every well‑formed message.
+The repo ships with a minimal `Dockerfile` (Node 22 alpine, runs as the unprivileged `node` user, no certs baked in) and two example servers:
+
+| File | Purpose |
+|---|---|
+| `docker/server.js` | Plain MLLP listener — responds `AA` to every well‑formed message, with JSON logging and graceful shutdown on `SIGTERM`. |
+| `docker/tls.server.js` | TLS / mTLS listener — reads cert paths from `TLS_KEY` / `TLS_CERT` / `TLS_CA` env vars (mount as a Kubernetes Secret). |
 
 ```bash
+# Build
 npm run docker:build
+
+# Run plain MLLP locally
 docker run --rm -p 3000:3000 docker-node-hl7-server:latest
+
+# Run with TLS / mTLS — mount certs and point env vars at them
+docker run --rm -p 3000:3000 \
+  -v "$PWD/certs:/etc/hl7/tls:ro" \
+  -e TLS_KEY=/etc/hl7/tls/server-key.pem \
+  -e TLS_CERT=/etc/hl7/tls/server-crt.pem \
+  -e TLS_CA=/etc/hl7/tls/server-ca-crt.pem \
+  -e TLS_REQUEST_CLIENT_CERT=true \
+  --entrypoint node docker-node-hl7-server:latest tls.server.js
 ```
 
-Edit `docker/server.js` (or the TLS variant `docker/tls.server.js`) to drop in your own handler before building.
+The image accepts these environment variables:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `HL7_PORT` | `3000` | TCP/MLLP listen port |
+| `BIND_ADDRESS` | `0.0.0.0` | Interface to bind to |
+| `TLS_KEY` / `TLS_CERT` | — | (TLS variant) PEM paths for the server identity |
+| `TLS_CA` | — | (TLS variant) trusted CA bundle; presence enables mTLS |
+| `TLS_REQUEST_CLIENT_CERT` | `false` | (TLS variant) demand a client certificate |
+
+### Kubernetes
+
+Ready-to-apply manifests are in `docker/yaml/`:
+
+```bash
+# Plain MLLP — Pattern A (TLS terminated at the LB / Service, optional)
+kubectl apply -f docker/yaml/server.yaml
+
+# TLS / mTLS — Pattern B (Node terminates TLS itself).
+# Mount certs as a Secret first:
+kubectl -n hl7-server create secret generic hl7-tls \
+  --from-file=tls.key=server-key.pem \
+  --from-file=tls.crt=server-crt.pem \
+  --from-file=ca.crt=trusted-client-ca.pem
+kubectl apply -f docker/yaml/tls.server.yaml
+```
+
+Both manifests use `tcpSocket` probes, `sessionAffinity: ClientIP` so a sender's TCP connection sticks to one pod, `externalTrafficPolicy: Local` to preserve the source IP, and `terminationGracePeriodSeconds: 30` so in-flight ACKs drain before the pod dies.
+
+> 📚 The full architecture deep-dive (horizontal scaling, Redis / RabbitMQ workers, sizing) lives at [`pages/server/kubernetes/index.md`](../../pages/server/kubernetes/index.md).
 
 ---
 
@@ -421,6 +467,7 @@ This NPM package supports medical applications with potential impact on patient 
 ## 🔗 See Also
 
 - 📖 [Detailed pages docs](../../pages) — server & client deep‑dives, builder/parser walkthroughs, flow diagrams.
+- ☸️ [Kubernetes deployment guide](../../pages/server/kubernetes/index.md) — horizontal listener + worker setup, Redis / RabbitMQ wiring, TLS termination patterns.
 - 🧱 [`node-hl7-client`](https://www.npmjs.com/package/node-hl7-client) — the sister package for sending messages and building Message / Batch / FileBatch objects.
 - 🌐 [GitHub Pages site](https://bugs5382.github.io/node-hl7-server/) — typedoc API reference.
 - 🩺 [HL7 v2 specification](https://www.hl7.org/implement/standards/index.cfm?ref=nav) — the canonical reference for everything segment- and field-related.

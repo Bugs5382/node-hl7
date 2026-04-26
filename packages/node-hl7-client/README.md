@@ -30,12 +30,14 @@ npm install node-hl7-client
 2. [Building a Message (the new class‑based builder)](#-building-a-message-the-new-class-based-builder)
 3. [Building Batches & Files](#-building-batches--files)
 4. [Sending a Message](#-sending-a-message)
-5. [Parsing Replies](#-parsing-replies)
-6. [Custom Queues (Redis, etc.)](#-custom-queues-redis-etc)
-7. [Architecture](#-architecture)
-8. [Detailed Docs](#-detailed-docs)
-9. [Keyword Definitions](#-keyword-definitions)
-10. [License](#-license)
+5. [TLS](#-tls)
+6. [Mutual TLS (mTLS)](#-mutual-tls-mtls)
+7. [Parsing Replies](#-parsing-replies)
+8. [Custom Queues (Redis, etc.)](#-custom-queues-redis-etc)
+9. [Architecture](#-architecture)
+10. [Detailed Docs](#-detailed-docs)
+11. [Keyword Definitions](#-keyword-definitions)
+12. [License](#-license)
 
 ---
 
@@ -256,7 +258,6 @@ import Client from "node-hl7-client";
 
 const client = new Client({
   host: "127.0.0.1",
-  // tls: { rejectUnauthorized: false }, // TLS option also available
 });
 
 const OB_ADT = client.createConnection(
@@ -276,6 +277,88 @@ await OB_ADT.close();
 ```
 
 The connection is persistent; you can send many messages over a single TCP/MLLP socket.
+
+---
+
+## 🔒 TLS
+
+Pass `tls: true` to use the system trust store, or a `tls` object for full [`tls.ConnectionOptions`](https://nodejs.org/api/tls.html#tlsconnectoptions-callback) control:
+
+```ts
+import fs from "node:fs";
+import path from "node:path";
+import Client from "node-hl7-client";
+
+const client = new Client({
+  host: "hl7.example.local",
+  tls: {
+    // ✅ Validate the server's certificate (production default).
+    rejectUnauthorized: true,
+    // 🪪 Self-signed / in-house CA? Provide it explicitly.
+    ca: fs.readFileSync(path.join("certs", "server-ca-crt.pem")),
+  },
+});
+
+const OB_ADT = client.createConnection({ port: 6661 }, async (res) => {
+  console.log("✅", res.getMessage().get("MSA.1").toString());
+});
+
+await OB_ADT.sendMessage(message);
+```
+
+> 🚨 Set `rejectUnauthorized: true` in production. The `false` form skips cert validation entirely — fine for local dev, dangerous on the open network.
+
+The shorthand `tls: true` is also accepted when the server uses a cert chained to a public CA already in Node's trust store:
+
+```ts
+const client = new Client({ host: "hl7.example.com", tls: true });
+```
+
+---
+
+## 🛡️ Mutual TLS (mTLS)
+
+Many hospital networks require **client-certificate authentication**. Provide your own `key` + `cert` so the server can validate *you* in addition to validating the server cert:
+
+```ts
+import fs from "node:fs";
+import path from "node:path";
+import Client from "node-hl7-client";
+
+const client = new Client({
+  host: "hl7.example.local",
+  tls: {
+    // 🔑 The client's identity — what the remote server validates.
+    key: fs.readFileSync(path.join("certs", "client-key.pem")),
+    cert: fs.readFileSync(path.join("certs", "client-crt.pem")),
+
+    // 🪪 The CA(s) you trust to issue the server's certificate.
+    ca: fs.readFileSync(path.join("certs", "server-ca-crt.pem")),
+
+    // ✅ Always validate the server cert.
+    rejectUnauthorized: true,
+
+    // (Optional) Pin the server's expected hostname when it differs from `host`.
+    // servername: "hl7.example.local",
+  },
+});
+
+const OB_ADT = client.createConnection({ port: 6661 }, async (res) => {
+  console.log("✅", res.getMessage().get("MSA.1").toString());
+});
+
+await OB_ADT.sendMessage(message);
+```
+
+| Option | What it does |
+|---|---|
+| `key` + `cert` | Your client identity. The server validates these against its trusted CAs. |
+| `ca` | The trusted issuer(s) for the **server**'s certificate. |
+| `rejectUnauthorized` | If `true`, the connection drops on any cert validation error. Always `true` in production. |
+| `servername` | SNI / expected server hostname. Defaults to `host`; override only if the cert CN differs. |
+| `passphrase` | Passphrase for an encrypted private key. |
+
+> 💡 The matching server-side configuration lives in [`node-hl7-server`](https://www.npmjs.com/package/node-hl7-server) — see its [TLS / mTLS docs](../node-hl7-server/README.md#-mutual-tls-mtls).
 
 ---
 
