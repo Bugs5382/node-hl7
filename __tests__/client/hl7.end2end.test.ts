@@ -285,10 +285,14 @@ describe("node hl7 end to end - client", () => {
         await expectEvent(inbound, "listen");
 
         const client = new Client({ host: "0.0.0.0" });
+        // Resolve only after both ACKs arrive so the totalAck() assertion below
+        // is not racing the second ACK.
+        let acksReceived = 0;
         const outbound = client.createConnection({ port }, async (res) => {
           const messageRes = res.getMessage();
           expect(messageRes.get("MSA.1").toString()).toBe("AA");
-          dfd.resolve();
+          acksReceived++;
+          if (acksReceived === 2) dfd.resolve();
         });
 
         const batch = new Batch();

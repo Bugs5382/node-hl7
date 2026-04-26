@@ -83,6 +83,40 @@ export class BaseSendResponse extends EventEmitter implements ISendRequest {
     throw new Error("Method not implemented.");
   }
 
+  /**
+   * Send a fully customized acknowledgment back to the client.
+   * @remarks Use this when the auto-generated ACK from {@link sendResponse} does
+   * not match the format the receiving system expects (custom MSH/MSA fields,
+   * extra segments, vendor-specific layouts, etc.). The provided message is
+   * sent verbatim through the MLLP codec — no validation, swapping of
+   * sender/receiver, or MSH overrides are applied.
+   *
+   * @since 4.0.0
+   * @param message The fully formed HL7 ACK to send. Accepts either a
+   *   {@link Message} instance or a raw HL7 string.
+   * @param encoding Encoding to use when writing to the socket.
+   * @example
+   * ```ts
+   * server.createInbound({ port }, async (req, res) => {
+   *   const ack = new Message({
+   *     text: `MSH|^~\\&|MY_APP|MY_FAC|...|...|${createHL7Date(new Date())}||ACK|123|P|2.5\rMSA|AA|${req.getMessage().get("MSH.10").toString()}|All good|`,
+   *   });
+   *   await res.sendCustomResponse(ack);
+   * });
+   * ```
+   */
+  async sendCustomResponse(
+    message: Message | string,
+    encoding: BufferEncoding = "utf-8",
+  ): Promise<void> {
+    const ackMessage =
+      typeof message === "string" ? new Message({ text: message }) : message;
+
+    this._ack = ackMessage;
+    this._codec.sendMessage(this._socket, ackMessage.toString(), encoding);
+    this.emit("response.sent");
+  }
+
   /** @internal */
   protected _validateMSA1(spec: string, type: validMSA1): void {
     switch (spec) {

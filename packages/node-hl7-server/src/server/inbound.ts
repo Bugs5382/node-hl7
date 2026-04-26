@@ -11,8 +11,8 @@ import {
   isFile,
 } from "node-hl7-client";
 import tls from "tls";
-import { InboundRequest } from "./modules/inboundRequest";
-import { SendResponse } from "./modules/sendResponse";
+import { InboundRequest } from "./inboundRequest";
+import { SendResponse } from "./sendResponse";
 import { Server } from "./server";
 
 /**
@@ -67,8 +67,6 @@ export class Inbound extends EventEmitter implements IInbound {
     totalMessage: 0,
   };
   /** @internal */
-  private _dataResult: boolean | undefined;
-  /** @internal */
   private readonly _handler: (
     req: InboundRequest,
     res: SendResponse | BaseSendResponse,
@@ -77,8 +75,6 @@ export class Inbound extends EventEmitter implements IInbound {
   _main: Server;
   /** @internal */
   _opt: ReturnType<typeof normalizeListenerOptions>;
-  /** @internal */
-  private _codec: MLLPCodec | null;
   /** @internal */
   private _sendResponseClass: typeof BaseSendResponse;
   /** @internal */
@@ -96,7 +92,7 @@ export class Inbound extends EventEmitter implements IInbound {
       const parsed = new Message({ text: message.toString() });
       ++this.stats.totalMessage;
 
-      const req = new InboundRequest(parsed, { type });
+      const req = new InboundRequest(parsed, { type, socket });
       const res = new this._sendResponseClass(
         socket,
         parsed,
@@ -130,8 +126,6 @@ export class Inbound extends EventEmitter implements IInbound {
     this._listen = this._listen.bind(this);
     this._onTcpClientConnected = this._onTcpClientConnected.bind(this);
 
-    this._codec = null;
-
     this._socket = this._listen();
   }
 
@@ -160,12 +154,10 @@ export class Inbound extends EventEmitter implements IInbound {
     if (typeof this._main._opt.tls !== "undefined") {
       const { key, cert, requestCert, ca } = this._main._opt.tls;
       socket = tls.createServer({ key, cert, requestCert, ca }, (socket) => {
-        this._codec = new MLLPCodec(this._main._opt.encoding);
         this._onTcpClientConnected(socket);
       });
     } else {
       socket = net.createServer((socket) => {
-        this._codec = new MLLPCodec(this._main._opt.encoding);
         this._onTcpClientConnected(socket);
       });
     }
@@ -189,22 +181,27 @@ export class Inbound extends EventEmitter implements IInbound {
     // no delay in processing the message
     socket.setNoDelay(true);
 
+    // Per-socket codec so concurrent connections do not interleave their
+    // data buffers (issue #132).
+    const codec = new MLLPCodec(this._main._opt.encoding);
+
     socket.on("data", (buffer) => {
       socket.cork();
 
+      let dataResult: boolean | undefined;
       try {
-        this._dataResult = this._codec?.receiveData(buffer);
+        dataResult = codec.receiveData(buffer);
       } catch (err) {
         this.emit("data.error", err);
       }
 
       socket.uncork();
 
-      if (this._dataResult === true) {
+      if (dataResult === true) {
         // we got a message, we don't care if it's good or not
         ++this.stats.received;
 
-        const loadedMessage = this._codec?.getLastMessage();
+        const loadedMessage = codec.getLastMessage();
 
         try {
           // copy the completed message to continue processing and clear the buffer
@@ -225,7 +222,10 @@ export class Inbound extends EventEmitter implements IInbound {
             const parsed = new Message({ text: completedMessageCopy });
             ++this.stats.totalMessage;
 
-            const req = new InboundRequest(parsed, { type: "message" });
+            const req = new InboundRequest(parsed, {
+              type: "message",
+              socket,
+            });
             const res = new this._sendResponseClass(
               socket,
               parsed,
