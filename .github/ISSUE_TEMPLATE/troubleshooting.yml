@@ -1,0 +1,78 @@
+name: 🛠️ Troubleshooting Help
+description: Something isn't working but you're not sure if it's a bug or a config issue. Ask for help getting unstuck.
+title: "[help]: "
+labels:
+  - question
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for "I can't figure out why X is happening" questions. If you've already isolated a clear defect, please file a 🐛 Bug Report instead.
+  - type: input
+    id: package
+    attributes:
+      label: Which package?
+      placeholder: "node-hl7-server"
+    validations:
+      required: true
+  - type: input
+    id: package-version
+    attributes:
+      label: Package version
+      placeholder: "3.3.0"
+    validations:
+      required: true
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js version
+      placeholder: "v22.10.0"
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to do?
+      description: Describe the end goal — connecting to Epic over mTLS, parsing a batch from Cerner, sending an ORU result, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you tried?
+      description: Steps you've already taken — code, config, docs you've read.
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: What's actually happening?
+      description: Errors, missing ACKs, unexpected fields, timeouts, etc. Include logs verbatim if you can.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: code
+    attributes:
+      label: Relevant code
+      description: The handler / connection setup / TLS config that's giving you trouble.
+      render: ts
+  - type: textarea
+    id: hl7-message
+    attributes:
+      label: HL7 message (sanitized)
+      description: |
+        Sample message involved, with all PHI redacted (use placeholders like `MRN12345`, `DOE^JANE`, `19800101`).
+      render: text
+  - type: dropdown
+    id: tls
+    attributes:
+      label: TLS configuration
+      options:
+        - Plain TCP / no TLS
+        - Server-auth TLS only
+        - Mutual TLS (mTLS)
+        - Not sure
+    validations:
+      required: true

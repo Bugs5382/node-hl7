@@ -1,13 +1,39 @@
-.idea
+# Whitelist-style .gitignore.
+# Everything at the repo root is ignored by default; only the entries
+# explicitly re-included below are tracked. Inside the re-included
+# directories, the always-ignored patterns at the bottom still apply.
+
+# Ignore everything at the top level.
+/*
+
+# Re-include tracked top-level entries.
+!/.github/
+!/.gitignore
+!/.husky/
+!/.npmpackagejsonlintrc.json
+!/Dockerfile
+!/LICENSE
+!/README.md
+!/__tests__/
+!/certs/
+!/docker/
+!/eslint.config.base.mjs
+!/package.json
+!/packages/
+!/pages/
+!/tsconfig.base.json
+!/tsconfig.json
+!/vitest.config.base.mts
+!/vitest.config.ts
+!/vitest.workspace.ts
+
+# Always-ignored artifacts, anywhere in the tree.
 node_modules/
-packages/*/node_modules/
-packages/*/lib/
-packages/*/dist/
-packages/*/coverage/
-packages/*/.nyc_output/
-packages/*/temp/
-temp
+lib/
+dist/
+coverage/
+.nyc_output/
+temp/
+package-lock.json
 *.log
 .DS_Store
-package-lock.json
-.claude
