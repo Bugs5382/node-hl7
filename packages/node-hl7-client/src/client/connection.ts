@@ -389,20 +389,40 @@ export class Connection extends EventEmitter implements IConnection {
     let socket: Socket;
     const host = this._main._opt.host;
     const port = this._opt.port;
+    const family = this._main._opt.family;
+    const autoSelectFamily =
+      family === 0 ? this._main._opt.autoSelectFamily : false;
+    const autoSelectFamilyAttemptTimeout =
+      this._main._opt.autoSelectFamilyAttemptTimeout;
+
+    // Strip surrounding brackets from IPv6 literals — Node accepts
+    // unbracketed addresses on `host`, and some users pass `[::1]` style.
+    const dialHost =
+      host.startsWith("[") && host.endsWith("]") ? host.slice(1, -1) : host;
+
+    // When an explicit family was selected, pin it on the connection
+    // options. Otherwise leave it unset so Node's Happy-Eyeballs (when
+    // enabled) can race IPv6 + IPv4 lookups.
+    const familyOpts =
+      family === 0
+        ? { autoSelectFamily, autoSelectFamilyAttemptTimeout }
+        : { family };
 
     this._retryTimer = undefined;
 
     if (typeof this._main._opt.tls !== "undefined") {
       socket = tls.connect({
-        host,
+        host: dialHost,
         port,
+        ...familyOpts,
         ...this._main._opt.socket,
         ...this._main._opt.tls,
       });
     } else {
       socket = net.connect({
-        host,
+        host: dialHost,
         port,
+        ...familyOpts,
       });
     }
 

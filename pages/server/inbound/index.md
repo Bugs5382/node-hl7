@@ -30,7 +30,8 @@ flowchart LR
 ```ts
 import { Server } from "node-hl7-server";
 
-const server = new Server({ bindAddress: "0.0.0.0" });
+// IPv4 only by default (binds 0.0.0.0).
+const server = new Server();
 
 const IB_ADT = server.createInbound({ port: 6661 }, async (req, res) => { /* … */ });
 const IB_ORU = server.createInbound({ port: 6662 }, async (req, res) => { /* … */ });
@@ -42,15 +43,42 @@ const IB_ORU = server.createInbound({ port: 6662 }, async (req, res) => { /* …
 
 ```ts
 new Server({
-  bindAddress: "0.0.0.0",     // default: 0.0.0.0
+  // bindAddress: "0.0.0.0",  // default depends on ipv4/ipv6 (see below)
   encoding: "utf-8",          // default: utf-8
   ipv4: true,                 // default: true
-  ipv6: false,                // default: false (mutually exclusive with ipv4)
+  ipv6: false,                // default: false (set true alongside ipv4 for dual-stack)
   // tls: { /* see TLS docs */ },
 });
 ```
 
-> ⚠️ Setting `ipv4: true` **and** `ipv6: true` throws — pick one address family per process.
+### 🌐 IPv4 + IPv6 (Dual-Stack)
+
+`node-hl7-server` listens on **IPv4 only by default**. Opt into dual-stack by setting both `ipv4: true` and `ipv6: true` — a single socket bound to the IPv6 wildcard (`::`) with `ipv6Only: false` then accepts traffic from either family. No second listener required.
+
+| Mode | Set this | Default `bindAddress` | `ipv6Only` |
+|---|---|---|---|
+| IPv4 only (default) | `ipv4: true` (or omit)                  | `"0.0.0.0"` | `false` |
+| Dual-stack          | `ipv4: true, ipv6: true`                | `"::"`      | `false` |
+| IPv6 only           | `ipv6: true` (alone)                    | `"::"`      | `true`  |
+
+```ts
+// IPv4 only on every v4 interface (default)
+new Server();
+
+// Dual-stack on every interface
+new Server({ ipv4: true, ipv6: true });
+
+// IPv6 only on every v6 interface
+new Server({ ipv6: true });
+
+// Pin a specific termination address when the host has multiple
+new Server({ bindAddress: "10.50.0.4", ipv4: true });
+new Server({ bindAddress: "fd12::4",   ipv6: true });
+```
+
+**Fallback.** When dual-stack is opted in, if the kernel refuses the IPv6 wildcard bind (no v6 stack, hardened container, etc.), the listener automatically retries as IPv4-only on `0.0.0.0`. Errors that aren't address-family-related (e.g. `EADDRINUSE`) propagate as the regular `error` event.
+
+> 💡 Passing only **one** of `ipv4` / `ipv6` as `true` is treated as exclusive. Setting both to `false` throws. The `bindAddress` is validated against the chosen family — `localhost` is always allowed.
 
 ---
 

@@ -53,7 +53,7 @@ export { createHL7Date, padHL7Date } from "@/utils/createHL7Date";
 export { decodeHexString } from "@/utils/decodeHexString";
 export { escapeForRegExp } from "@/utils/escapeForRegExp";
 export { expBackoff } from "@/utils/expBackoff";
-export { validIPv4, validIPv6 } from "@/utils/ipAddress";
+export { detectIPFamily, validIPv4, validIPv6 } from "@/utils/ipAddress";
 export { isBatch, isFile, isHL7Number, isHL7String } from "@/utils/is";
 export { randomString } from "@/utils/randomString";
 

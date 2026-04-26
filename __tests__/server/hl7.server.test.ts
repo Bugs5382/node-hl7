@@ -32,29 +32,48 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - ipv4 and ipv6 both can not be true exist", async () => {
+    test("ipv4 + ipv6 both true is allowed (dual-stack)", async () => {
+      expect(() => new Server({ ipv6: true, ipv4: true })).not.toThrow();
+    });
+
+    test("error - both families disabled is rejected", async () => {
+      expect.assertions(1);
       try {
-        new Server({ ipv6: true, ipv4: true });
+        new Server({ ipv4: false, ipv6: false });
       } catch (err: any) {
         expect(err.message).toBe(
-          "ipv4 and ipv6 both can't be set to be exclusive.",
+          "ipv4 and ipv6 cannot both be disabled — at least one address family must be enabled.",
         );
       }
     });
 
     test("error - ipv4 not empty", async () => {
+      expect.assertions(1);
       try {
-        new Server({ bindAddress: "" });
+        new Server({ bindAddress: "", ipv4: true });
       } catch (err: any) {
         expect(err.message).toBe("bindAddress is an invalid ipv4 address.");
       }
     });
 
     test("error - ipv4 not valid address", async () => {
+      expect.assertions(1);
       try {
-        new Server({ bindAddress: "123.34.52.455" });
+        new Server({ bindAddress: "123.34.52.455", ipv4: true });
       } catch (err: any) {
         expect(err.message).toBe("bindAddress is an invalid ipv4 address.");
+      }
+    });
+
+    test("error - dual-stack rejects garbage bindAddress", async () => {
+      expect.assertions(1);
+      try {
+        // dual-stack must be opted into; the message then names both families
+        new Server({ bindAddress: "not-an-ip", ipv4: true, ipv6: true });
+      } catch (err: any) {
+        expect(err.message).toBe(
+          "bindAddress is not a valid IPv4 or IPv6 address.",
+        );
       }
     });
 

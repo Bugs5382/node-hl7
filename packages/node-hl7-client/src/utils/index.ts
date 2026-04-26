@@ -5,7 +5,7 @@ export type { DateLength } from "./createHL7Date";
 export { decodeHexString } from "./decodeHexString";
 export { escapeForRegExp } from "./escapeForRegExp";
 export { expBackoff } from "./expBackoff";
-export { validIPv4, validIPv6 } from "./ipAddress";
+export { detectIPFamily, validIPv4, validIPv6 } from "./ipAddress";
 export { isBatch, isFile, isHL7Number, isHL7String } from "./is";
 export { randomString } from "./randomString";
 export { split } from "./spilt";

@@ -149,7 +149,8 @@ export class Inbound extends EventEmitter implements IInbound {
     let socket: net.Server | tls.Server;
     const port = this._opt.port;
     const bindAddress = this._main._opt.bindAddress;
-    const ipv6 = this._main._opt.ipv6;
+    const ipv6Only = this._main._opt.ipv6Only;
+    const dualStack = this._main._opt.ipv4 && this._main._opt.ipv6;
 
     if (typeof this._main._opt.tls !== "undefined") {
       const { key, cert, requestCert, ca } = this._main._opt.tls;
@@ -166,8 +167,47 @@ export class Inbound extends EventEmitter implements IInbound {
       this.emit("error", err);
     });
 
-    socket.listen({ port, ipv6Only: ipv6, hostname: bindAddress }, () => {
-      this.emit("listen");
+    const listenOptions = {
+      port,
+      host: bindAddress,
+      ipv6Only,
+    };
+
+    // Dual-stack fallback: if binding the IPv6 wildcard fails (the host kernel
+    // has IPv6 disabled, no v6 stack, or a duplicate v6 socket), fall back to
+    // an IPv4-only listener on `0.0.0.0`. The user can still terminate on a
+    // specific address by passing an explicit `bindAddress`.
+    const tryListen = (opts: typeof listenOptions, onError: () => void) => {
+      const errorHandler = (err: NodeJS.ErrnoException) => {
+        if (
+          dualStack &&
+          (err.code === "EAFNOSUPPORT" ||
+            err.code === "EADDRNOTAVAIL" ||
+            err.code === "EINVAL")
+        ) {
+          socket.removeListener("error", errorHandler);
+          onError();
+        } else {
+          this.emit("error", err);
+        }
+      };
+      socket.once("error", errorHandler);
+      socket.listen(opts, () => {
+        socket.removeListener("error", errorHandler);
+        this.emit("listen");
+      });
+    };
+
+    tryListen(listenOptions, () => {
+      // IPv6 not available on this host — retry as IPv4-only.
+      const fallback = {
+        port,
+        host: bindAddress === "::" ? "0.0.0.0" : bindAddress,
+        ipv6Only: false,
+      };
+      socket.listen(fallback, () => {
+        this.emit("listen");
+      });
     });
 
     return socket;

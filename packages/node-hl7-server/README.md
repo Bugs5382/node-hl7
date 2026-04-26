@@ -107,13 +107,15 @@ Each TCP connection gets **its own** `MLLPCodec` instance. Bytes accumulate acro
 new Server(props?: ServerOptions);
 
 interface ServerOptions {
-  /** Where to bind. Default: 0.0.0.0 */
+  /** Where to bind. Defaults to `"0.0.0.0"` (IPv4 only, the default), `"::"` for
+   *  dual-stack or IPv6-only. Pass an explicit IPv4/IPv6 literal — or `"localhost"` —
+   *  when the host has multiple addresses and you need to terminate on a specific one. */
   bindAddress?: string;
   /** Encoding of inbound HL7 bytes. Default: utf-8 */
   encoding?: BufferEncoding;
-  /** IPv4 only. Default: true */
+  /** Accept IPv4 connections. Default: true */
   ipv4?: boolean;
-  /** IPv6 only. Default: false */
+  /** Accept IPv6 connections. Default: false (set to true alongside `ipv4` to opt into dual-stack) */
   ipv6?: boolean;
   /** Forward additional net.connect options. */
   socket?: TcpSocketConnectOpts;
@@ -122,7 +124,28 @@ interface ServerOptions {
 }
 ```
 
-> 💡 `ipv4` and `ipv6` are mutually exclusive. Setting both to `true` throws. The default is IPv4 only, and `bindAddress` must be a valid v4 / v6 address (or `localhost`).
+### 🌐 IPv4 + IPv6 (Dual-Stack)
+
+`node-hl7-server` listens on **IPv4 only by default** (`bindAddress: "0.0.0.0"`). Opt into dual-stack by setting both `ipv4: true` and `ipv6: true` — the listener then binds the IPv6 wildcard `::` with `ipv6Only: false`, accepting traffic from either family on a single socket.
+
+```ts
+// IPv4 only (default): listens on 0.0.0.0
+const server = new Server();
+
+// Dual-stack (opt-in): listens on :: with ipv6Only=false
+const dual = new Server({ ipv4: true, ipv6: true });
+
+// IPv6 only
+const v6 = new Server({ ipv6: true });          // bindAddress defaults to ::, ipv6Only=true
+
+// Pin a specific address when the host has multiple
+const onMgmt = new Server({ bindAddress: "10.50.0.4", ipv4: true });
+const onMgmt6 = new Server({ bindAddress: "fd12::4", ipv6: true });
+```
+
+**Fallback.** When dual-stack is opted in, if the kernel refuses the IPv6 wildcard bind (no v6 stack, hardened container, etc.), the listener automatically retries as IPv4-only on `0.0.0.0`. Errors that aren't address-family-related (e.g. `EADDRINUSE`) propagate as the regular `error` event.
+
+> 💡 Passing only **one** of `ipv4` / `ipv6` as `true` is treated as exclusive — that family only. Setting **both** to `true` opts into dual-stack. Setting both to `false` throws. The `bindAddress` is validated against the chosen family.
 
 ---
 

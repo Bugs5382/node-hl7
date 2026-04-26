@@ -1,13 +1,17 @@
 import { HL7FatalError } from "@/helpers/exception";
 import { ClientListenerOptions, ClientOptions } from "@/modules/types";
 import { assertNumber } from "@/utils";
-import { validIPv4, validIPv6 } from "@/utils/ipAddress";
+import { detectIPFamily, validIPv4, validIPv6 } from "@/utils/ipAddress";
 import { TcpSocketConnectOpts } from "node:net";
 import type { ConnectionOptions as TLSOptions } from "node:tls";
 
 const DEFAULT_CLIENT_OPTS = {
   encoding: "utf-8",
   connectionTimeout: 0,
+  ipv4: true,
+  ipv6: false,
+  autoSelectFamily: true,
+  autoSelectFamilyAttemptTimeout: 250,
   maxAttempts: 10,
   maxConnectionAttempts: 10,
   maxTimeout: 10,
@@ -35,8 +39,15 @@ interface ValidatedClientOptions extends Pick<
   Required<ClientOptions>,
   ValidatedClientKeys
 > {
+  autoSelectFamily: boolean;
+  autoSelectFamilyAttemptTimeout: number;
   connectionTimeout: number;
+  /** Resolved family for the connection. `0` means dual-stack (let Node decide
+   * with Happy Eyeballs); `4`/`6` mean force that family. */
+  family: 0 | 4 | 6;
   host: string;
+  ipv4: boolean;
+  ipv6: boolean;
   maxTimeout: number;
   retryHigh: number;
   retryLow: number;
@@ -67,40 +78,60 @@ export function normalizeClientOptions(
 ): ValidatedClientOptions {
   const props: any = { ...DEFAULT_CLIENT_OPTS, ...raw };
 
+  // Backward-compatible semantics: passing only one of `ipv4` / `ipv6`
+  // explicitly is treated as "that family only". Pass both `true` (or neither)
+  // to opt into dual-stack with fallback.
+  const rawIpv4 = raw && Object.prototype.hasOwnProperty.call(raw, "ipv4");
+  const rawIpv6 = raw && Object.prototype.hasOwnProperty.call(raw, "ipv6");
+  if (rawIpv4 && raw?.ipv4 === true && !rawIpv6) {
+    props.ipv6 = false;
+  }
+  if (rawIpv6 && raw?.ipv6 === true && !rawIpv4) {
+    props.ipv4 = false;
+  }
+
   if (typeof props.host === "undefined" || props.host.length <= 0) {
     throw new HL7FatalError(
       "host is not defined or the length is less than 0.",
     );
   }
 
-  if (props.ipv4 === true && props.ipv6 === true) {
+  if (typeof props.host !== "string") {
+    throw new HL7FatalError("host is not valid string.");
+  }
+
+  if (props.ipv4 === false && props.ipv6 === false) {
     throw new HL7FatalError(
-      "ipv4 and ipv6 both can't be set to be both used exclusively.",
+      "ipv4 and ipv6 cannot both be disabled — at least one address family must be enabled.",
     );
   }
 
-  if (
-    typeof props.host !== "string" &&
-    props.ipv4 === false &&
-    props.ipv6 === false
-  ) {
-    throw new HL7FatalError("host is not valid string.");
-  } else if (
-    typeof props.host === "string" &&
-    props.ipv4 === true &&
-    props.ipv6 === false
-  ) {
-    if (!validIPv4(props.host)) {
+  // Detect whether host is an IP literal or an FQDN. Literals are validated
+  // against the explicitly requested family; FQDNs defer family selection to
+  // DNS at connect time.
+  const literalFamily = detectIPFamily(props.host);
+  const looksLikeIPv4 = /^[0-9.]+$/.test(props.host);
+  const looksLikeIPv6 = props.host.includes(":");
+
+  if (props.ipv4 === true && props.ipv6 === false) {
+    if (looksLikeIPv4 && validIPv4(props.host) === false) {
       throw new HL7FatalError("host is not a valid IPv4 address.");
     }
-  } else if (
-    typeof props.host === "string" &&
-    props.ipv4 === false &&
-    props.ipv6 === true
-  ) {
-    if (!validIPv6(props.host)) {
+    if (literalFamily === 6) {
+      throw new HL7FatalError("host is not a valid IPv4 address.");
+    }
+    props.family = 4;
+  } else if (props.ipv4 === false && props.ipv6 === true) {
+    if (looksLikeIPv6 && validIPv6(props.host) === false) {
       throw new HL7FatalError("host is not a valid IPv6 address.");
     }
+    if (literalFamily === 4) {
+      throw new HL7FatalError("host is not a valid IPv6 address.");
+    }
+    props.family = 6;
+  } else {
+    // dual-stack: family is resolved at connect time (0 = unspecified)
+    props.family = literalFamily;
   }
 
   if (props.tls === true) {
@@ -109,6 +140,7 @@ export function normalizeClientOptions(
 
   assertNumber(props, "connectionTimeout", 0, 60000);
   assertNumber(props, "maxTimeout", 1, 50);
+  assertNumber(props, "autoSelectFamilyAttemptTimeout", 10, 60000);
 
   return props;
 }

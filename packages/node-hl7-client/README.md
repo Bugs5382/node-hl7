@@ -278,6 +278,42 @@ await OB_ADT.close();
 
 The connection is persistent; you can send many messages over a single TCP/MLLP socket.
 
+### 🌐 IPv4 + IPv6 (Dual-Stack)
+
+The client supports IPv4, IPv6, and FQDN hosts. **It runs IPv4-only by default.** Opt into dual-stack by setting both `ipv4: true` and `ipv6: true` — when the host name then resolves to both A (IPv4) and AAAA (IPv6) records, Node's [Happy-Eyeballs algorithm](https://nodejs.org/api/net.html#netconnectoptions-connectlistener) races both attempts and uses whichever wins, so a remote with a stale or unreachable AAAA record silently falls back to its IPv4 address (and vice versa).
+
+```ts
+// IPv4 only (default)
+const client = new Client({ host: "hl7.example.com" });
+
+// Dual-stack with auto-fallback (opt-in)
+const dual = new Client({ host: "hl7.example.com", ipv4: true, ipv6: true });
+
+// Force IPv6 only
+const v6Only = new Client({ host: "fd00::42", ipv6: true });
+
+// Pin a specific termination address (when the host has multiple)
+const pinned = new Client({ host: "fe80::1234", ipv6: true });
+
+// Tune Happy-Eyeballs cadence (defaults shown — only takes effect in dual-stack):
+const tuned = new Client({
+  host: "hl7.example.com",
+  ipv4: true,
+  ipv6: true,
+  autoSelectFamily: true,             // default
+  autoSelectFamilyAttemptTimeout: 250, // ms before racing the other family
+});
+```
+
+| Option | Meaning |
+|---|---|
+| (defaults) | IPv4 only — host literal must be IPv4 |
+| `ipv4: true, ipv6: true` | dual-stack with Happy-Eyeballs fallback |
+| `ipv6: true` only | force IPv6 — host literal must be IPv6 |
+| `autoSelectFamily: false` | disable Happy-Eyeballs (use the OS-default order) |
+
+> 💡 Passing only **one** of `ipv4` / `ipv6` is treated as exclusive — IP literals are validated against that family. Setting both to `false` throws.
+
 ---
 
 ## 🔒 TLS

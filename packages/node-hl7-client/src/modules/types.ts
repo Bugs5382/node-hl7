@@ -96,6 +96,24 @@ export interface ClientBuilderFileOptions extends ClientBuilderOptions {
 
 export interface ClientOptions {
   /**
+   * Enable Happy-Eyeballs / dual-stack auto-selection when resolving the
+   * host name. Only takes effect when dual-stack is opted into
+   * (`ipv4: true, ipv6: true`). When on, Node races IPv6 and IPv4 connection
+   * attempts and uses whichever wins, so a remote with a stale or
+   * unreachable AAAA record silently falls back to its A record (and vice
+   * versa). Forwarded directly to `net.connect()` / `tls.connect()`.
+   * @since 4.0.0
+   * @default true; ignored when `ipv4` or `ipv6` is exclusive
+   */
+  autoSelectFamily?: boolean;
+  /**
+   * How long, in milliseconds, to wait for a connection attempt on one
+   * address family before racing the other when `autoSelectFamily` is on.
+   * @since 4.0.0
+   * @default 250
+   */
+  autoSelectFamilyAttemptTimeout?: number;
+  /**
    * How long a connection attempt checked before ending the socket and attempting again.
    * If this is set to zero, the client will stay connected.
    * Min. is 0 (Stay Connected), and Max. is 60000 (60 seconds.)
@@ -105,10 +123,16 @@ export interface ClientOptions {
   connectionTimeout?: number;
   /** Host - You can do a FQDN or the IPv(4|6) address. */
   host?: string;
-  /** IPv4 - If this is set to true, only IPv4 address will be used and also validated upon installation from the hostname property.
-   * @default false */
+  /** IPv4 - When `true`, IPv4 connections are accepted. The host (if a
+   * literal) is validated as IPv4 when this is the only enabled family.
+   * Combine with {@link ipv6}` = true` to opt into dual-stack with
+   * Happy-Eyeballs fallback.
+   * @default true */
   ipv4?: boolean;
-  /** IPv6 - If this is set to true, only IPv6 address will be used and also validated upon installation from the hostname property.
+  /** IPv6 - When `true`, IPv6 connections are accepted. The host (if a
+   * literal) is validated as IPv6 when this is the only enabled family.
+   * Combine with {@link ipv4}` = true` (the default) to opt into dual-stack
+   * with Happy-Eyeballs fallback.
    * @default false */
   ipv6?: boolean;
   /** Max attempts
