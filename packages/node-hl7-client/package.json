@@ -61,10 +61,8 @@
     "build": "tsdown",
     "build:dev": "NODE_ENV=development tsdown",
     "clean": "rm -rf coverage docs lib temp",
-    "format:check": "prettier --check '**/*.{md,ts,json,mts}'",
-    "format:write": "prettier --write '**/*.{md,ts,json,mts}'",
-    "lint": "npm run npm:lint && eslint | snazzy",
-    "lint:fix": "npm run npm:lint && eslint --fix | snazzy && npm run format:write",
+    "lint": "npm run lint:npm && eslint | snazzy",
+    "lint:fix": "npm run lint:npm && eslint --fix | snazzy",
     "lint:package": "npx sort-package-json",
     "npm:lint": "npmPkgJsonLint .",
     "pack": "npm pack",
@@ -81,9 +79,5 @@
   },
   "engines": {
     "node": ">=22.0.0"
-  },
-  "precommit": [
-    "lint:package",
-    "lint:fix"
-  ]
+  }
 }
