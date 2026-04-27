@@ -21,6 +21,7 @@
 !/package.json
 !/packages/
 !/pages/
+!/scripts/
 !/tsconfig.base.json
 !/tsconfig.json
 !/vitest.config.base.mts
