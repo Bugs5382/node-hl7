@@ -3,19 +3,19 @@ import { beforeEach, describe, expect, test } from "vitest";
 import { expectHL7FatalError } from "./__utils__/expectHL7FatalError";
 
 describe("node hl7 client", () => {
-  describe("sanity tests - client class", () => {
+  describe("Client class", () => {
     describe("valid", () => {
       test("valid - properties exist", async () => {
         const client = new Client({ host: "hl7.server.local" });
         expect(client).toHaveProperty("createConnection");
       });
 
-      test("valid - ensure getHost() is what we set in the host", async () => {
+      test("getHost returns the configured host", async () => {
         const client = new Client({ host: "hl7.server.local" });
         expect(client.getHost()).toEqual("hl7.server.local");
       });
 
-      test("valid - port is being set correctly", async () => {
+      test("port is set on outbound connection", async () => {
         const client = new Client({ host: "hl7.server.local" });
         const outbound = client.createConnection(
           // @ts-ignore message is not doing anything
@@ -28,7 +28,7 @@ describe("node hl7 client", () => {
     });
 
     describe("errors", () => {
-      test("error - hostname has to be string", async () => {
+      test("rejects host with non-string type", async () => {
         expect.assertions(1);
         try {
           // @ts-expect-error hostname has to be string
@@ -38,13 +38,13 @@ describe("node hl7 client", () => {
         }
       });
 
-      test("ipv4 + ipv6 both true is allowed (dual-stack)", async () => {
+      test("accepts ipv4 and ipv6 both true (dual-stack)", async () => {
         expect(
           () => new Client({ host: "5.8.6.1", ipv6: true, ipv4: true }),
         ).not.toThrow();
       });
 
-      test("error - ipv4 not valid address", async () => {
+      test("rejects malformed IPv4 host when ipv4 is exclusive", async () => {
         expect.assertions(1);
         try {
           new Client({ host: "123.34.52.455", ipv4: true });
@@ -53,13 +53,13 @@ describe("node hl7 client", () => {
         }
       });
 
-      test("error - ipv4 valid address", async () => {
+      test("accepts valid IPv4 host when ipv4 is exclusive", async () => {
         expect(
           () => new Client({ host: "123.34.52.45", ipv4: true }),
         ).not.toThrow();
       });
 
-      test("error - ipv6 not valid address", async () => {
+      test("rejects malformed IPv6 host when ipv6 is exclusive", async () => {
         expect.assertions(1);
         try {
           new Client({
@@ -71,7 +71,7 @@ describe("node hl7 client", () => {
         }
       });
 
-      test("error - ipv6 valid address", async () => {
+      test("accepts valid IPv6 host when ipv6 is exclusive", async () => {
         expect(
           () =>
             new Client({
@@ -81,7 +81,7 @@ describe("node hl7 client", () => {
         ).not.toThrow();
       });
 
-      test("error - both families disabled is rejected", async () => {
+      test("rejects ipv4 and ipv6 both false", async () => {
         expect.assertions(1);
         try {
           new Client({ host: "192.0.2.1", ipv4: false, ipv6: false });
@@ -94,14 +94,14 @@ describe("node hl7 client", () => {
     });
   });
 
-  describe("sanity tests - listener class", () => {
+  describe("Outbound connection options", () => {
     let client: Client;
 
     beforeEach(() => {
       client = new Client({ host: "localhost" });
     });
 
-    test("error - no port specified", async () => {
+    test("rejects createConnection with no port", async () => {
       try {
         // @ts-expect-error no port specified
         client.createConnection();
@@ -110,7 +110,7 @@ describe("node hl7 client", () => {
       }
     });
 
-    test("error - port not a number", async () => {
+    test("rejects port given as a string", async () => {
       try {
         // @ts-expect-error port is not specified as a number
         client.createConnection({ port: "12345" }, async () => {});
@@ -119,7 +119,7 @@ describe("node hl7 client", () => {
       }
     });
 
-    test("error - port less than 0", async () => {
+    test("rejects negative port", async () => {
       try {
         client.createConnection({ port: -1 }, async () => {});
       } catch (err: any) {
@@ -127,7 +127,7 @@ describe("node hl7 client", () => {
       }
     });
 
-    test("error - port greater than 65353", async () => {
+    test("rejects port above 65353", async () => {
       try {
         client.createConnection({ port: 65354 }, async () => {});
       } catch (err: any) {
@@ -135,7 +135,7 @@ describe("node hl7 client", () => {
       }
     });
 
-    test("error - flushQueue needs to be set", async () => {
+    test("rejects enqueueMessage without flushQueue", async () => {
       try {
         client.createConnection(
           // @ts-ignore message is not doing anything
@@ -147,7 +147,7 @@ describe("node hl7 client", () => {
       }
     });
 
-    test("error - enqueueMessage needs to be set", async () => {
+    test("rejects flushQueue without enqueueMessage", async () => {
       try {
         client.createConnection(
           // @ts-ignore message is not doing anything

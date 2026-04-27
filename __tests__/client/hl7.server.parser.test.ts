@@ -7,7 +7,7 @@ import { _createAckMessage } from "./__utils__/server";
 
 describe("hl7 module tests", () => {
   describe("sendResponse", () => {
-    test("adt siu", async () => {
+    test("creates an AA ACK from an SIU^S12 source message", async () => {
       const messageString = `MSH|^~\\&|||||20220304102435|ESBCKGRND|SIU^S12|521
 SCH||60014711||||Sch|||5|MIN|^^5^20220218153000^20220218153500|ESEOD^CADENCE^EOD^PROCESSING||||ESEOD^CADENCE^EOD^PROCESSING||||ESEOD^CADENCE^EOD^PROCESSING|||||Sch
 PID|1||3002505^^^MRN^MRN||CHILD^AMB^^^^^D||20150122|F|||123 STREET^^BROOKLYN^^11233^^L||(718)250-0000^P^H^^^718^2500000~^NET^Internet^cool@gmail.com|||SINGLE||60014711|111-52-5454||One^Mother^^|||||||||N

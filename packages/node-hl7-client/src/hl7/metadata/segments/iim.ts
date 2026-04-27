@@ -1,0 +1,113 @@
+import { SegmentSpec } from "@/hl7/metadata/types";
+
+/**
+ * IIM — Inventory Item Master
+ *
+ * Generated from the Caristix HL7 Definition API
+ * (https://hl7-definition.caristix.com/v2/HL7v2.X/Segments/IIM)
+ * by scripts/generate-segment-specs.mjs. Do not edit by hand — re-run the
+ * generator instead.
+ *
+ * @since 4.0.0
+ */
+export const IIM_SPEC: SegmentSpec = {
+  name: "IIM",
+  description: "Inventory Item Master",
+  versions: ["2.5","2.5.1","2.6","2.7","2.7.1","2.8"],
+  fields: [
+    {
+      num: 1,
+      name: "Primary Key Value - Iim",
+      hl7Type: "CWE",
+      usage: {"2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+    },
+    {
+      num: 2,
+      name: "Service Item Code",
+      hl7Type: "CWE",
+      usage: {"2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+    },
+    {
+      num: 3,
+      name: "Inventory Lot Number",
+      hl7Type: "ST",
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 4,
+      name: "Inventory Expiration Date",
+      hl7Type: "DTM",
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 5,
+      name: "Inventory Manufacturer Name",
+      hl7Type: "CWE",
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 6,
+      name: "Inventory Location",
+      hl7Type: "CWE",
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 7,
+      name: "Inventory Received Date",
+      hl7Type: "DTM",
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 8,
+      name: "Inventory Received Quantity",
+      hl7Type: "NM",
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 9,
+      name: "Inventory Received Quantity Unit",
+      hl7Type: "CWE",
+      table: 818,
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 10,
+      name: "Inventory Received Item Cost",
+      hl7Type: "MO",
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 11,
+      name: "Inventory On Hand Date",
+      hl7Type: "DTM",
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 12,
+      name: "Inventory On Hand Quantity",
+      hl7Type: "NM",
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 13,
+      name: "Inventory On Hand Quantity Unit",
+      hl7Type: "CWE",
+      table: 818,
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 14,
+      name: "Procedure Code",
+      hl7Type: "CNE",
+      table: 88,
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 15,
+      name: "Procedure Code Modifier",
+      hl7Type: "CNE",
+      table: 340,
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+  ],
+};

@@ -2,8 +2,10 @@ import { HL7_2_7_1 } from "@/hl7/2.7.1";
 import { ClientBuilderOptions_Hl7_2_8 } from "./types";
 import { HL7_2_8_MSH } from "./msh";
 import { HL7_2_8_STZ } from "./stz";
+import { HL7_2_8_ECD } from "./ecd";
 
 export type { HL7_2_8_MSH } from "./msh";
+export type { HL7_2_8_ECD } from "./ecd";
 export type { ClientBuilderOptions_Hl7_2_8 } from "./types";
 
 /**
@@ -18,6 +20,16 @@ export class HL7_2_8 extends HL7_2_7_1 {
 
   checkMSH(msh: HL7_2_8_MSH): boolean {
     return super.checkMSH(msh);
+  }
+
+  /**
+   * v2.8 narrowing of `buildECD` — `ecd_4` is typed as `never` so the IDE
+   * rejects any attempt to set it. Runtime check enforces the same.
+   *
+   * @since 4.0.0
+   */
+  buildECD(props: Partial<HL7_2_8_ECD>): this {
+    return super.buildECD(props as Partial<HL7_2_8_ECD>);
   }
 
   protected _buildSTZ(props: Partial<HL7_2_8_STZ>): void {

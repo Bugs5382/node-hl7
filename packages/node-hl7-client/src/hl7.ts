@@ -32,6 +32,17 @@ export type { HL7_2_7_MSH } from "@/hl7/2.7";
 export { HL7_2_7_1 } from "@/hl7/2.7.1";
 export type { HL7_2_7_1_MSH } from "@/hl7/2.7.1";
 export { HL7_2_8 } from "@/hl7/2.8";
-export type { HL7_2_8_MSH } from "@/hl7/2.8";
+export type { HL7_2_8_MSH, HL7_2_8_ECD } from "@/hl7/2.8";
 export { HL7_BASE } from "@/hl7/base";
 export type { HL7_SPEC } from "@/hl7/specs";
+
+export type { HL7_ECD } from "@/hl7/types/ecd";
+export type { HL7_2_4_ECD } from "@/hl7/2.4/ecd";
+export type {
+  HL7UsageCode,
+  HL7Version,
+  FieldSpec,
+  SegmentSpec,
+} from "@/hl7/metadata/types";
+export { SEGMENT_SPECS } from "@/hl7/metadata/segments";
+export { ECD_SPEC } from "@/hl7/metadata/segments/ecd";

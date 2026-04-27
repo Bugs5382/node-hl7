@@ -10,8 +10,8 @@ import { describe, expect, test } from "vitest";
 import { MSH_HEADER } from "./__data__/constants";
 
 describe("node hl7 client - sanity tests", () => {
-  describe("...Message", () => {
-    test("error - Message Object - nothing passed", async () => {
+  describe("Message", () => {
+    test("rejects construction with no arguments", async () => {
       try {
         const message = new Message();
       } catch (err) {
@@ -23,7 +23,7 @@ describe("node hl7 client - sanity tests", () => {
       }
     });
 
-    test("error - Message Object - text empty ", async () => {
+    test("rejects empty text payload", async () => {
       try {
         new Message({ text: "" });
       } catch (err) {
@@ -35,7 +35,7 @@ describe("node hl7 client - sanity tests", () => {
       }
     });
 
-    test("error - Message Object - text must start with MSH ", async () => {
+    test("rejects text that does not start with MSH", async () => {
       try {
         new Message({ text: "PV1|||||||^Jones\r" });
       } catch (err) {
@@ -43,7 +43,7 @@ describe("node hl7 client - sanity tests", () => {
       }
     });
 
-    test("error - Message Object - msh 9.1 is empty ", async () => {
+    test("rejects empty msh_9_1", async () => {
       try {
         new Message({
           // @ts-expect-error msh 9.1 is empty
@@ -56,7 +56,7 @@ describe("node hl7 client - sanity tests", () => {
       }
     });
 
-    test("error - Message Object - msh 9.2 is empty ", async () => {
+    test("rejects empty msh_9_2", async () => {
       try {
         new Message({
           /**
@@ -74,7 +74,7 @@ describe("node hl7 client - sanity tests", () => {
       }
     });
 
-    test("error - Message Object - msh 9.1 is not 3 character long ", async () => {
+    test("rejects msh_9_1 with length other than 3", async () => {
       try {
         new Message({
           /**
@@ -93,7 +93,7 @@ describe("node hl7 client - sanity tests", () => {
       }
     });
 
-    test("error - Message Object - msh 9.2 is not 3 character long ", async () => {
+    test("rejects msh_9_2 with length other than 3", async () => {
       try {
         new Message({
           /**
@@ -112,7 +112,7 @@ describe("node hl7 client - sanity tests", () => {
       }
     });
 
-    test("error - Message Object - msh 9.3 less than 3.", async () => {
+    test("rejects msh_9_3 shorter than 3 chars", async () => {
       try {
         new Message({
           /**
@@ -134,7 +134,7 @@ describe("node hl7 client - sanity tests", () => {
       }
     });
 
-    test("error - Message Object - msh 9.3 more than 10.", async () => {
+    test("rejects msh_9_3 longer than 10 chars", async () => {
       try {
         new Message({
           /**
@@ -156,7 +156,7 @@ describe("node hl7 client - sanity tests", () => {
       }
     });
 
-    test("error - Message Object - msh 10 is more than 199 characters ", async () => {
+    test("rejects msh_10 longer than 199 chars", async () => {
       try {
         new Message({
           /**
@@ -178,7 +178,7 @@ describe("node hl7 client - sanity tests", () => {
       }
     });
 
-    test("error - Message Object - msh 10 can not be blank", async () => {
+    test("rejects empty msh_10", async () => {
       try {
         new Message({
           /**
@@ -200,8 +200,8 @@ describe("node hl7 client - sanity tests", () => {
     });
   });
 
-  describe("...Batch", () => {
-    test("error - Batch Object - single MSH passed", async () => {
+  describe("Batch", () => {
+    test("rejects a single MSH payload as batch input", async () => {
       try {
         const batch = new Batch({
           text: "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231",
@@ -215,7 +215,7 @@ describe("node hl7 client - sanity tests", () => {
       }
     });
 
-    test("utils - isBatch - on Message - false", async () => {
+    test("isBatch is false for a single Message", async () => {
       const message = new Message({
         messageHeader: {
           ...MSH_HEADER,
@@ -225,14 +225,14 @@ describe("node hl7 client - sanity tests", () => {
       expect(isBatch(message.toString())).toBe(false);
     });
 
-    test("utils - isBatch -should be false", async () => {
+    test("isFile is false for a Batch toString output", async () => {
       const batch = new Batch();
       batch.start();
       batch.end();
       expect(isFile(batch.toString())).toBe(false);
     });
 
-    test("utils - isBatch - should now be true", async () => {
+    test("isBatch is true for a Batch toString output", async () => {
       const batch = new Batch();
       batch.start();
       batch.end();
@@ -240,8 +240,8 @@ describe("node hl7 client - sanity tests", () => {
     });
   });
 
-  describe("...FileBatch", () => {
-    test("utils - isFile - on Message - false", async () => {
+  describe("FileBatch", () => {
+    test("isFile is false for a single Message", async () => {
       const message = new Message({
         messageHeader: {
           ...MSH_HEADER,
@@ -251,7 +251,7 @@ describe("node hl7 client - sanity tests", () => {
       expect(isFile(message.toString())).toBe(false);
     });
 
-    test("utils - isFile - should now be true", async () => {
+    test("isFile is true for a FileBatch toString output", async () => {
       const file = new FileBatch();
       file.start();
       file.end();
@@ -275,19 +275,19 @@ describe("node hl7 client - sanity tests", () => {
     const hl7_timezone: string =
       "MSH|^~\\\\&|device||Host||19981004010159+0100||OUL^R22^OUL_R22|2|P|2.5.1|||NE|AL||UNICODE UTF-8|||LAB-01^IHE\\r";
 
-    test("... timezone offset", async () => {
+    test("MSH.7 timezone offset is parsed to UTC", async () => {
       const message = new Message({ text: hl7_timezone });
       expect(message.get("MSH.7").toDate()).toEqual(
         new Date(`1998-10-04T00:01:59.000Z`),
       );
     });
 
-    test("...clean up line breaks", async () => {
+    test("trailing CR line break is normalized", async () => {
       const message = new Message({ text: hl7_line_breaks });
       expect(message.get("MSH.12").toString()).toBe("2.5.1");
     });
 
-    test("...verify MSH input", async () => {
+    test("MSH fields and EVN segment count parse correctly", async () => {
       const message = new Message({ text: hl7_string });
 
       expect(message.toString().substring(0, 8)).toBe("MSH|^~\\&");
@@ -309,7 +309,7 @@ describe("node hl7 client - sanity tests", () => {
       expect(count).toBe(1);
     });
 
-    test("...parse non standard delimiters defined in MSH header", async () => {
+    test("non-standard MSH delimiters are honored on parse", async () => {
       const message = new Message({ text: hl7_non_standard });
 
       expect(message.get("MSH.3").toString()).toBe("field2");
@@ -321,19 +321,19 @@ describe("node hl7 client - sanity tests", () => {
       expect(message.get("MSH.7").toString()).toBe("field6+");
     });
 
-    test("...verify BHS input", async () => {
+    test("Batch parses BHS header from text input", async () => {
       const batch = new Batch({ text: hl7_batch });
 
       expect(batch.toString().substring(0, 8)).toBe("BHS|^~\\&");
     });
 
-    test("...parse non standard delimiters defined in BHS header", async () => {
+    test("non-standard BHS delimiters are honored on parse", async () => {
       const batch = new Batch({ text: hl7_batch_non_standard });
 
       expect(batch.toString().substring(0, 8)).toBe("BHS:-+?*");
     });
 
-    test("...verify BHS input ... 1 message should exist ... 2 EVN segments inside", async () => {
+    test("BHS yields one Message containing two EVN segments", async () => {
       const batch = new Batch({ text: hl7_batch });
       const messages = batch.messages();
       expect(messages.length).toBe(1);
@@ -348,7 +348,7 @@ describe("node hl7 client - sanity tests", () => {
       });
     });
 
-    test("...should be used as a Batch", async () => {
+    test("Message rejects multi-MSH input and points to Batch", async () => {
       try {
         const message = new Message({ text: hl7_batch_msh_string });
       } catch (err) {
@@ -358,7 +358,7 @@ describe("node hl7 client - sanity tests", () => {
       }
     });
 
-    test("...many MSH not wrapped in a BHS is still a Batch", async () => {
+    test("multiple MSH without BHS still parse as a Batch", async () => {
       const batch = new Batch({ text: hl7_batch_msh_string });
 
       const messages = batch.messages();
@@ -374,7 +374,7 @@ describe("node hl7 client - sanity tests", () => {
       });
     });
 
-    test("...segment name mid-field is not treated as a segment boundary", async () => {
+    test("segment name in field value does not trigger a new segment", async () => {
       // EVN.1 contains "MSH|fake" — old regex would falsely match this as a second MSH segment
       const message = new Message({
         text: "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN|MSH|fake|20081231",
@@ -389,7 +389,7 @@ describe("node hl7 client - sanity tests", () => {
       expect(evnCount).toBe(1);
     });
 
-    test("...fileBuffer with LF line endings is normalized to CR, not literal backslash-r", async () => {
+    test("FileBatch normalizes LF line endings to CR", async () => {
       const lf_content =
         "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\nEVN||20081231";
       const fileBatch = new FileBatch({ fileBuffer: Buffer.from(lf_content) });

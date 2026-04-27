@@ -1,0 +1,295 @@
+import { SegmentSpec } from "@/hl7/metadata/types";
+
+/**
+ * FT1 — Financial Transaction
+ *
+ * Generated from the Caristix HL7 Definition API
+ * (https://hl7-definition.caristix.com/v2/HL7v2.X/Segments/FT1)
+ * by scripts/generate-segment-specs.mjs. Do not edit by hand — re-run the
+ * generator instead.
+ *
+ * @since 4.0.0
+ */
+export const FT1_SPEC: SegmentSpec = {
+  name: "FT1",
+  description: "Financial Transaction",
+  versions: ["2.1","2.2","2.3","2.3.1","2.4","2.5","2.5.1","2.6","2.7","2.7.1","2.8"],
+  fields: [
+    {
+      num: 1,
+      name: "Set Id - Ft1",
+      hl7Type: "SI",
+      length: 4,
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 2,
+      name: "Transaction Id",
+      hl7Type: "ST",
+      length: 12,
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 3,
+      name: "Transaction Batch Id",
+      hl7Type: "ST",
+      length: 10,
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 4,
+      name: "Transaction Date",
+      hl7Type: "DR",
+      usage: {"2.1":"R","2.2":"R","2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+    },
+    {
+      num: 5,
+      name: "Transaction Posting Date",
+      hl7Type: "DTM",
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 6,
+      name: "Transaction Type",
+      hl7Type: "CWE",
+      table: 17,
+      usage: {"2.1":"R","2.2":"R","2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+    },
+    {
+      num: 7,
+      name: "Transaction Code",
+      hl7Type: "CWE",
+      table: 132,
+      usage: {"2.1":"R","2.2":"R","2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+    },
+    {
+      num: 8,
+      name: "Transaction Description",
+      hl7Type: "ST",
+      usage: {"2.1":"O","2.2":"B","2.3":"B","2.3.1":"B","2.4":"B","2.5":"B","2.5.1":"B","2.6":"W","2.7":"W","2.7.1":"W","2.8":"W"},
+    },
+    {
+      num: 9,
+      name: "Transaction Description - Alt",
+      hl7Type: "ST",
+      usage: {"2.1":"O","2.2":"B","2.3":"B","2.3.1":"B","2.4":"B","2.5":"B","2.5.1":"B","2.6":"W","2.7":"W","2.7.1":"W","2.8":"W"},
+    },
+    {
+      num: 10,
+      name: "Transaction Quantity",
+      hl7Type: "NM",
+      usage: {"2.1":"O","2.2":"B","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 11,
+      name: "Transaction Amount - Extended",
+      hl7Type: "CP",
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 12,
+      name: "Transaction Amount - Unit",
+      hl7Type: "CP",
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 13,
+      name: "Department Code",
+      hl7Type: "CWE",
+      table: 49,
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 14,
+      name: "Health Plan Id",
+      hl7Type: "CWE",
+      table: 72,
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 15,
+      name: "Insurance Amount",
+      hl7Type: "CP",
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 16,
+      name: "Assigned Patient Location",
+      hl7Type: "PL",
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 17,
+      name: "Fee Schedule",
+      hl7Type: "CWE",
+      table: 24,
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 18,
+      name: "Patient Type",
+      hl7Type: "CWE",
+      table: 18,
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 19,
+      name: "Diagnosis Code - Ft1",
+      hl7Type: "CWE",
+      table: 51,
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 20,
+      name: "Performed By Code",
+      hl7Type: "XCN",
+      table: 84,
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 21,
+      name: "Ordered By Code",
+      hl7Type: "XCN",
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 22,
+      name: "Unit Cost",
+      hl7Type: "CP",
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 23,
+      name: "Filler Order Number",
+      hl7Type: "EI",
+      usage: {"2.2":"D","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 24,
+      name: "Entered By Code",
+      hl7Type: "XCN",
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 25,
+      name: "Procedure Code",
+      hl7Type: "CNE",
+      table: 88,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 26,
+      name: "Procedure Code Modifier",
+      hl7Type: "CNE",
+      table: 340,
+      usage: {"2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 27,
+      name: "Advanced Beneficiary Notice Code",
+      hl7Type: "CWE",
+      table: 339,
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 28,
+      name: "Medically Necessary Duplicate Procedure Reason",
+      hl7Type: "CWE",
+      table: 476,
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 29,
+      name: "Ndc Code",
+      hl7Type: "CWE",
+      table: 549,
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 30,
+      name: "Payment Reference Id",
+      hl7Type: "CX",
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 31,
+      name: "Transaction Reference Key",
+      hl7Type: "SI",
+      length: 4,
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 32,
+      name: "Performing Facility",
+      hl7Type: "XON",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 33,
+      name: "Ordering Facility",
+      hl7Type: "XON",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 34,
+      name: "Item Number",
+      hl7Type: "CWE",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 35,
+      name: "Model Number",
+      hl7Type: "ST",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 36,
+      name: "Special Processing Code",
+      hl7Type: "CWE",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 37,
+      name: "Clinic Code",
+      hl7Type: "CWE",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 38,
+      name: "Referral Number",
+      hl7Type: "CX",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 39,
+      name: "Authorization Number",
+      hl7Type: "CX",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 40,
+      name: "Service Provider Taxonomy Code",
+      hl7Type: "CWE",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 41,
+      name: "Revenue Code",
+      hl7Type: "CWE",
+      table: 456,
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 42,
+      name: "Prescription Number",
+      hl7Type: "ST",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 43,
+      name: "Ndc Qty And Uom",
+      hl7Type: "CQ",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+  ],
+};

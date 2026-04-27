@@ -3,6 +3,12 @@ import { Segment } from "@/builder/modules/segment";
 import { ValidationRule } from "@/declaration/validationRule";
 import { HL7FatalError, HL7ValidationError } from "@/helpers";
 import {
+  HL7UsageCode,
+  HL7Version,
+  SegmentSpec,
+} from "@/hl7/metadata/types";
+import { SEGMENT_SPECS } from "@/hl7/metadata/segments";
+import {
   ACC,
   ADD,
   AIG,
@@ -150,16 +156,17 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    *
    * @param props
    */
-  buildACC(props: ACC) {
+  buildACC(props: ACC): this {
     this.headerExists();
     this._buildACC(props);
+    return this;
   }
   /**
    * Build the ADD Segment
    * @remarks Add an ADD Segment to the HL7 Message
    * @param props
    */
-  buildADD(props: ADD) {
+  buildADD(props: ADD): this {
     this.headerExists();
 
     const lastSegment = this._message.getLastSegment();
@@ -180,105 +187,117 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
         length: { max: this._maxAddSegmentLength },
       },
     );
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildBLG(props: BLG) {
+  buildBLG(props: BLG): this {
     this.headerExists();
     this._buildBLG(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildDG1(props: DG1): void {
+  buildDG1(props: DG1): this {
     this.headerExists();
     this._buildDG1(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildDSC(props: any): void {
+  buildDSC(props: any): this {
     this.headerExists();
     this._buildDSC(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildDSP(props: any): void {
+  buildDSP(props: any): this {
     this.headerExists();
     this._buildDSP(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildERR(props: any): void {
+  buildERR(props: any): this {
     this.headerExists();
     this._buildERR(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildEVN(props: Partial<EVN>): void {
+  buildEVN(props: Partial<EVN>): this {
     this.headerExists();
     this._buildEVN(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildFT1(props: Partial<FT1>): void {
+  buildFT1(props: Partial<FT1>): this {
     this.headerExists();
     this._buildFT1(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildGT1(props: Partial<GT1>): void {
+  buildGT1(props: Partial<GT1>): this {
     this.headerExists();
     this._buildGT1(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildIN1(props: Partial<IN1>): void {
+  buildIN1(props: Partial<IN1>): this {
     this.headerExists();
     this._buildIN1(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildMRG(props: Partial<MRG>): void {
+  buildMRG(props: Partial<MRG>): this {
     this.headerExists();
     this._buildMRG(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildMSA(props: Partial<MSA>): void {
+  buildMSA(props: Partial<MSA>): this {
     this.headerExists();
     this._buildMSA(props);
+    return this;
   }
   /**
    * Build MSH Header
@@ -287,7 +306,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param props
    */
-  buildMSH(props: Partial<MSH>): void {
+  buildMSH(props: Partial<MSH>): this {
     // make sure there is only one MSH header per message.
     if (this._message.totalSegment("MSH") > 0) {
       throw new HL7FatalError(
@@ -295,12 +314,13 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       );
     }
     this._buildMSH(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    */
-  buildNCK(): void {
+  buildNCK(): this {
     this.headerExists();
 
     // make sure there is only one MSH header per message.
@@ -311,438 +331,511 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
     }
 
     this._buildNCK();
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildNK1(props: Partial<NK1>): void {
+  buildNK1(props: Partial<NK1>): this {
     this.headerExists();
     this._buildNK1(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildNPU(props: Partial<NPU>): void {
+  buildNPU(props: Partial<NPU>): this {
     this.headerExists();
     this._buildNPU(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildNSC(props: Partial<NSC>): void {
+  buildNSC(props: Partial<NSC>): this {
     this.headerExists();
     this._buildNSC(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildNST(props: NST): void {
+  buildNST(props: NST): this {
     this.headerExists();
     this._buildNST(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildNTE(props: Partial<NTE>): void {
+  buildNTE(props: Partial<NTE>): this {
     this.headerExists();
     this._buildNTE(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildOBR(props: Partial<OBR>): void {
+  buildOBR(props: Partial<OBR>): this {
     this.headerExists();
     this._buildOBR(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildOBX(props: Partial<OBX>): void {
+  buildOBX(props: Partial<OBX>): this {
     this.headerExists();
     this._buildOBX(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildORC(props: Partial<ORC>): void {
+  buildORC(props: Partial<ORC>): this {
     this.headerExists();
     this._buildORC(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildPD1(props: Partial<PD1>): void {
+  buildPD1(props: Partial<PD1>): this {
     this.headerExists();
     this._buildPD1(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildPID(props: Partial<PID>): void {
+  buildPID(props: Partial<PID>): this {
     this.headerExists();
     this._buildPID(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildPR1(props: Partial<PR1>): void {
+  buildPR1(props: Partial<PR1>): this {
     this.headerExists();
     this._buildPR1(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildPV1(props: Partial<PV1>): void {
+  buildPV1(props: Partial<PV1>): this {
     this.headerExists();
     this._buildPV1(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildQRD(props: Partial<QRD>): void {
+  buildQRD(props: Partial<QRD>): this {
     this.headerExists();
     this._buildQRD(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildQRF(props: Partial<QRF>): void {
+  buildQRF(props: Partial<QRF>): this {
     this.headerExists();
     this._buildQRF(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildRX1(props: Partial<RX1>): void {
+  buildRX1(props: Partial<RX1>): this {
     this.headerExists();
     this._buildRX1(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildUB1(props: Partial<UB1>): void {
+  buildUB1(props: Partial<UB1>): this {
     this.headerExists();
     this._buildUB1(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildURD(props: Partial<URD>): void {
+  buildURD(props: Partial<URD>): this {
     this.headerExists();
     this._buildURD(props);
+    return this;
   }
   /**
    *
    * @since 4.0.0
    * @param props
    */
-  buildURS(props: Partial<URS>): void {
+  buildURS(props: Partial<URS>): this {
     this.headerExists();
     this._buildURS(props);
+    return this;
   }
   /** Build AL1 (Allergy Information) Segment */
-  buildAL1(props: Partial<AL1>): void {
+  buildAL1(props: Partial<AL1>): this {
     this.headerExists();
     this._buildAL1(props);
+    return this;
   }
   /** Build UB2 (UB92 Data) Segment */
-  buildUB2(props: Partial<UB2>): void {
+  buildUB2(props: Partial<UB2>): this {
     this.headerExists();
     this._buildUB2(props);
+    return this;
   }
   /** Build RXA (Pharmacy/Treatment Administration) Segment */
-  buildRXA(props: Partial<RXA>): void {
+  buildRXA(props: Partial<RXA>): this {
     this.headerExists();
     this._buildRXA(props);
+    return this;
   }
   /** Build RXR (Pharmacy/Treatment Route) Segment */
-  buildRXR(props: Partial<RXR>): void {
+  buildRXR(props: Partial<RXR>): this {
     this.headerExists();
     this._buildRXR(props);
+    return this;
   }
   /** Build MFI (Master File Identification) Segment */
-  buildMFI(props: Partial<MFI>): void {
+  buildMFI(props: Partial<MFI>): this {
     this.headerExists();
     this._buildMFI(props);
+    return this;
   }
   /** Build MFE (Master File Entry) Segment */
-  buildMFE(props: Partial<MFE>): void {
+  buildMFE(props: Partial<MFE>): this {
     this.headerExists();
     this._buildMFE(props);
+    return this;
   }
   /** Build STF (Staff Identification) Segment */
-  buildSTF(props: Partial<STF>): void {
+  buildSTF(props: Partial<STF>): this {
     this.headerExists();
     this._buildSTF(props);
+    return this;
   }
   /** Build RXO (Pharmacy/Treatment Order) Segment */
-  buildRXO(props: Partial<RXO>): void {
+  buildRXO(props: Partial<RXO>): this {
     this.headerExists();
     this._buildRXO(props);
+    return this;
   }
   /** Build RXE (Pharmacy/Treatment Encoded Order) Segment */
-  buildRXE(props: Partial<RXE>): void {
+  buildRXE(props: Partial<RXE>): this {
     this.headerExists();
     this._buildRXE(props);
+    return this;
   }
   /** Build RXD (Pharmacy/Treatment Dispense) Segment */
-  buildRXD(props: Partial<RXD>): void {
+  buildRXD(props: Partial<RXD>): this {
     this.headerExists();
     this._buildRXD(props);
+    return this;
   }
   /** Build RXG (Pharmacy/Treatment Give) Segment */
-  buildRXG(props: Partial<RXG>): void {
+  buildRXG(props: Partial<RXG>): this {
     this.headerExists();
     this._buildRXG(props);
+    return this;
   }
   /** Build ODS (Dietary Orders, Supplements, and Preferences) Segment */
-  buildODS(props: Partial<ODS>): void {
+  buildODS(props: Partial<ODS>): this {
     this.headerExists();
     this._buildODS(props);
+    return this;
   }
   /** Build ODT (Diet Tray Instructions) Segment */
-  buildODT(props: Partial<ODT>): void {
+  buildODT(props: Partial<ODT>): this {
     this.headerExists();
     this._buildODT(props);
+    return this;
   }
   /** Build SCH (Scheduling Activity Information) Segment */
-  buildSCH(props: Partial<SCH>): void {
+  buildSCH(props: Partial<SCH>): this {
     this.headerExists();
     this._buildSCH(props);
+    return this;
   }
   /** Build RGS (Resource Group) Segment */
-  buildRGS(props: Partial<RGS>): void {
+  buildRGS(props: Partial<RGS>): this {
     this.headerExists();
     this._buildRGS(props);
+    return this;
   }
   /** Build AIS (Appointment Information - Service) Segment */
-  buildAIS(props: Partial<AIS>): void {
+  buildAIS(props: Partial<AIS>): this {
     this.headerExists();
     this._buildAIS(props);
+    return this;
   }
   /** Build AIG (Appointment Information - General) Segment */
-  buildAIG(props: Partial<AIG>): void {
+  buildAIG(props: Partial<AIG>): this {
     this.headerExists();
     this._buildAIG(props);
+    return this;
   }
   /** Build AIL (Appointment Information - Location) Segment */
-  buildAIL(props: Partial<AIL>): void {
+  buildAIL(props: Partial<AIL>): this {
     this.headerExists();
     this._buildAIL(props);
+    return this;
   }
   /** Build AIP (Appointment Information - Personnel) Segment */
-  buildAIP(props: Partial<AIP>): void {
+  buildAIP(props: Partial<AIP>): this {
     this.headerExists();
     this._buildAIP(props);
+    return this;
   }
   /** Build APR (Appointment Preferences) Segment */
-  buildAPR(props: Partial<APR>): void {
+  buildAPR(props: Partial<APR>): this {
     this.headerExists();
     this._buildAPR(props);
+    return this;
   }
   /** Build PRA (Practitioner Detail) Segment */
-  buildPRA(props: Partial<PRA>): void {
+  buildPRA(props: Partial<PRA>): this {
     this.headerExists();
     this._buildPRA(props);
+    return this;
   }
   /** Build ROL (Role) Segment */
-  buildROL(props: Partial<ROL>): void {
+  buildROL(props: Partial<ROL>): this {
     this.headerExists();
     this._buildROL(props);
+    return this;
   }
   /** Build VAR (Variance) Segment */
-  buildVAR(props: Partial<VAR>): void {
+  buildVAR(props: Partial<VAR>): this {
     this.headerExists();
     this._buildVAR(props);
+    return this;
   }
   /** Build PSH (Product Summary Header) Segment */
-  buildPSH(props: Partial<PSH>): void {
+  buildPSH(props: Partial<PSH>): this {
     this.headerExists();
     this._buildPSH(props);
+    return this;
   }
   /** Build PCR (Possible Causal Relationship) Segment */
-  buildPCR(props: Partial<PCR>): void {
+  buildPCR(props: Partial<PCR>): this {
     this.headerExists();
     this._buildPCR(props);
+    return this;
   }
   /** Build PRD (Provider Data) Segment */
-  buildPRD(props: Partial<PRD>): void {
+  buildPRD(props: Partial<PRD>): this {
     this.headerExists();
     this._buildPRD(props);
+    return this;
   }
   /** Build CTD (Contact Data) Segment */
-  buildCTD(props: Partial<CTD>): void {
+  buildCTD(props: Partial<CTD>): this {
     this.headerExists();
     this._buildCTD(props);
+    return this;
   }
   /** Build RDF (Table Row Definition) Segment */
-  buildRDF(props: Partial<RDF>): void {
+  buildRDF(props: Partial<RDF>): this {
     this.headerExists();
     this._buildRDF(props);
+    return this;
   }
   /** Build RDT (Table Row Data) Segment */
-  buildRDT(props: Partial<RDT>): void {
+  buildRDT(props: Partial<RDT>): this {
     this.headerExists();
     this._buildRDT(props);
+    return this;
   }
   /** Build CSR (Clinical Study Registration) Segment */
-  buildCSR(props: Partial<CSR>): void {
+  buildCSR(props: Partial<CSR>): this {
     this.headerExists();
     this._buildCSR(props);
+    return this;
   }
   /** Build CSP (Clinical Study Phase) Segment */
-  buildCSP(props: Partial<CSP>): void {
+  buildCSP(props: Partial<CSP>): this {
     this.headerExists();
     this._buildCSP(props);
+    return this;
   }
   /** Build CSS (Clinical Study Data Schedule) Segment */
-  buildCSS(props: Partial<CSS>): void {
+  buildCSS(props: Partial<CSS>): this {
     this.headerExists();
     this._buildCSS(props);
+    return this;
   }
   /** Build GOL (Goal Detail) Segment */
-  buildGOL(props: Partial<GOL>): void {
+  buildGOL(props: Partial<GOL>): this {
     this.headerExists();
     this._buildGOL(props);
+    return this;
   }
   /** Build PRB (Problem Detail) Segment */
-  buildPRB(props: Partial<PRB>): void {
+  buildPRB(props: Partial<PRB>): this {
     this.headerExists();
     this._buildPRB(props);
+    return this;
   }
   /** Build PTH (Pathway) Segment */
-  buildPTH(props: Partial<PTH>): void {
+  buildPTH(props: Partial<PTH>): this {
     this.headerExists();
     this._buildPTH(props);
+    return this;
   }
   /** Build TXA (Transcription Document Header) Segment */
-  buildTXA(props: Partial<TXA>): void {
+  buildTXA(props: Partial<TXA>): this {
     this.headerExists();
     this._buildTXA(props);
+    return this;
   }
   /** Build IAM (Patient Adverse Reaction Information) Segment */
-  buildIAM(props: Partial<IAM>): void {
+  buildIAM(props: Partial<IAM>): this {
     this.headerExists();
     this._buildIAM(props);
+    return this;
   }
   /** Build OM1 (General Attributes of an Observation) Segment */
-  buildOM1(props: Partial<OM1>): void {
+  buildOM1(props: Partial<OM1>): this {
     this.headerExists();
     this._buildOM1(props);
+    return this;
   }
   /** Build OM2 (Numeric Observations) Segment */
-  buildOM2(props: Partial<OM2>): void {
+  buildOM2(props: Partial<OM2>): this {
     this.headerExists();
     this._buildOM2(props);
+    return this;
   }
   /** Build OM3 (Categorical Test/Observation) Segment */
-  buildOM3(props: Partial<OM3>): void {
+  buildOM3(props: Partial<OM3>): this {
     this.headerExists();
     this._buildOM3(props);
+    return this;
   }
   /** Build OM4 (Observations Requiring Specimens) Segment */
-  buildOM4(props: Partial<OM4>): void {
+  buildOM4(props: Partial<OM4>): this {
     this.headerExists();
     this._buildOM4(props);
+    return this;
   }
   /** Build OM5 (Observation Batteries) Segment */
-  buildOM5(props: Partial<OM5>): void {
+  buildOM5(props: Partial<OM5>): this {
     this.headerExists();
     this._buildOM5(props);
+    return this;
   }
   /** Build OM6 (Observations Copied from Other Observations) Segment */
-  buildOM6(props: Partial<OM6>): void {
+  buildOM6(props: Partial<OM6>): this {
     this.headerExists();
     this._buildOM6(props);
+    return this;
   }
   /** Build DRG (Diagnosis Related Group) Segment */
-  buildDRG(props: Partial<DRG>): void {
+  buildDRG(props: Partial<DRG>): this {
     this.headerExists();
     this._buildDRG(props);
+    return this;
   }
   /** Build SFT (Software Segment) */
-  buildSFT(props: Partial<SFT>): void {
+  buildSFT(props: Partial<SFT>): this {
     this.headerExists();
     this._buildSFT(props);
+    return this;
   }
   /** Build SPM (Specimen) Segment */
-  buildSPM(props: Partial<SPM>): void {
+  buildSPM(props: Partial<SPM>): this {
     this.headerExists();
     this._buildSPM(props);
+    return this;
   }
   /** Build REL (Clinical Relationship) Segment */
-  buildREL(props: Partial<REL>): void {
+  buildREL(props: Partial<REL>): this {
     this.headerExists();
     this._buildREL(props);
+    return this;
   }
   /** Build ITM (Material Item Master) Segment */
-  buildITM(props: Partial<ITM>): void {
+  buildITM(props: Partial<ITM>): this {
     this.headerExists();
     this._buildITM(props);
+    return this;
   }
   /** Build IVT (Material Location) Segment */
-  buildIVT(props: Partial<IVT>): void {
+  buildIVT(props: Partial<IVT>): this {
     this.headerExists();
     this._buildIVT(props);
+    return this;
   }
   /** Build BTX (Blood Product Transfusion/Disposition) Segment */
-  buildBTX(props: Partial<BTX>): void {
+  buildBTX(props: Partial<BTX>): this {
     this.headerExists();
     this._buildBTX(props);
+    return this;
   }
   /** Build BPX (Blood Product Dispense Status) Segment */
-  buildBPX(props: Partial<BPX>): void {
+  buildBPX(props: Partial<BPX>): this {
     this.headerExists();
     this._buildBPX(props);
+    return this;
   }
   /** Build IPC (Imaging Procedure Control) Segment */
-  buildIPC(props: Partial<IPC>): void {
+  buildIPC(props: Partial<IPC>): this {
     this.headerExists();
     this._buildIPC(props);
+    return this;
   }
   /** Build ISD (Interaction Status Detail) Segment */
-  buildISD(props: Partial<ISD>): void {
+  buildISD(props: Partial<ISD>): this {
     this.headerExists();
     this._buildISD(props);
+    return this;
   }
   /** Build STZ (Sterilization Parameter) Segment */
-  buildSTZ(props: Partial<STZ>): void {
+  buildSTZ(props: Partial<STZ>): this {
     this.headerExists();
     this._buildSTZ(props);
+    return this;
   }
   /**
    * Check MSH Header Properties
@@ -1206,6 +1299,177 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
   }
 
   /**
+   * Build any HL7 segment by name from its generated `SegmentSpec`.
+   *
+   * @remarks
+   * Universal chainable builder for every segment in the metadata catalogue
+   * (~187 segments × 11 versions). Field-level R/O/B/W/D/X usage codes are
+   * enforced per the HL7 v2 spec for `this.version`:
+   * - W / X / "field not in this version" => `HL7ValidationError`
+   * - R + missing => `HL7ValidationError`
+   * - B => deprecation warning (value still serializes)
+   * - D => `dependsOn` must resolve when a value is provided
+   *
+   * Field values may be keyed in `props` either as `<segname>_<num>` (e.g.
+   * `ecd_1`), as the bare numeric string `"1"`, or as the number `1`.
+   *
+   * For MSH specifically, use `buildMSH` instead — MSH has special framing
+   * rules (separator characters, single-occurrence guard) that this generic
+   * builder does not enforce.
+   *
+   * @example
+   * ```ts
+   * new HL7_2_8()
+   *   .buildMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_10: "X", msh_11_1: "P" })
+   *   .buildSegment("ECD", { ecd_1: "1", ecd_2: "RC" })
+   *   .toString();
+   * ```
+   *
+   * @since 4.0.0
+   */
+  buildSegment(name: string, props: Record<string, unknown> = {}): this {
+    const spec = SEGMENT_SPECS[name.toUpperCase()];
+    if (!spec) {
+      throw new HL7ValidationError(
+        `Unknown HL7 segment "${name}" — no SegmentSpec is registered`,
+      );
+    }
+    if (name.toUpperCase() === "MSH") {
+      throw new HL7ValidationError(
+        `Use buildMSH() to build the MSH header — buildSegment does not handle MSH framing`,
+      );
+    }
+
+    this.headerExists();
+    this._assertSegmentInVersion(spec);
+    this._segment = this._message.addSegment(spec.name);
+
+    const lower = spec.name.toLowerCase();
+    for (const field of spec.fields) {
+      const value =
+        props[`${lower}_${field.num}`] ??
+        props[String(field.num)] ??
+        props[field.num as unknown as string];
+      this._validatorSetField(spec, field.num, value);
+    }
+    return this;
+  }
+
+  /**
+   * Reject building a segment that is not part of the current spec version.
+   *
+   * @remarks
+   * Used at the top of segment-spec-driven `buildXXX` methods. Throws
+   * unconditionally (regardless of `hardError`) when the current builder's
+   * version is not in `spec.versions` — e.g. attempting to build ECD on an
+   * HL7 v2.3.1 builder, since ECD did not exist before v2.4.
+   *
+   * @since 4.0.0
+   */
+  protected _assertSegmentInVersion(spec: SegmentSpec): void {
+    if (!spec.versions.includes(this.version as HL7Version)) {
+      throw new HL7ValidationError(
+        `Segment ${spec.name} is not part of HL7 v${this.version}`,
+      );
+    }
+  }
+
+  /**
+   * Spec-driven field setter that consults a `FieldSpec`'s per-version
+   * `usage` map (R/O/B/W/D/X) and translates it into validation rules.
+   *
+   * @remarks
+   * Behavior per HL7 usage code for `this.version`:
+   * - usage missing for the version => hard error: field is not part of that
+   *   version of the spec.
+   * - `"W"` (Withdrawn) or `"X"` (Not Supported) => hard error if a value is
+   *   provided. Always throws regardless of `hardError`.
+   * - `"R"` (Required) => sets `required: true` on the rule.
+   * - `"D"` (Dependent/Conditional) => requires `field.dependsOn` to resolve.
+   * - `"B"` (Backward Compatibility) => sets `deprecated: true` (warns, value
+   *   still serializes).
+   * - `"O"` (Optional) => no extra constraint.
+   *
+   * @see https://hl7-definition.caristix.com/v2/ for the per-version codes.
+   * @since 4.0.0
+   */
+  protected _validatorSetField(
+    spec: SegmentSpec,
+    fieldNum: number,
+    value: any,
+    overrides?: Partial<ValidationRule>,
+  ): string[] {
+    const field = spec.fields.find((f) => f.num === fieldNum);
+    if (!field) {
+      throw new HL7ValidationError(
+        `Field ${spec.name}.${fieldNum} is not defined in the segment spec`,
+      );
+    }
+
+    const version = this.version as HL7Version;
+    const usage: HL7UsageCode | undefined = field.usage[version];
+    const hasValue = value !== undefined && value !== null && value !== "";
+
+    if (usage === undefined) {
+      if (hasValue) {
+        throw new HL7ValidationError(
+          `Field ${spec.name}.${fieldNum} is not available in HL7 v${this.version}`,
+        );
+      }
+      return [];
+    }
+
+    if ((usage === "W" || usage === "X") && hasValue) {
+      const label = usage === "W" ? "withdrawn" : "not supported";
+      throw new HL7ValidationError(
+        `Field ${spec.name}.${fieldNum} is ${label} in HL7 v${this.version} and cannot be set`,
+      );
+    }
+
+    // Merge spec-derived rule with caller overrides. Caller wins for
+    // length/type/allowedValues/pattern/etc — this lets hand-tuned validation
+    // (date format, table-based enums) survive the migration to spec-driven
+    // builders. Spec-derived `usage` and `required` are non-overridable.
+    const rule: ValidationRule = {
+      hl7Type: field.hl7Type,
+      length: field.length,
+      allowedValues: field.allowedValues,
+      dependsOn: field.dependsOn,
+      ...(overrides ?? {}),
+      usage,
+      required: usage === "R",
+      deprecated: usage === "B",
+    };
+
+    // Conditional (D / Caristix "C") fields are only enforced when the spec
+    // provides an explicit `dependsOn`. Many segments in the published HL7
+    // spec are marked conditional with prose-only conditions (e.g. "required
+    // when MSH-15 contains AL or ER") that aren't machine-readable; for
+    // those we treat the field as optional and trust the caller. When
+    // `dependsOn` IS present, evaluate it.
+    if (usage === "D" && field.dependsOn && hasValue) {
+      const dep = field.dependsOn;
+      const resolvedPath = /^\d+(\.\d+)*$/.test(dep.path)
+        ? `${this._segment._name}.${dep.path}`
+        : dep.path;
+      const depVal = this._segment.get(resolvedPath);
+      const depStr = depVal?.toString() ?? "";
+      if (dep.mustBeSet && depStr === "") {
+        throw new HL7ValidationError(
+          `Field ${spec.name}.${fieldNum} is conditional and requires ${dep.path} to be set in HL7 v${this.version}`,
+        );
+      }
+      if (dep.mustEqual !== undefined && depStr !== dep.mustEqual) {
+        throw new HL7ValidationError(
+          `Field ${spec.name}.${fieldNum} is conditional and requires ${dep.path} to equal "${dep.mustEqual}" in HL7 v${this.version}`,
+        );
+      }
+    }
+
+    return this._validatorSetValue(String(fieldNum), value, rule);
+  }
+
+  /**
    * @since 4.0.0
    */
   protected _validatorSetValue(
@@ -1281,7 +1545,13 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
   ): void {
     if (!dep) return;
 
-    const depVal = this._segment.get(dep.path);
+    // Segment.set special-cases bare-numeric paths (e.g. "1", "2.3") by
+    // prepending the segment name; Segment.get does not. Mirror that here so
+    // dependsOn can use the same field-relative path style as the setter.
+    const resolvedPath = /^\d+(\.\d+)*$/.test(dep.path)
+      ? `${this._segment._name}.${dep.path}`
+      : dep.path;
+    const depVal = this._segment.get(resolvedPath);
     const depStr = depVal?.toString() ?? "";
     const isSet = depStr !== "";
 

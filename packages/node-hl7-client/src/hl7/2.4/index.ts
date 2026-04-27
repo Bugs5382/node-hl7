@@ -18,6 +18,9 @@ import { HL7_2_4_OM4 } from "./om4";
 import { HL7_2_4_OM5 } from "./om5";
 import { HL7_2_4_OM6 } from "./om6";
 import { HL7_2_4_DRG } from "./drg";
+import { HL7_2_4_ECD } from "./ecd";
+import { ECD_SPEC } from "@/hl7/metadata/segments/ecd";
+import { HL7_ECD } from "@/hl7/types/ecd";
 
 export type { HL7_2_4_MSH } from "./msh";
 export type { ClientBuilderOptions_Hl7_2_4 } from "./types";
@@ -511,5 +514,49 @@ export class HL7_2_4 extends HL7_2_3_1 {
     this._validatorSetValue("6", String(props.drg_6 ?? ""), { length: { min: 1, max: 3 } });
     this._validatorSetValue("7", props.drg_7, { length: { min: 1, max: 12 } });
     this._validatorSetValue("8", props.drg_8, { length: { min: 1, max: 250 } });
+  }
+
+  /**
+   * Build the ECD (Equipment Command) segment.
+   *
+   * @remarks
+   * Introduced in HL7 v2.4. Field-level validation (R/O/B/W/D) is driven by
+   * `ECD_SPEC` and the per-version `usage` map, so the same method body
+   * automatically does the right thing in derived classes (v2.5 → v2.8). For
+   * example, on a v2.8 builder, attempting to set `ecd_4` throws because that
+   * field is `W` (Withdrawn) in v2.8.
+   *
+   * @since 4.0.0
+   */
+  buildECD(props: Partial<HL7_2_4_ECD>): this {
+    this.headerExists();
+    this._buildECD(props);
+    return this;
+  }
+
+  protected _buildECD(props: Partial<HL7_ECD>): void {
+    this._assertSegmentInVersion(ECD_SPEC);
+    this._segment = this._message.addSegment("ECD");
+    this._validatorSetField(
+      ECD_SPEC,
+      1,
+      props.ecd_1 ?? props.referenceCommandNumber,
+    );
+    this._validatorSetField(
+      ECD_SPEC,
+      2,
+      props.ecd_2 ?? props.remoteControlCommand,
+    );
+    this._validatorSetField(
+      ECD_SPEC,
+      3,
+      props.ecd_3 ?? props.responseRequired,
+    );
+    this._validatorSetField(
+      ECD_SPEC,
+      4,
+      props.ecd_4 ?? props.requestedCompletionTime,
+    );
+    this._validatorSetField(ECD_SPEC, 5, props.ecd_5 ?? props.parameters);
   }
 }

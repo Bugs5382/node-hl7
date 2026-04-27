@@ -2,8 +2,8 @@ import { HL7ListenerError, InboundRequest, Server } from "node-hl7-server/src";
 import { describe, expect, test } from "vitest";
 
 describe("node hl7 server", () => {
-  describe("sanity tests - modules", () => {
-    test("InboundRequest - message undefined", async () => {
+  describe("InboundRequest module", () => {
+    test("getMessage throws when no Message was provided", async () => {
       // @ts-expect-error message is not defined
       const empty = new InboundRequest(undefined, { type: "file" });
       try {
@@ -15,15 +15,15 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("InboundRequest - type check", async () => {
+    test("getType returns the configured request type", async () => {
       // @ts-expect-error type check
       const req = new InboundRequest("", { type: "file" });
       expect(req.getType()).toBe("file");
     });
   });
 
-  describe("sanity tests - server class", () => {
-    test("error - bindAddress has to be string", async () => {
+  describe("Server class", () => {
+    test("rejects bindAddress with non-string type", async () => {
       try {
         // @ts-expect-error this is not a string
         new Server({ bindAddress: 351123 });
@@ -32,11 +32,11 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("ipv4 + ipv6 both true is allowed (dual-stack)", async () => {
+    test("accepts ipv4 and ipv6 both true (dual-stack)", async () => {
       expect(() => new Server({ ipv6: true, ipv4: true })).not.toThrow();
     });
 
-    test("error - both families disabled is rejected", async () => {
+    test("rejects ipv4 and ipv6 both false", async () => {
       expect.assertions(1);
       try {
         new Server({ ipv4: false, ipv6: false });
@@ -47,7 +47,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - ipv4 not empty", async () => {
+    test("rejects empty bindAddress when ipv4 is exclusive", async () => {
       expect.assertions(1);
       try {
         new Server({ bindAddress: "", ipv4: true });
@@ -56,7 +56,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - ipv4 not valid address", async () => {
+    test("rejects malformed bindAddress when ipv4 is exclusive", async () => {
       expect.assertions(1);
       try {
         new Server({ bindAddress: "123.34.52.455", ipv4: true });
@@ -65,7 +65,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - dual-stack rejects garbage bindAddress", async () => {
+    test("rejects garbage bindAddress in dual-stack mode", async () => {
       expect.assertions(1);
       try {
         // dual-stack must be opted into; the message then names both families
@@ -77,7 +77,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - ipv6 not empty", async () => {
+    test("rejects empty bindAddress when ipv6 is exclusive", async () => {
       try {
         new Server({ bindAddress: "", ipv6: true, ipv4: false });
       } catch (err: any) {
@@ -85,7 +85,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - ipv6 not valid address", async () => {
+    test("rejects malformed bindAddress when ipv6 is exclusive", async () => {
       try {
         new Server({
           bindAddress: "2001:0db8:85a3:0000:zz00:8a2e:0370:7334",
@@ -97,7 +97,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - ipv6 valid address", async () => {
+    test("accepts a valid IPv6 bindAddress when ipv6 is exclusive", async () => {
       try {
         new Server({
           bindAddress: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
@@ -115,8 +115,8 @@ describe("node hl7 server", () => {
     });
   });
 
-  describe("sanity tests - listener class", () => {
-    test("error - no port specified", async () => {
+  describe("Listener class", () => {
+    test("rejects createInbound with no port", async () => {
       try {
         const server = new Server();
         // @ts-expect-error port is not specified
@@ -126,7 +126,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - port not a number", async () => {
+    test("rejects port given as a string", async () => {
       try {
         const server = new Server();
         // @ts-expect-error port is not a number
@@ -136,7 +136,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - port less than 0", async () => {
+    test("rejects negative port", async () => {
       try {
         const server = new Server();
         server.createInbound({ port: -1 }, async () => {});
@@ -145,7 +145,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - port greater than 65353", async () => {
+    test("rejects port above 65353", async () => {
       try {
         const server = new Server();
         server.createInbound({ port: 65354 }, async () => {});
@@ -154,7 +154,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - name is invalid", async () => {
+    test("rejects name with disallowed special characters", async () => {
       try {
         const server = new Server();
         server.createInbound(
@@ -168,7 +168,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - mshOverride invalid override value type .. as boolean", async () => {
+    test("rejects mshOverrides value of boolean type", async () => {
       try {
         const server = new Server();
         server.createInbound(
@@ -189,7 +189,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - mshOverride invalid override value type .. as number", async () => {
+    test("rejects mshOverrides value of integer type", async () => {
       try {
         const server = new Server();
         server.createInbound(
@@ -210,7 +210,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - mshOverride invalid override value type .. as float", async () => {
+    test("rejects mshOverrides value of float type", async () => {
       try {
         const server = new Server();
         server.createInbound(
@@ -231,7 +231,7 @@ describe("node hl7 server", () => {
       }
     });
 
-    test("error - getMessage() - no message passed to inbound request", async () => {
+    test("InboundRequest.getMessage throws when message is missing", async () => {
       try {
         // @ts-expect-error no message.
         const inboundReq = new InboundRequest("", { type: "message" });

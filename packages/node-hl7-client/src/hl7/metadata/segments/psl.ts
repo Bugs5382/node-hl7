@@ -1,0 +1,323 @@
+import { SegmentSpec } from "@/hl7/metadata/types";
+
+/**
+ * PSL — Product/service Line Item
+ *
+ * Generated from the Caristix HL7 Definition API
+ * (https://hl7-definition.caristix.com/v2/HL7v2.X/Segments/PSL)
+ * by scripts/generate-segment-specs.mjs. Do not edit by hand — re-run the
+ * generator instead.
+ *
+ * @since 4.0.0
+ */
+export const PSL_SPEC: SegmentSpec = {
+  name: "PSL",
+  description: "Product/service Line Item",
+  versions: ["2.6","2.7","2.7.1","2.8"],
+  fields: [
+    {
+      num: 1,
+      name: "Provider Product/Service Line Item Number",
+      hl7Type: "EI",
+      usage: {"2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+    },
+    {
+      num: 2,
+      name: "Payer Product/Service Line Item Number",
+      hl7Type: "EI",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 3,
+      name: "Product/Service Line Item Sequence Number",
+      hl7Type: "SI",
+      length: 4,
+      usage: {"2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+    },
+    {
+      num: 4,
+      name: "Provider Tracking Id",
+      hl7Type: "EI",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 5,
+      name: "Payer Tracking Id",
+      hl7Type: "EI",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 6,
+      name: "Product/Service Line Item Status",
+      hl7Type: "CWE",
+      table: 559,
+      usage: {"2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+    },
+    {
+      num: 7,
+      name: "Product/Service Code",
+      hl7Type: "CWE",
+      table: 879,
+      usage: {"2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+    },
+    {
+      num: 8,
+      name: "Product/Service Code Modifier",
+      hl7Type: "CWE",
+      table: 880,
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 9,
+      name: "Product/Service Code Description",
+      hl7Type: "ST",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 10,
+      name: "Product/Service Effective Date",
+      hl7Type: "DTM",
+      usage: {"2.6":"D","2.7":"D","2.7.1":"D","2.8":"D"},
+    },
+    {
+      num: 11,
+      name: "Product/Service Expiration Date",
+      hl7Type: "DTM",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 12,
+      name: "Product/Service Quantity",
+      hl7Type: "CQ",
+      usage: {"2.6":"D","2.7":"D","2.7.1":"D","2.8":"D"},
+    },
+    {
+      num: 13,
+      name: "Product/Service Unit Cost",
+      hl7Type: "CP",
+      usage: {"2.6":"D","2.7":"D","2.7.1":"D","2.8":"D"},
+    },
+    {
+      num: 14,
+      name: "Number Of Items Per Unit",
+      hl7Type: "NM",
+      usage: {"2.6":"D","2.7":"D","2.7.1":"D","2.8":"D"},
+    },
+    {
+      num: 15,
+      name: "Product/Service Gross Amount",
+      hl7Type: "CP",
+      usage: {"2.6":"D","2.7":"D","2.7.1":"D","2.8":"D"},
+    },
+    {
+      num: 16,
+      name: "Product/Service Billed Amount",
+      hl7Type: "CP",
+      usage: {"2.6":"D","2.7":"D","2.7.1":"D","2.8":"D"},
+    },
+    {
+      num: 17,
+      name: "Product/Service Clarification Code Type",
+      hl7Type: "CWE",
+      table: 561,
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 18,
+      name: "Product/Service Clarification Code Value",
+      hl7Type: "ST",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 19,
+      name: "Health Document Reference Identifier",
+      hl7Type: "EI",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 20,
+      name: "Processing Consideration Code",
+      hl7Type: "CWE",
+      table: 562,
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 21,
+      name: "Restricted Disclosure Indicator",
+      hl7Type: "ID",
+      length: 4,
+      table: 532,
+      usage: {"2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+    },
+    {
+      num: 22,
+      name: "Related Product/Service Code Indicator",
+      hl7Type: "CWE",
+      table: 879,
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 23,
+      name: "Product/Service Amount For Physician",
+      hl7Type: "CP",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 24,
+      name: "Product/Service Cost Factor",
+      hl7Type: "NM",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 25,
+      name: "Cost Center",
+      hl7Type: "CX",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 26,
+      name: "Billing Period",
+      hl7Type: "DR",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 27,
+      name: "Days Without Billing",
+      hl7Type: "NM",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 28,
+      name: "Session-no",
+      hl7Type: "NM",
+      length: 4,
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 29,
+      name: "Executing Physician Id",
+      hl7Type: "XCN",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 30,
+      name: "Responsible Physician Id",
+      hl7Type: "XCN",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 31,
+      name: "Role Executing Physician",
+      hl7Type: "CWE",
+      table: 881,
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 32,
+      name: "Medical Role Executing Physician",
+      hl7Type: "CWE",
+      table: 882,
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 33,
+      name: "Side Of Body",
+      hl7Type: "CWE",
+      table: 894,
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 34,
+      name: "Number Of Tp's Pp",
+      hl7Type: "NM",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 35,
+      name: "Tp-value Pp",
+      hl7Type: "CP",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 36,
+      name: "Internal Scaling Factor Pp",
+      hl7Type: "NM",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 37,
+      name: "External Scaling Factor Pp",
+      hl7Type: "NM",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 38,
+      name: "Amount Pp",
+      hl7Type: "CP",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 39,
+      name: "Number Of Tp's Technical Part",
+      hl7Type: "NM",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 40,
+      name: "Tp-value Technical Part",
+      hl7Type: "CP",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 41,
+      name: "Internal Scaling Factor Technical Part",
+      hl7Type: "NM",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 42,
+      name: "External Scaling Factor Technical Part",
+      hl7Type: "NM",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 43,
+      name: "Amount Technical Part",
+      hl7Type: "CP",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 44,
+      name: "Total Amount Professional Part + Technical Part",
+      hl7Type: "CP",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 45,
+      name: "Vat-rate",
+      hl7Type: "NM",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 46,
+      name: "Main-service",
+      hl7Type: "ID",
+      length: 20,
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 47,
+      name: "Validation",
+      hl7Type: "ID",
+      length: 1,
+      table: 136,
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 48,
+      name: "Comment",
+      hl7Type: "ST",
+      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+  ],
+};

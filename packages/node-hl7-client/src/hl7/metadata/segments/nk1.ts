@@ -1,0 +1,287 @@
+import { SegmentSpec } from "@/hl7/metadata/types";
+
+/**
+ * NK1 — Next Of Kin / Associated Parties
+ *
+ * Generated from the Caristix HL7 Definition API
+ * (https://hl7-definition.caristix.com/v2/HL7v2.X/Segments/NK1)
+ * by scripts/generate-segment-specs.mjs. Do not edit by hand — re-run the
+ * generator instead.
+ *
+ * @since 4.0.0
+ */
+export const NK1_SPEC: SegmentSpec = {
+  name: "NK1",
+  description: "Next Of Kin / Associated Parties",
+  versions: ["2.1","2.2","2.3","2.3.1","2.4","2.5","2.5.1","2.6","2.7","2.7.1","2.8"],
+  fields: [
+    {
+      num: 1,
+      name: "Set Id - Nk1",
+      hl7Type: "SI",
+      length: 4,
+      usage: {"2.1":"R","2.2":"R","2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+    },
+    {
+      num: 2,
+      name: "Name",
+      hl7Type: "XPN",
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 3,
+      name: "Relationship",
+      hl7Type: "CWE",
+      table: 63,
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 4,
+      name: "Address",
+      hl7Type: "XAD",
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 5,
+      name: "Phone Number",
+      hl7Type: "XTN",
+      usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"B","2.7.1":"B","2.8":"B"},
+    },
+    {
+      num: 6,
+      name: "Business Phone Number",
+      hl7Type: "XTN",
+      usage: {"2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"B","2.7.1":"B","2.8":"B"},
+    },
+    {
+      num: 7,
+      name: "Contact Role",
+      hl7Type: "CWE",
+      table: 131,
+      usage: {"2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 8,
+      name: "Start Date",
+      hl7Type: "DT",
+      usage: {"2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 9,
+      name: "End Date",
+      hl7Type: "DT",
+      usage: {"2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 10,
+      name: "Next Of Kin / Associated Parties Job Title",
+      hl7Type: "ST",
+      usage: {"2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 11,
+      name: "Next Of Kin / Associated Parties Job Code/Class",
+      hl7Type: "JCC",
+      usage: {"2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 12,
+      name: "Next Of Kin / Associated Parties Employee Number",
+      hl7Type: "CX",
+      usage: {"2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 13,
+      name: "Organization Name - Nk1",
+      hl7Type: "XON",
+      usage: {"2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 14,
+      name: "Marital Status",
+      hl7Type: "CWE",
+      table: 2,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 15,
+      name: "Administrative Sex",
+      hl7Type: "CWE",
+      table: 1,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 16,
+      name: "Date/Time Of Birth",
+      hl7Type: "DTM",
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 17,
+      name: "Living Dependency",
+      hl7Type: "CWE",
+      table: 223,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 18,
+      name: "Ambulatory Status",
+      hl7Type: "CWE",
+      table: 9,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 19,
+      name: "Citizenship",
+      hl7Type: "CWE",
+      table: 171,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 20,
+      name: "Primary Language",
+      hl7Type: "CWE",
+      table: 296,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 21,
+      name: "Living Arrangement",
+      hl7Type: "CWE",
+      table: 220,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 22,
+      name: "Publicity Code",
+      hl7Type: "CWE",
+      table: 215,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 23,
+      name: "Protection Indicator",
+      hl7Type: "ID",
+      length: 1,
+      table: 136,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 24,
+      name: "Student Indicator",
+      hl7Type: "CWE",
+      table: 231,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 25,
+      name: "Religion",
+      hl7Type: "CWE",
+      table: 6,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 26,
+      name: "Mother's Maiden Name",
+      hl7Type: "XPN",
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 27,
+      name: "Nationality",
+      hl7Type: "CWE",
+      table: 212,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 28,
+      name: "Ethnic Group",
+      hl7Type: "CWE",
+      table: 189,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 29,
+      name: "Contact Reason",
+      hl7Type: "CWE",
+      table: 222,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 30,
+      name: "Contact Person's Name",
+      hl7Type: "XPN",
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 31,
+      name: "Contact Person's Telephone Number",
+      hl7Type: "XTN",
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"B","2.7.1":"B","2.8":"B"},
+    },
+    {
+      num: 32,
+      name: "Contact Person's Address",
+      hl7Type: "XAD",
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 33,
+      name: "Next Of Kin/Associated Party's Identifiers",
+      hl7Type: "CX",
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 34,
+      name: "Job Status",
+      hl7Type: "CWE",
+      table: 311,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 35,
+      name: "Race",
+      hl7Type: "CWE",
+      table: 5,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 36,
+      name: "Handicap",
+      hl7Type: "CWE",
+      table: 295,
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 37,
+      name: "Contact Person Social Security Number",
+      hl7Type: "ST",
+      usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 38,
+      name: "Next Of Kin Birth Place",
+      hl7Type: "ST",
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 39,
+      name: "Vip Indicator",
+      hl7Type: "CWE",
+      table: 99,
+      usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 40,
+      name: "Next Of Kin Telecommunication Information",
+      hl7Type: "XTN",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 41,
+      name: "Contact Person's Telecommunication Information",
+      hl7Type: "XTN",
+      usage: {"2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+  ],
+};

@@ -1,3 +1,5 @@
+import type { HL7UsageCode } from "@/hl7/metadata/types";
+
 export type ValidationRule = {
   /** An array of valid values. Requires `type` to be `'string'` (the default). */
   allowedValues?: string[];
@@ -24,4 +26,13 @@ export type ValidationRule = {
   type?: "string" | "number" | "date";
   /** When `deprecated` is true, name the replacement field here. */
   useField?: string;
+  /**
+   * HL7 usage code for the field in the current version. When set, drives:
+   * - `"R"` => required = true
+   * - `"B"` => deprecated = true (warning, value still serializes)
+   * - `"W"` / `"X"` => hard error if value is provided
+   * - `"D"` => requires `dependsOn` to resolve
+   * - `"O"` => no extra constraint
+   */
+  usage?: HL7UsageCode;
 };

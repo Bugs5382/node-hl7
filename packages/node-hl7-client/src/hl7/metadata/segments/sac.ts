@@ -1,0 +1,303 @@
+import { SegmentSpec } from "@/hl7/metadata/types";
+
+/**
+ * SAC — Specimen Container Detail
+ *
+ * Generated from the Caristix HL7 Definition API
+ * (https://hl7-definition.caristix.com/v2/HL7v2.X/Segments/SAC)
+ * by scripts/generate-segment-specs.mjs. Do not edit by hand — re-run the
+ * generator instead.
+ *
+ * @since 4.0.0
+ */
+export const SAC_SPEC: SegmentSpec = {
+  name: "SAC",
+  description: "Specimen Container Detail",
+  versions: ["2.4","2.5","2.5.1","2.6","2.7","2.7.1","2.8"],
+  fields: [
+    {
+      num: 1,
+      name: "External Accession Identifier",
+      hl7Type: "EI",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 2,
+      name: "Accession Identifier",
+      hl7Type: "EI",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 3,
+      name: "Container Identifier",
+      hl7Type: "EI",
+      usage: {"2.4":"D","2.5":"D","2.5.1":"D","2.6":"D","2.7":"D","2.7.1":"D","2.8":"D"},
+    },
+    {
+      num: 4,
+      name: "Primary (parent) Container Identifier",
+      hl7Type: "EI",
+      usage: {"2.4":"D","2.5":"D","2.5.1":"D","2.6":"D","2.7":"D","2.7.1":"D","2.8":"D"},
+    },
+    {
+      num: 5,
+      name: "Equipment Container Identifier",
+      hl7Type: "EI",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 6,
+      name: "Specimen Source",
+      hl7Type: "ST",
+      usage: {"2.4":"O","2.5":"D","2.5.1":"D","2.6":"D","2.7":"W","2.7.1":"W","2.8":"W"},
+    },
+    {
+      num: 7,
+      name: "Registration Date/Time",
+      hl7Type: "DTM",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 8,
+      name: "Container Status",
+      hl7Type: "CWE",
+      table: 370,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 9,
+      name: "Carrier Type",
+      hl7Type: "CWE",
+      table: 378,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 10,
+      name: "Carrier Identifier",
+      hl7Type: "EI",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 11,
+      name: "Position In Carrier",
+      hl7Type: "NA",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 12,
+      name: "Tray Type - Sac",
+      hl7Type: "CWE",
+      table: 379,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 13,
+      name: "Tray Identifier",
+      hl7Type: "EI",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 14,
+      name: "Position In Tray",
+      hl7Type: "NA",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 15,
+      name: "Location",
+      hl7Type: "CWE",
+      table: 9999,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 16,
+      name: "Container Height",
+      hl7Type: "NM",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 17,
+      name: "Container Diameter",
+      hl7Type: "NM",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 18,
+      name: "Barrier Delta",
+      hl7Type: "NM",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 19,
+      name: "Bottom Delta",
+      hl7Type: "NM",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 20,
+      name: "Container Height/Diameter/Delta Units",
+      hl7Type: "CWE",
+      table: 9999,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 21,
+      name: "Container Volume",
+      hl7Type: "NM",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 22,
+      name: "Available Specimen Volume",
+      hl7Type: "NM",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 23,
+      name: "Initial Specimen Volume",
+      hl7Type: "NM",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 24,
+      name: "Volume Units",
+      hl7Type: "CWE",
+      table: 9999,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 25,
+      name: "Separator Type",
+      hl7Type: "CWE",
+      table: 380,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 26,
+      name: "Cap Type",
+      hl7Type: "CWE",
+      table: 381,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 27,
+      name: "Additive",
+      hl7Type: "CWE",
+      table: 371,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 28,
+      name: "Specimen Component",
+      hl7Type: "CWE",
+      table: 372,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 29,
+      name: "Dilution Factor",
+      hl7Type: "SN",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 30,
+      name: "Treatment",
+      hl7Type: "CWE",
+      table: 373,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 31,
+      name: "Temperature",
+      hl7Type: "SN",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 32,
+      name: "Hemolysis Index",
+      hl7Type: "NM",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 33,
+      name: "Hemolysis Index Units",
+      hl7Type: "CWE",
+      table: 9999,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 34,
+      name: "Lipemia Index",
+      hl7Type: "NM",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 35,
+      name: "Lipemia Index Units",
+      hl7Type: "CWE",
+      table: 9999,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 36,
+      name: "Icterus Index",
+      hl7Type: "NM",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 37,
+      name: "Icterus Index Units",
+      hl7Type: "CWE",
+      table: 9999,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 38,
+      name: "Fibrin Index",
+      hl7Type: "NM",
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 39,
+      name: "Fibrin Index Units",
+      hl7Type: "CWE",
+      table: 9999,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 40,
+      name: "System Induced Contaminants",
+      hl7Type: "CWE",
+      table: 374,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 41,
+      name: "Drug Interference",
+      hl7Type: "CWE",
+      table: 382,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 42,
+      name: "Artificial Blood",
+      hl7Type: "CWE",
+      table: 375,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 43,
+      name: "Special Handling Code",
+      hl7Type: "CWE",
+      table: 376,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+    {
+      num: 44,
+      name: "Other Environmental Factors",
+      hl7Type: "CWE",
+      table: 377,
+      usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+    },
+  ],
+};
