@@ -76,7 +76,7 @@ export const PDC_SPEC: SegmentSpec = {
       num: 10,
       name: "Marketing Basis",
       hl7Type: "ID",
-      length: 4,
+      length: { max: 4 },
       table: 330,
       usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },

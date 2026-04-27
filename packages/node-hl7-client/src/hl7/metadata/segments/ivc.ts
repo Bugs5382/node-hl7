@@ -94,7 +94,7 @@ export const IVC_SPEC: SegmentSpec = {
       num: 13,
       name: "Last Invoice Indicator",
       hl7Type: "ID",
-      length: 1,
+      length: { max: 1 },
       table: 136,
       usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },
@@ -162,7 +162,7 @@ export const IVC_SPEC: SegmentSpec = {
       num: 24,
       name: "Vat-rates Applied",
       hl7Type: "NM",
-      length: 5,
+      length: { max: 5 },
       usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },
     {

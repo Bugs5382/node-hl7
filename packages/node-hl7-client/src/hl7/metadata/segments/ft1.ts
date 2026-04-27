@@ -19,21 +19,21 @@ export const FT1_SPEC: SegmentSpec = {
       num: 1,
       name: "Set Id - Ft1",
       hl7Type: "SI",
-      length: 4,
+      length: { max: 4 },
       usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },
     {
       num: 2,
       name: "Transaction Id",
       hl7Type: "ST",
-      length: 12,
+      length: { max: 12 },
       usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },
     {
       num: 3,
       name: "Transaction Batch Id",
       hl7Type: "ST",
-      length: 10,
+      length: { max: 10 },
       usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },
     {
@@ -215,7 +215,7 @@ export const FT1_SPEC: SegmentSpec = {
       num: 31,
       name: "Transaction Reference Key",
       hl7Type: "SI",
-      length: 4,
+      length: { max: 4 },
       usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },
     {

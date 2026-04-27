@@ -19,7 +19,7 @@ export const ARV_SPEC: SegmentSpec = {
       num: 1,
       name: "Set Id",
       hl7Type: "SI",
-      length: 4,
+      length: { max: 4 },
       usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },
     {

@@ -25,7 +25,7 @@ export const NTE_SPEC: SegmentSpec = {
       num: 2,
       name: "Source Of Comment",
       hl7Type: "ID",
-      length: 1,
+      length: { max: 1 },
       table: 105,
       usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },

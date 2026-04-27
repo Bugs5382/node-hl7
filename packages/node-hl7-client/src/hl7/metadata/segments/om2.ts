@@ -81,7 +81,7 @@ export const OM2_SPEC: SegmentSpec = {
       num: 11,
       name: "Minimum Meaningful Increments",
       hl7Type: "NM",
-      length: 20,
+      length: { max: 20 },
       usage: {"2.2":"O"},
     },
   ],

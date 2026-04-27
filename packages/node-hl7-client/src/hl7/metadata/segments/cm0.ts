@@ -19,7 +19,7 @@ export const CM0_SPEC: SegmentSpec = {
       num: 1,
       name: "Set Id - Cm0",
       hl7Type: "SI",
-      length: 4,
+      length: { max: 4 },
       usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },
     {

@@ -25,7 +25,7 @@ export const DSC_SPEC: SegmentSpec = {
       num: 2,
       name: "Continuation Style",
       hl7Type: "ID",
-      length: 1,
+      length: { max: 1 },
       table: 398,
       usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },

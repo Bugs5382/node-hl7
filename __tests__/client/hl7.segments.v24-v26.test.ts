@@ -93,6 +93,7 @@ describe("HL7 2.4 segment builders", () => {
   });
 
   test("buildPID with 2.4-only fields", () => {
+    // PID.39 is introduced in v2.5 per the published spec, not v2.4.
     b.buildPID({
       pid_3: "MRN1",
       pid_5: "DOE^JANE",
@@ -104,7 +105,6 @@ describe("HL7 2.4 segment builders", () => {
       pid_36: "ETH",
       pid_37: "MRN2",
       pid_38: "PRD",
-      pid_39: "TBC",
     });
     expect(b.toString()).toContain("\rPID|||MRN1||DOE^JANE");
   });
@@ -122,16 +122,12 @@ describe("HL7 2.4 segment builders", () => {
   });
 
   test("buildORC with 2.4-only fields", () => {
+    // ORC.26..30 are introduced in v2.5 per the published spec.
     b.buildORC({
       orc_1: "NW",
       orc_2: "ORDER123",
       orc_24: "ADDR",
       orc_25: "STATUS_MOD",
-      orc_26: DATE,
-      orc_27: "ENTRY",
-      orc_28: "I",
-      orc_29: "TYPE",
-      orc_30: "ALT",
     });
     expect(b.toString()).toContain("\rORC|NW|ORDER123");
   });

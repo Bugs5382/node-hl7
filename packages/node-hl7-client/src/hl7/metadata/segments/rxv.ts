@@ -25,7 +25,7 @@ export const RXV_SPEC: SegmentSpec = {
       num: 2,
       name: "Bolus Type",
       hl7Type: "ID",
-      length: 1,
+      length: { max: 1 },
       table: 917,
       usage: {"2.8":"R"},
     },

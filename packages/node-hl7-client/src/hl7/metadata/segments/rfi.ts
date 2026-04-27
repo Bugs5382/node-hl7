@@ -31,7 +31,7 @@ export const RFI_SPEC: SegmentSpec = {
       num: 3,
       name: "Patient Consent",
       hl7Type: "ID",
-      length: 1,
+      length: { max: 1 },
       table: 136,
       usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },

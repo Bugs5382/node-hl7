@@ -2,15 +2,16 @@
 
 > A quick-lookup matrix for every HL7 v2.x segment supported by `node-hl7-client`'s typed builders, plus links to the canonical [Caristix](https://hl7-definition.caristix.com/v2/) field reference.
 
-Every segment is exposed by `HL7_BASE` as a public `build<SEGNAME>(props)` method. Version-specific builder classes (`HL7_2_1` … `HL7_2_8`) implement the segments that exist in their version. Calling `build<SEGNAME>` for a segment that doesn't exist in the active version throws `HL7FatalError("Not Implemented")` at runtime.
+Every segment is exposed by `HL7_BASE` as a public `build<SEGNAME>(props)` method. Version-specific builder classes (`HL7_2_1` … `HL7_2_8`) implement the segments that exist in their version. Calling a `build<SEGNAME>` for a segment that doesn't exist in the active version throws `HL7ValidationError("Segment <NAME> is not part of HL7 v<X>")` at runtime — sourced from the per-segment `SegmentSpec` (see below).
 
 ## 🧾 Table of Contents
 
 1. [How to read the matrix](#-how-to-read-the-matrix)
-2. [Always-available (base) segments](#-always-available-base-segments)
-3. [Compatibility matrix](#-compatibility-matrix)
-4. [By category](#-by-category)
-5. [Per-segment cheat-sheet](#-per-segment-cheat-sheet)
+2. [SegmentSpec catalogue (all 187 segments)](#-segmentspec-catalogue-all-187-segments)
+3. [Always-available (base) segments](#-always-available-base-segments)
+4. [Compatibility matrix](#-compatibility-matrix)
+5. [By category](#-by-category)
+6. [Per-segment cheat-sheet](#-per-segment-cheat-sheet)
 
 ---
 
@@ -22,6 +23,32 @@ Every segment is exposed by `HL7_BASE` as a public `build<SEGNAME>(props)` metho
 - All segments are inherited downstream — once a segment first appears in version V, every later version (`HL7_2_(V+1)`, … `HL7_2_8`) also supports it.
 
 > 💡 **Tip:** Always start the message with `buildMSH(...)`. Calling any other `build*` first throws `HL7FatalError("MSH Header must be built first.")`.
+
+---
+
+## 📚 SegmentSpec catalogue (all 187 segments)
+
+Beyond the typed builders below, the library ships a complete **machine-readable catalogue** of every HL7 v2 segment across versions 2.1 → 2.8 — generated from the [Caristix HL7 Definition API](https://hl7-definition.caristix.com/v2/) by `scripts/generate-segment-specs.mjs` and committed to the repo (no runtime network calls).
+
+```ts
+import { SEGMENT_SPECS } from "node-hl7-client";
+
+// Every spec carries per-version field-level usage codes (R/O/B/W/D/X).
+const ecd = SEGMENT_SPECS.ECD;
+ecd.versions;                        // ["2.4", "2.5", …, "2.8"]
+ecd.fields[3].usage["2.8"];          // "W" — ECD.4 was withdrawn in 2.8
+```
+
+Use this with `builder.buildSegment(name, props)` to cover the long tail of segments that don't have a hand-tuned typed method:
+
+```ts
+builder
+  .buildMSH({ msh_9: "ADT^A01", msh_10: "X", msh_11: "P" })
+  .buildSegment("ABS", { abs_1: "DOC1^Smith^John", abs_2: "MED" })
+  .buildSegment("ADJ", { /* … */ });
+```
+
+Field-level enforcement is identical to the typed methods: required fields throw if missing, withdrawn fields throw if set, deprecated (B) fields warn but still serialize. See the [Validation & errors section](../builder/index.md#-validation--errors) in the builder docs for the full per-code behavior.
 
 ---
 

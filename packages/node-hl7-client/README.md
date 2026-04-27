@@ -10,6 +10,9 @@
 
 - ⚡ **Zero runtime dependencies** — fast, small, easy to audit.
 - 🧱 **Typed segment builders** — `HL7_2_1` through `HL7_2_8`, with `buildMSH`, `buildPID`, `buildEVN`, `buildOBX`, `buildORC`, … all the segments you actually use.
+- 🧮 **Per-version field availability** — every segment carries an HL7 v2 usage code per version (R/O/B/W/D/X), sourced from the [Caristix HL7 Definition API](https://hl7-definition.caristix.com/v2/). Withdrawn fields throw, deprecated (B) fields warn, segments that didn't exist in your version are rejected. The full catalogue is exported as `SEGMENT_SPECS`.
+- 🔗 **Chainable builders** — every `build*` returns the builder, so you can compose `new HL7_2_8().buildMSH(...).buildPID(...).toString()` top-to-bottom.
+- 🧰 **`buildSegment(name, props)`** — universal spec-driven builder for the long tail of ~187 segments when a hand-tuned method isn't available.
 - 🔁 **Auto reconnect & retry** — exponential backoff, configurable attempt cap.
 - 🧠 **Pluggable queue** — default in‑memory, or wire it up to Redis / RabbitMQ / SQL.
 - 📦 **Builder + Parser + Client** — one package covers send, receive, and round‑trip.
@@ -46,25 +49,25 @@ npm install node-hl7-client
 ```ts
 import Client, { HL7_2_5 } from "node-hl7-client";
 
-// 1) Build an ADT^A01 with the version‑specific builder.
-const builder = new HL7_2_5();
-builder.buildMSH({
-  msh_3: "MY_APP",
-  msh_4: "MY_FAC",
-  msh_5: "EPIC",
-  msh_6: "HOSP",
-  msh_9: "ADT^A01",
-  msh_10: "MSG00001",
-  msh_11: "P",
-});
-builder.buildEVN({ evn_1: "A01" });
-builder.buildPID({
-  pid_3: "MRN12345",
-  pid_5: "DOE^JANE^A",
-  pid_7: new Date("1980-01-01"),
-  pid_8: "F",
-});
-const message = builder.toMessage();
+// 1) Build an ADT^A01. Every build* returns the builder, so you can chain.
+const message = new HL7_2_5()
+  .buildMSH({
+    msh_3: "MY_APP",
+    msh_4: "MY_FAC",
+    msh_5: "EPIC",
+    msh_6: "HOSP",
+    msh_9: "ADT^A01",
+    msh_10: "MSG00001",
+    msh_11: "P",
+  })
+  .buildEVN({ evn_1: "A01" })
+  .buildPID({
+    pid_3: "MRN12345",
+    pid_5: "DOE^JANE^A",
+    pid_7: new Date("1980-01-01"),
+    pid_8: "F",
+  })
+  .toMessage();
 
 // 2) Open a persistent connection and send it.
 const client = new Client({ host: "127.0.0.1" });
@@ -74,7 +77,7 @@ const conn = client.createConnection({ port: 3000 }, async (res) => {
 await conn.sendMessage(message);
 ```
 
-The class‑based builder is the **new builder format**. It validates segment fields against HL7 tables (e.g. allowed values for `MSH.11`, `MSA.1`, `PV1.2`), raises `HL7ValidationError` on bad input, and produces a real `Message` object that you can keep mutating with `message.set("PID.13", ...)`, `message.addSegment("OBX")`, and so on.
+The class‑based builder validates segment fields against HL7 tables (e.g. allowed values for `MSH.11`, `MSA.1`, `PV1.2`) **and** against per-version usage codes from the published HL7 spec — it rejects withdrawn fields (`W`/`X`), warns on backward-compatibility ones (`B`), and refuses segments that didn't exist in the active version. Bad input raises `HL7ValidationError`; the result is a real `Message` you can keep mutating with `message.set("PID.13", ...)`, `message.addSegment("OBX")`, and so on.
 
 ---
 

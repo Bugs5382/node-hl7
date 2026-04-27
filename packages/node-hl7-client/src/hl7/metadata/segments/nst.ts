@@ -19,7 +19,7 @@ export const NST_SPEC: SegmentSpec = {
       num: 1,
       name: "Statistics Available",
       hl7Type: "ID",
-      length: 1,
+      length: { max: 1 },
       table: 136,
       usage: {"2.1":"R","2.2":"R","2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
     },

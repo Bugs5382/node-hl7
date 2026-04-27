@@ -75,8 +75,10 @@ describe("HL7 2.1 segment builders", () => {
   });
 
   test("buildPV1 — required pv1_2 patient class", () => {
-    b.buildPV1({ pv1_2: "I" });
-    expect(b.toString()).toContain("\rPV1||I|");
+    // PV1.3 (Assigned Patient Location) is R in v2.1 per the published spec
+    // (was relaxed to O in 2.2+); test now provides it.
+    b.buildPV1({ pv1_2: "I", pv1_3: "WARD-A" });
+    expect(b.toString()).toContain("\rPV1||I|WARD-A");
   });
 
   test("buildNK1 — required nk1_1 (set ID)", () => {
@@ -131,9 +133,17 @@ describe("HL7 2.1 segment builders", () => {
   });
 
   test("buildOBR — required observation request", () => {
+    // v2.1 OBR is unusually strict — it marks OBR.4, .7, .8, .9, .14, .22
+    // all as R. Most of these were relaxed to O in v2.2+. Provide them all
+    // so the v2.1 builder serializes successfully.
     b.buildOBR({
       obr_1: "1",
       obr_4: "GLU^Glucose^L",
+      obr_7: "20240115102030",
+      obr_8: "20240115110000",
+      obr_9: "10^mL",
+      obr_14: "20240115093000",
+      obr_22: "20240115110500",
     });
     expect(b.toString()).toContain("\rOBR|1");
   });

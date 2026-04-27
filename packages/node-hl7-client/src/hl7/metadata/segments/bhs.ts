@@ -19,14 +19,14 @@ export const BHS_SPEC: SegmentSpec = {
       num: 1,
       name: "Batch Field Separator",
       hl7Type: "ST",
-      length: 1,
+      length: { max: 1 },
       usage: {"2.1":"R","2.2":"R","2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
     },
     {
       num: 2,
       name: "Batch Encoding Characters",
       hl7Type: "ST",
-      length: 5,
+      length: { max: 5 },
       usage: {"2.1":"R","2.2":"R","2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
     },
     {

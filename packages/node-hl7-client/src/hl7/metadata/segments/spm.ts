@@ -19,7 +19,7 @@ export const SPM_SPEC: SegmentSpec = {
       num: 1,
       name: "Set Id - Spm",
       hl7Type: "SI",
-      length: 4,
+      length: { max: 4 },
       usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },
     {
@@ -144,7 +144,7 @@ export const SPM_SPEC: SegmentSpec = {
       num: 20,
       name: "Specimen Availability",
       hl7Type: "ID",
-      length: 1,
+      length: { max: 1 },
       table: 136,
       usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },

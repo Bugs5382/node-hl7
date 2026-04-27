@@ -32,7 +32,7 @@ export const ECD_SPEC: SegmentSpec = {
       num: 3,
       name: "Response Required",
       hl7Type: "ID",
-      length: 1,
+      length: { max: 1 },
       table: 136,
       usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },

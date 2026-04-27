@@ -8,13 +8,16 @@
 2. [Pick a version (`HL7_2_x`)](#-pick-a-version-hl7_2_x)
 3. [Build the MSH (always first)](#-build-the-msh-always-first)
 4. [Build the rest of your segments](#-build-the-rest-of-your-segments)
-5. [Date formats](#-date-formats)
-6. [Encoding characters](#-encoding-characters)
-7. [Direct edits with `message.set(...)`](#-direct-edits-with-messageset)
-8. [Building Batches](#-building-batches)
-9. [Building File Batches](#-building-file-batches)
-10. [Refactor pattern: factory functions](#-refactor-pattern-factory-functions)
-11. [Validation & errors](#-validation--errors)
+5. [Per-version field availability (usage codes)](#-per-version-field-availability-usage-codes)
+6. [Chainable build methods](#-chainable-build-methods)
+7. [`buildSegment` — generic spec-driven builder](#-buildsegment--generic-spec-driven-builder)
+8. [Date formats](#-date-formats)
+9. [Encoding characters](#-encoding-characters)
+10. [Direct edits with `message.set(...)`](#-direct-edits-with-messageset)
+11. [Building Batches](#-building-batches)
+12. [Building File Batches](#-building-file-batches)
+13. [Refactor pattern: factory functions](#-refactor-pattern-factory-functions)
+14. [Validation & errors](#-validation--errors)
 
 ---
 
@@ -163,6 +166,127 @@ builder.buildMSA({
 `buildACC`, `buildBLG`, `buildDG1`, `buildDSC`, `buildEVN`, `buildFT1`, `buildGT1`, `buildIN1`, `buildMRG`, `buildNK1`, `buildNPU`, `buildNTE`, `buildOBR`, `buildORC`, `buildPR1`, `buildPV1`, `buildQRD`, `buildQRF`, `buildRX1`, `buildUB1`, `buildURD`, `buildURS`, `buildSFT`, `buildSPM`, … and more.
 
 > 📚 **Full segment reference:** see [`pages/client/segments/index.md`](../segments/index.md) for a complete compatibility matrix of every supported segment across HL7 v2.1 → v2.8, plus links to the canonical [Caristix](https://hl7-definition.caristix.com/v2/) field reference.
+
+---
+
+## 🧮 Per-version field availability (usage codes)
+
+Every segment is backed by a `SegmentSpec` derived directly from the [Caristix HL7 Definition API](https://hl7-definition.caristix.com/v2/), one per segment, covering every version from 2.1 → 2.8. Each field carries an HL7 **usage code** per version, and the builder enforces them at runtime — so you cannot, for example, accidentally set `ECD.4` on a v2.8 message (it was withdrawn).
+
+| Code | Meaning | What the builder does when a value is provided |
+|:---:|---|---|
+| **R** | Required | Field MUST be populated. Missing => `HL7ValidationError`. |
+| **O** | Optional | No constraint. |
+| **B** | Backward Compatibility | Emits a deprecation warning on the `warning` event; value still serializes. |
+| **W** | Withdrawn | `HL7ValidationError` — always, regardless of `hardError`. |
+| **X** | Not Supported | `HL7ValidationError` — always. |
+| **D** | Dependent / Conditional | Value is allowed; if the spec carries a machine-readable `dependsOn`, it is enforced. Most published `D` fields have prose-only conditions and are accepted as-is. |
+| _(missing)_ | Field not in this version | `HL7ValidationError` — the field doesn't exist in the chosen HL7 version. |
+
+The canonical example — `ECD.4 Requested Completion Time`:
+
+| Version | Usage | Behavior |
+|:---:|:---:|---|
+| 2.4 | O | Settable. |
+| 2.5 / 2.5.1 / 2.6 | B | Settable, emits `"warning"`. |
+| 2.7 / 2.7.1 / 2.8 | W | `HL7ValidationError("Field ECD.4 is withdrawn in HL7 v2.7…")`. |
+
+```ts
+const b = new HL7_2_8();
+b.on("warning", (m) => console.warn("⚠️", m));
+
+b.buildMSH({ msh_9: "ADT^A01", msh_10: "X", msh_11: "P" });
+
+// ✅ ok — ECD.1, ECD.2 are R, ECD.3 is O.
+b.buildECD({ ecd_1: "1", ecd_2: "RC^Pause^HL70368", ecd_3: "Y" });
+
+// 💥 throws — ECD.4 is W in 2.8.
+b.buildECD({ ecd_1: "2", ecd_2: "RC^Resume^HL70368", ecd_4: "20240101" });
+
+// 💥 throws — ECD didn't exist before v2.4.
+new HL7_2_3_1().buildECD({ ecd_1: "1" }); // "Segment ECD is not part of HL7 v2.3.1"
+```
+
+### Inspecting the spec at runtime
+
+The full catalogue is exported as `SEGMENT_SPECS` so you can introspect, pretty-print, or build your own UI/codegen on top of it:
+
+```ts
+import { SEGMENT_SPECS } from "node-hl7-client";
+
+const ecd = SEGMENT_SPECS.ECD;
+console.log(ecd.versions);
+// → ["2.4", "2.5", "2.5.1", "2.6", "2.7", "2.7.1", "2.8"]
+
+console.log(ecd.fields[3]); // ECD.4
+// → {
+//     num: 4,
+//     name: "Requested Completion Time",
+//     hl7Type: "ST",
+//     usage: { "2.4":"O", "2.5":"B", …, "2.8":"W" },
+//   }
+```
+
+> 🛠️ The metadata is auto-generated from Caristix by `scripts/generate-segment-specs.mjs` and committed to the repo. End users make zero network calls — the data ships pre-baked.
+
+---
+
+## 🔗 Chainable build methods
+
+Every `build*` method returns the builder itself, so you can chain or stay imperative — both produce byte-identical output. Pick whichever reads better at the call site.
+
+```ts
+// Chained — concise, reads top-to-bottom.
+const wire = new HL7_2_8()
+  .buildMSH({ msh_9: "ADT^A01", msh_10: "MSG1", msh_11: "P" })
+  .buildEVN({ evn_1: "A01" })
+  .buildPID({ pid_3: "MRN1", pid_5: "DOE^JANE" })
+  .buildOBR({ obr_1: "1", obr_4: "GLU^Glucose^L" })
+  .buildOBX({ obx_1: "1", obx_2: "NM", obx_3: "GLU^Glucose^L", obx_5: "98", obx_11: "F" })
+  .toString();
+
+// Imperative — easier to interleave with branching/conditionals.
+const b = new HL7_2_8();
+b.buildMSH({ msh_9: "ADT^A01", msh_10: "MSG1", msh_11: "P" });
+if (event) b.buildEVN({ evn_1: event });
+b.buildPID({ pid_3: mrn, pid_5: name });
+const wire2 = b.toString();
+```
+
+Chaining preserves the version-specific class type, so version-introduced methods (e.g. `buildECD` on `HL7_2_4` and later) remain callable mid-chain.
+
+---
+
+## 🧰 `buildSegment` — generic spec-driven builder
+
+The 80-or-so `build<NAME>` typed methods cover every segment with a hand-tuned interface. For the long tail (~187 segments total in the spec, including obscure ones like `ABS`, `ADJ`, `AFF`, `BPO`, `MFA`, `MFR`, `OBP`, `PEX`, `PSL`, `RXC`, `SAC`, `SLR`, `SUR`, `UAC`, …), use `buildSegment(name, props)` — a universal chainable builder driven by the same `SegmentSpec` metadata, with full R/O/B/W/D/X enforcement.
+
+```ts
+const b = new HL7_2_8()
+  .buildMSH({ msh_9: "ADT^A01", msh_10: "X", msh_11: "P" })
+  // Use the typed method when you have one — full IDE autocomplete on props.
+  .buildPID({ pid_3: "MRN1", pid_5: "DOE^JANE" })
+  // Fall back to the generic builder for segments without a typed method.
+  .buildSegment("ABS", {
+    abs_1: "DOC1^Smith^John",       // Discharge Care Provider
+    abs_2: "MED^Internal Medicine", // Transfer Medical Service Code
+    abs_4: "20240101120000",        // Date/Time of Attestation
+  });
+
+console.log(b.toString());
+```
+
+`buildSegment` accepts field values keyed three different ways — pick whichever feels natural:
+
+```ts
+b.buildSegment("ABS", { abs_1: "DOC1^Smith^John" });   // <segname>_<num>
+b.buildSegment("ABS", { 1: "DOC1^Smith^John" });       // numeric
+b.buildSegment("ABS", { "1": "DOC1^Smith^John" });     // numeric-as-string
+```
+
+> 🚫 `buildSegment("MSH", …)` is intentionally rejected — use `buildMSH()` for MSH framing (separator characters and single-occurrence guard live there).
+
+> 💡 Trying `buildSegment("XYZ", …)` for an unknown segment throws `Unknown HL7 segment "XYZ" — no SegmentSpec is registered`.
 
 ---
 
@@ -382,7 +506,11 @@ Keeps callsites readable and test fixtures consistent.
 
 ## 🛟 Validation & errors
 
-The builders validate against HL7 tables (e.g. `MSA.1` against `TABLE_0008`, `PID.8` against `TABLE_0001`, `PV1.2` against `TABLE_0004`, …). Bad values throw `HL7ValidationError`.
+The builders validate against three layers, each raising `HL7ValidationError`:
+
+1. **HL7 tables** — e.g. `MSA.1` against `TABLE_0008`, `PID.8` against `TABLE_0001`, `PV1.2` against `TABLE_0004`.
+2. **Length / type rules** — exact and min/max length, numeric ranges, and HL7 date format checks.
+3. **Per-version usage codes** — R / O / B / W / D / X / "field not in this version", sourced from the auto-generated `SegmentSpec` catalogue. (See [Per-version field availability](#-per-version-field-availability-usage-codes).)
 
 ```ts
 try {
@@ -390,6 +518,21 @@ try {
 } catch (err) {
   console.error("🛑", err.message);
 }
+
+try {
+  // ECD.4 is W (Withdrawn) in HL7 v2.8 — always throws, even with hardError: false.
+  new HL7_2_8()
+    .buildMSH({ msh_9: "ADT^A01", msh_10: "X", msh_11: "P" })
+    .buildECD({ ecd_1: "1", ecd_2: "RC^Pause^HL70368", ecd_4: "20240101" });
+} catch (err) {
+  console.error("🛑", err.message);
+  // → "Field ECD.4 is withdrawn in HL7 v2.8 and cannot be set"
+}
 ```
 
-> 💡 Set `hardError: true` on the constructor in development & CI so any deviation surfaces at build time, not on the wire.
+| Mode | Behavior |
+|---|---|
+| Default (`hardError: false`) | R/length/table violations emit a `"error"` event and collect into the return array. **W / X / "field not in this version" always throw.** |
+| `hardError: true` | Every violation throws immediately. Recommended in dev & CI. |
+
+> 💡 Subscribe to `"error"` and `"warning"` events on the builder to capture soft validation messages: `b.on("warning", (m) => log.warn(m))`.

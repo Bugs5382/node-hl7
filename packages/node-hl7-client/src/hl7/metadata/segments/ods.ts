@@ -19,7 +19,7 @@ export const ODS_SPEC: SegmentSpec = {
       num: 1,
       name: "Type",
       hl7Type: "ID",
-      length: 1,
+      length: { max: 1 },
       table: 159,
       usage: {"2.2":"R","2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
     },

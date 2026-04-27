@@ -19,7 +19,7 @@ export const ILT_SPEC: SegmentSpec = {
       num: 1,
       name: "Set Id - Ilt",
       hl7Type: "SI",
-      length: 4,
+      length: { max: 4 },
       usage: {"2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
     },
     {

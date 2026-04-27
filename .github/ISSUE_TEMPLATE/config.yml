@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: 📚 Documentation
-    url: https://github.com/Bugs5382/node-hl7-server#readme
+    url: https://github.com/Bugs5382/node-hl7#readme
     about: Per-package READMEs and pages/ deep-dives cover most "how do I..." questions.
   - name: 🩺 HL7 Specification
     url: https://hl7-definition.caristix.com/v2/
     about: Canonical reference for segment fields, allowed values, and version differences. Useful before opening a "wrong field" bug.
   - name: 💬 Discussions
-    url: https://github.com/Bugs5382/node-hl7-server/discussions
+    url: https://github.com/Bugs5382/node-hl7/discussions
     about: General questions, deployment war stories, or design ideas that aren't actionable bug reports.

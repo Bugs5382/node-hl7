@@ -51,15 +51,16 @@ server.createInbound({ port: 3000 }, async (req, res) => {
 });
 ```
 
-**Client**:
+**Client** — chained, validated, version-aware:
 
 ```ts
 import Client, { HL7_2_5 } from "node-hl7-client";
 
-const builder = new HL7_2_5();
-builder.buildMSH({ msh_9: "ADT^A01", msh_10: "MSG00001", msh_11: "P" });
-builder.buildEVN({ evn_1: "A01" });
-builder.buildPID({ pid_3: "MRN12345", pid_5: "DOE^JANE^A", pid_8: "F" });
+// Chained build: every build* returns the builder, so you can compose top-to-bottom.
+const builder = new HL7_2_5()
+  .buildMSH({ msh_9: "ADT^A01", msh_10: "MSG00001", msh_11: "P" })
+  .buildEVN({ evn_1: "A01" })
+  .buildPID({ pid_3: "MRN12345", pid_5: "DOE^JANE^A", pid_8: "F" });
 
 const client = new Client({ host: "127.0.0.1" });
 const conn = client.createConnection({ port: 3000 }, async (res) => {
@@ -71,6 +72,9 @@ await conn.sendMessage(builder.toMessage());
 ## ✨ What's covered
 
 - 🧱 **Typed builders** for HL7 2.1 → 2.8 (`HL7_2_5`, `HL7_2_7`, `HL7_2_8`, …) with field validation against HL7 tables.
+- 🧮 **Per-version field availability** — every segment is backed by a `SegmentSpec` (auto-generated from the [Caristix HL7 Definition API](https://hl7-definition.caristix.com/v2/)) carrying R/O/B/W/D/X usage codes per HL7 version. The builder rejects withdrawn fields, warns on backward-compatibility ones, and refuses segments that didn't exist in the chosen version (e.g. `ECD` before v2.4).
+- 🔗 **Chainable build methods** — every `build*` returns the builder, so `new HL7_2_8().buildMSH(...).buildPID(...).buildECD(...).toString()` Just Works™.
+- 🧰 **`buildSegment(name, props)`** — universal spec-driven builder for the long tail of ~187 segments (ABS, ADJ, AFF, …) when a hand-tuned typed method isn't available.
 - 📦 **Batches & file batches** with BHS/FHS framing.
 - 🔁 **Auto reconnect & retry** with exponential backoff.
 - 🤝 **Auto ACKs** (`AA` / `AR` / `AE` / `CA` / `CR` / `CE`) and **custom ACKs** for vendor‑shaped acknowledgements.

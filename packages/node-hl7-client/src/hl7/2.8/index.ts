@@ -3,6 +3,7 @@ import { ClientBuilderOptions_Hl7_2_8 } from "./types";
 import { HL7_2_8_MSH } from "./msh";
 import { HL7_2_8_STZ } from "./stz";
 import { HL7_2_8_ECD } from "./ecd";
+import { STZ_SPEC } from "@/hl7/metadata/segments/stz";
 
 export type { HL7_2_8_MSH } from "./msh";
 export type { HL7_2_8_ECD } from "./ecd";
@@ -33,11 +34,25 @@ export class HL7_2_8 extends HL7_2_7_1 {
   }
 
   protected _buildSTZ(props: Partial<HL7_2_8_STZ>): void {
+    this._assertSegmentInVersion(STZ_SPEC);
     this._segment = this._message.addSegment("STZ");
-    this._validatorSetValue("1", props.stz_1, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("2", props.stz_2, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("3", props.stz_3, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("4", props.stz_4, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("5", props.stz_5, { length: { min: 1, max: 250 } });
+    this._validatorSetField(STZ_SPEC,
+    1,
+    props.stz_1,
+    { length: { min: 1, max: 250 } });
+    this._validatorSetField(STZ_SPEC,
+    2,
+    props.stz_2,
+    { length: { min: 1, max: 250 } });
+    this._validatorSetField(STZ_SPEC,
+    3,
+    props.stz_3,
+    { length: { min: 1, max: 250 } });
+    this._validatorSetField(STZ_SPEC,
+    4,
+    props.stz_4,
+    { length: { min: 1, max: 250 } });
+    // STZ.5 was present in early-draft tooling but Caristix v2.8 publishes
+    // only 4 fields for STZ; the spec is authoritative, so don't emit a 5th.
   }
 }

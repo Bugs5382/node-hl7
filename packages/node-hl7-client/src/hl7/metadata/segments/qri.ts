@@ -25,7 +25,7 @@ export const QRI_SPEC: SegmentSpec = {
       num: 2,
       name: "Match Reason Code",
       hl7Type: "CWE",
-      length: 2,
+      length: { max: 2 },
       table: 392,
       usage: {"2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },

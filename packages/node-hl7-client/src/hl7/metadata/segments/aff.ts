@@ -19,7 +19,7 @@ export const AFF_SPEC: SegmentSpec = {
       num: 1,
       name: "Set Id - Aff",
       hl7Type: "SI",
-      length: 4,
+      length: { max: 4 },
       usage: {"2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
     },
     {

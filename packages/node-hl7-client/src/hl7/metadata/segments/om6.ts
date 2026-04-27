@@ -31,7 +31,7 @@ export const OM6_SPEC: SegmentSpec = {
       num: 3,
       name: "Derivation Rule",
       hl7Type: "TX",
-      length: 10240,
+      length: { max: 10240 },
       usage: {"2.2":"O"},
     },
   ],

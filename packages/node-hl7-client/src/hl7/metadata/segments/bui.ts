@@ -19,7 +19,7 @@ export const BUI_SPEC: SegmentSpec = {
       num: 1,
       name: "Set ID – BUI",
       hl7Type: "SI",
-      length: 4,
+      length: { max: 4 },
       usage: {"2.8":"O"},
     },
     {

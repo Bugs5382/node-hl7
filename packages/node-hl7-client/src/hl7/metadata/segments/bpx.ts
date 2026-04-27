@@ -19,7 +19,7 @@ export const BPX_SPEC: SegmentSpec = {
       num: 1,
       name: "Set Id - Bpx",
       hl7Type: "SI",
-      length: 4,
+      length: { max: 4 },
       usage: {"2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
     },
     {
@@ -33,7 +33,7 @@ export const BPX_SPEC: SegmentSpec = {
       num: 3,
       name: "Bp Status",
       hl7Type: "ID",
-      length: 1,
+      length: { max: 1 },
       table: 511,
       usage: {"2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
     },

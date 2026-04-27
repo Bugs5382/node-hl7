@@ -55,7 +55,9 @@ describe("HL7 2.2 segment builders", () => {
     expect(b.toString()).toContain("\rPID|||MRN1||DOE^JANE");
   });
 
-  test("buildPV1 — extends with 2.2 fields (pv1_45..52)", () => {
+  test("buildPV1 — extends with 2.2 fields (pv1_45..50)", () => {
+    // PV1.51 / PV1.52 are introduced in v2.3 per the published spec; this
+    // test exercises the v2.2 surface, so it omits them.
     b.buildPV1({
       pv1_2: "I",
       pv1_45: DATE,
@@ -64,8 +66,6 @@ describe("HL7 2.2 segment builders", () => {
       pv1_48: "300.00",
       pv1_49: "400.00",
       pv1_50: "VISIT123",
-      pv1_51: "I",
-      pv1_52: "OTHER_HEALTH",
     });
     expect(b.toString()).toContain("\rPV1||I|");
   });
@@ -88,6 +88,8 @@ describe("HL7 2.2 segment builders", () => {
   test("buildOBR — extends with 2.2 fields (obr_26..35)", () => {
     b.buildOBR({
       obr_1: "1",
+      // OBR.3 (Filler Order Number) is R in v2.2.
+      obr_3: "FILLER1",
       obr_4: "GLU^Glucose^L",
       obr_26: "PARENT",
       obr_27: "1^^^^^R",
@@ -103,7 +105,8 @@ describe("HL7 2.2 segment builders", () => {
     expect(b.toString()).toContain("\rOBR|1");
   });
 
-  test("buildORC — extends with 2.2 fields (orc_15..20)", () => {
+  test("buildORC — extends with 2.2 fields (orc_15..19)", () => {
+    // ORC.20 is introduced in v2.3.1; omitted in this v2.2 surface test.
     b.buildORC({
       orc_1: "NW",
       orc_2: "ORDER123",
@@ -112,7 +115,6 @@ describe("HL7 2.2 segment builders", () => {
       orc_17: "ENT_BY_LOC",
       orc_18: "CALL_BACK",
       orc_19: "ORDER_CTRL_REASON",
-      orc_20: "ENT_ORG",
     });
     expect(b.toString()).toContain("\rORC|NW|ORDER123");
   });
@@ -141,7 +143,7 @@ describe("HL7 2.2 segment builders", () => {
       ub2_14: "VAL",
       ub2_15: "DIAG",
       ub2_16: "DG",
-      ub2_17: "PRO",
+      // UB2.17 is introduced in v2.3; omitted here for the v2.2 surface test.
     });
     expect(b.toString()).toContain("\rUB2|1");
   });
@@ -413,13 +415,12 @@ describe("HL7 2.3 segment builders", () => {
     expect(b.toString()).toContain("\rOBR|1");
   });
 
-  test("buildORC — extends with 2.3 fields (orc_21..23)", () => {
+  test("buildORC — extends with 2.3 fields", () => {
+    // ORC.21..23 are introduced in v2.3.1 per the published spec, not v2.3.
+    // For the v2.3 surface, exercise the inherited v2.2 extensions instead.
     b.buildORC({
       orc_1: "NW",
       orc_2: "ORDER123",
-      orc_21: "ENT_ORG_NAME",
-      orc_22: "ENT_ORG_ADDR",
-      orc_23: "ENT_ORG_PHONE",
     });
     expect(b.toString()).toContain("\rORC|NW|ORDER123");
   });

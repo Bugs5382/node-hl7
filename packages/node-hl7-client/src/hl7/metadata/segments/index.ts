@@ -380,7 +380,7 @@ export { Zxx_SPEC } from "@/hl7/metadata/segments/zxx";
 /**
  * Lookup of every generated SegmentSpec, keyed by uppercase segment name.
  *
- * @since 4.0.0
+ * @since RELEASE_VERSION_PLACEHOLDER 
  */
 export const SEGMENT_SPECS: Readonly<Record<string, SegmentSpec>> = {
   ABS: ABS_SPEC,

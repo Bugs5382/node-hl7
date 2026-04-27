@@ -19,7 +19,7 @@ export const DB1_SPEC: SegmentSpec = {
       num: 1,
       name: "Set Id - Db1",
       hl7Type: "SI",
-      length: 4,
+      length: { max: 4 },
       usage: {"2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
     },
     {
@@ -39,7 +39,7 @@ export const DB1_SPEC: SegmentSpec = {
       num: 4,
       name: "Disability Indicator",
       hl7Type: "ID",
-      length: 1,
+      length: { max: 1 },
       table: 136,
       usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },

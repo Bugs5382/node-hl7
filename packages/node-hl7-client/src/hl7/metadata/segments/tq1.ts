@@ -19,7 +19,7 @@ export const TQ1_SPEC: SegmentSpec = {
       num: 1,
       name: "Set Id - Tq1",
       hl7Type: "SI",
-      length: 4,
+      length: { max: 4 },
       usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
     },
     {
@@ -87,7 +87,7 @@ export const TQ1_SPEC: SegmentSpec = {
       num: 12,
       name: "Conjunction",
       hl7Type: "ID",
-      length: 1,
+      length: { max: 1 },
       table: 472,
       usage: {"2.5":"D","2.5.1":"D","2.6":"D","2.7":"D","2.7.1":"D","2.8":"D"},
     },

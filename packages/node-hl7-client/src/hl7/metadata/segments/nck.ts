@@ -19,7 +19,7 @@ export const NCK_SPEC: SegmentSpec = {
       num: 1,
       name: "System Date/Time",
       hl7Type: "DTM",
-      length: 24,
+      length: { max: 24 },
       usage: {"2.1":"R","2.2":"R","2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
     },
   ],

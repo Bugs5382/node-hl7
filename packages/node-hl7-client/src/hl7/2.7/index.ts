@@ -5,6 +5,8 @@ import { ClientBuilderOptions_Hl7_2_7 } from "./types";
 import { HL7_2_7_MSH } from "./msh";
 import { HL7_2_7_IPC } from "./ipc";
 import { HL7_2_7_ISD } from "./isd";
+import { IPC_SPEC } from "@/hl7/metadata/segments/ipc";
+import { ISD_SPEC } from "@/hl7/metadata/segments/isd";
 
 export type { HL7_2_7_MSH } from "./msh";
 export type { ClientBuilderOptions_Hl7_2_7 } from "./types";
@@ -107,21 +109,56 @@ export class HL7_2_7 extends HL7_2_6 {
   }
 
   protected _buildIPC(props: Partial<HL7_2_7_IPC>): void {
+    this._assertSegmentInVersion(IPC_SPEC);
     this._segment = this._message.addSegment("IPC");
-    this._validatorSetValue("1", props.ipc_1, { required: true, length: { min: 1, max: 427 } });
-    this._validatorSetValue("2", props.ipc_2, { required: true, length: { min: 1, max: 22 } });
-    this._validatorSetValue("3", props.ipc_3, { required: true, length: { min: 1, max: 70 } });
-    this._validatorSetValue("4", props.ipc_4, { required: true, length: { min: 1, max: 22 } });
-    this._validatorSetValue("5", props.ipc_5, { length: { min: 1, max: 16 } });
-    this._validatorSetValue("6", props.ipc_6, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("7", props.ipc_7, { length: { min: 1, max: 22 } });
-    this._validatorSetValue("8", props.ipc_8, { length: { min: 1, max: 250 } });
+    this._validatorSetField(IPC_SPEC,
+    1,
+    props.ipc_1,
+    { length: { min: 1, max: 427 } });
+    this._validatorSetField(IPC_SPEC,
+    2,
+    props.ipc_2,
+    { length: { min: 1, max: 22 } });
+    this._validatorSetField(IPC_SPEC,
+    3,
+    props.ipc_3,
+    { length: { min: 1, max: 70 } });
+    this._validatorSetField(IPC_SPEC,
+    4,
+    props.ipc_4,
+    { length: { min: 1, max: 22 } });
+    this._validatorSetField(IPC_SPEC,
+    5,
+    props.ipc_5,
+    { length: { min: 1, max: 16 } });
+    this._validatorSetField(IPC_SPEC,
+    6,
+    props.ipc_6,
+    { length: { min: 1, max: 250 } });
+    this._validatorSetField(IPC_SPEC,
+    7,
+    props.ipc_7,
+    { length: { min: 1, max: 22 } });
+    this._validatorSetField(IPC_SPEC,
+    8,
+    props.ipc_8,
+    { length: { min: 1, max: 250 } });
   }
 
   protected _buildISD(props: Partial<HL7_2_7_ISD>): void {
+    this._assertSegmentInVersion(ISD_SPEC);
     this._segment = this._message.addSegment("ISD");
-    this._validatorSetValue("1", String(props.isd_1 ?? ""), { required: true, length: { min: 1, max: 10 } });
-    this._validatorSetValue("2", props.isd_2, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("3", props.isd_3, { required: true, length: { min: 1, max: 250 } });
+    this._validatorSetField(ISD_SPEC,
+    1,
+    String(props.isd_1 ?? ""),
+    { length: { min: 1, max: 10 } });
+    this._validatorSetField(ISD_SPEC,
+    2,
+    props.isd_2,
+    { length: { min: 1, max: 250 } });
+    this._validatorSetField(ISD_SPEC,
+    3,
+    props.isd_3,
+    { length: { min: 1, max: 250 } });
   }
 }

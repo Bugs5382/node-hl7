@@ -19,7 +19,7 @@ export const PRB_SPEC: SegmentSpec = {
       num: 1,
       name: "Action Code",
       hl7Type: "ID",
-      length: 2,
+      length: { max: 2 },
       table: 287,
       usage: {"2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
     },

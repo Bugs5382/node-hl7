@@ -38,7 +38,7 @@ export const OM5_SPEC: SegmentSpec = {
       num: 4,
       name: "Observation Id Suffixes",
       hl7Type: "ST",
-      length: 200,
+      length: { max: 200 },
       usage: {"2.2":"O"},
     },
   ],
