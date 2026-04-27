@@ -227,7 +227,90 @@ console.log(ecd.fields[3]); // ECD.4
 //   }
 ```
 
-> 🛠️ The metadata is auto-generated from Caristix by `scripts/generate-segment-specs.mjs` and committed to the repo. End users make zero network calls — the data ships pre-baked.
+### Sub-component metadata for composite fields
+
+For composite HL7 data types (`XAD`, `XPN`, `CE`, `CWE`, `CX`, `EI`, `HD`, …), each `FieldSpec` carries a `components` array describing the `^`-delimited pieces of the field value — name, data type, length, table reference, and usage. This is sourced from the Caristix DataType endpoint per HL7 version.
+
+```ts
+const pid11 = SEGMENT_SPECS.PID.fields.find((f) => f.num === 11);
+// → { num: 11, name: "Patient Address", hl7Type: "XAD",
+//     usage: { "2.1":"O", …, "2.8":"O" },
+//     components: [
+//       { num: 1, name: "Street Address",   hl7Type: "SAD", usage: "O" },
+//       { num: 2, name: "Other Designation",hl7Type: "ST",  usage: "O" },
+//       { num: 3, name: "City",             hl7Type: "ST",  usage: "O" },
+//       { num: 4, name: "State Or Province",hl7Type: "ST",  usage: "O" },
+//       { num: 5, name: "Zip Or Postal Code",hl7Type: "ST", usage: "O" },
+//       { num: 6, name: "Country",          hl7Type: "ID",
+//                 length: { max: 3 }, table: 399, usage: "O" },
+//       … 17 more (Address Type, County/Parish Code, Census Tract, …)
+//     ] }
+```
+
+Primitive types (`ST`, `NM`, `ID`, `DTM`, `SI`, …) have no `components`.
+
+### Typed composite inputs (objects → `^`-delimited strings)
+
+For every composite HL7 data type the library generates a TypeScript interface — `HL7_XAD`, `HL7_XPN`, `HL7_CWE`, `HL7_CX`, `HL7_EI`, `HL7_HD`, `HL7_XCN`, `HL7_XON`, `HL7_XTN`, … — exposing both numeric (`xad_1`) and camelCase (`streetAddress`) keys. Pass an object instead of a `^`-delimited string and the runtime composer assembles the wire value while validating each piece (R required, W/X rejected, max-length checked).
+
+```ts
+import { HL7_2_8, HL7_XAD, HL7_XPN } from "node-hl7-client";
+
+const builder = new HL7_2_8();
+builder.buildMSH({ msh_9: "ADT^A01", msh_10: "X", msh_11: "P" });
+
+// Style A — typed object (composer handles the `^` joining + validation)
+builder.buildPID({
+  pid_3: "MRN1",
+  pid_5: { familyName: "Doe", givenName: "Jane", xpn_3: "M" } as HL7_XPN,
+  pid_11: {
+    streetAddress: "123 Elm St",
+    city: "Springfield",
+    stateOrProvince: "IL",
+    zipOrPostalCode: "62701",
+  } as HL7_XAD,
+});
+
+// Style B — pre-formatted string (still works exactly as before)
+builder.buildPID({
+  pid_3: "MRN1",
+  pid_5: "Doe^Jane^M",
+  pid_11: "123 Elm St^^Springfield^IL^62701",
+});
+
+// Both produce byte-identical wire output:
+// PID|||MRN1||Doe^Jane^M|||||123 Elm St^^Springfield^IL^62701
+```
+
+Lookup precedence inside the typed object, in order:
+
+1. Numeric key — `obj[1]`, `obj[2]`, …
+2. Numeric-as-string key — `obj["1"]`, `obj["2"]`, …
+3. `<lowerType>_<num>` key — `obj.xad_1`, `obj.xpn_3`, …
+4. camelCase rendering of the component name — `obj.streetAddress`, `obj.zipOrPostalCode`, …
+
+Trailing empty components are trimmed (an XAD with only Street/City emits `Street^^City`, not `Street^^City^^^…^^`). Per-component R/W/X/length validation throws `HL7ValidationError` on violation:
+
+```ts
+// XAD.6 (Country) has max length 3 — this throws.
+builder.buildPID({
+  pid_11: {
+    streetAddress: "123 Elm St",
+    country: "UNITED_STATES_OF_AMERICA", // 💥 length > 3
+  } as HL7_XAD,
+});
+```
+
+The full component layout for any composite type is exposed at runtime via `DATA_TYPES`:
+
+```ts
+import { DATA_TYPES } from "node-hl7-client";
+
+DATA_TYPES.XAD; // → ComponentSpec[] for XAD
+DATA_TYPES.CWE; // → ComponentSpec[] for CWE
+```
+
+> 🛠️ The metadata and typed interfaces are auto-generated from Caristix by `scripts/generate-segment-specs.mjs` and committed to the repo. End users make zero network calls — the data ships pre-baked.
 
 ---
 

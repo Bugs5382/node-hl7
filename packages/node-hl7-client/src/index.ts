@@ -57,4 +57,12 @@ export { detectIPFamily, validIPv4, validIPv6 } from "@/utils/ipAddress";
 export { isBatch, isFile, isHL7Number, isHL7String } from "@/utils/is";
 export { randomString } from "@/utils/randomString";
 
+// Re-export the version-specific HL7 builder classes, segment specs, and
+// helpers from `./hl7` so callers (and tests) can do
+// `import { HL7_2_8, SEGMENT_SPECS } from "node-hl7-client"` without having
+// to drill into deep `node-hl7-client/src/hl7/<ver>` subpaths (which the IDE
+// flags due to the dotted directory names).
+export * from "./hl7";
+export { HL7ValidationError } from "./helpers/exception";
+
 export default Client;

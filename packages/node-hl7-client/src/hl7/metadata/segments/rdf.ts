@@ -26,6 +26,11 @@ export const RDF_SPEC: SegmentSpec = {
       name: "Column Description",
       hl7Type: "RCD",
       usage: {"2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+      components: [
+        { num: 1, name: "Segment Field Name", hl7Type: "ST", length: { max: 12 }, usage: "O", rpt: "1" },
+        { num: 2, name: "Hl7 Data Type", hl7Type: "ID", length: { max: 3 }, table: 440, usage: "O", rpt: "1" },
+        { num: 3, name: "Maximum Column Width", hl7Type: "NM", length: { max: 5 }, usage: "O", rpt: "1" },
+      ],
     },
   ],
 };

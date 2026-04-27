@@ -3,6 +3,7 @@ import { Segment } from "@/builder/modules/segment";
 import { ValidationRule } from "@/declaration/validationRule";
 import { HL7FatalError, HL7ValidationError } from "@/helpers";
 import {
+  ComponentSpec,
   HL7UsageCode,
   HL7Version,
   SegmentSpec,
@@ -987,7 +988,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildFT1(_props: FT1) {
+  protected _buildFT1(_props: Partial<FT1>) {
     throw new HL7FatalError("Not Implemented");
   }
   /**
@@ -995,7 +996,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildGT1(_props: GT1) {
+  protected _buildGT1(_props: Partial<GT1>) {
     throw new HL7FatalError("Not Implemented");
   }
   /**
@@ -1003,7 +1004,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildIN1(_props: IN1) {
+  protected _buildIN1(_props: Partial<IN1>) {
     throw new HL7FatalError("Not Implemented");
   }
   /**
@@ -1011,7 +1012,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildMRG(_props: MRG): void {
+  protected _buildMRG(_props: Partial<MRG>): void {
     throw new HL7FatalError("Not Implemented");
   }
   /**
@@ -1019,7 +1020,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
    * @return void
    * @param _props
    */
-  protected _buildMSA(_props: MSA): void {
+  protected _buildMSA(_props: Partial<MSA>): void {
     throw new HL7FatalError("Not Implemented");
   }
   /**
@@ -1406,6 +1407,27 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
       );
     }
 
+    // Composite-object input: if the caller passes an object (not a Date,
+    // array, or string) and the field has known components, validate each
+    // component and assemble the `^`-delimited composite value here. This is
+    // additive — strings keep working as before.
+    const looksLikeObject =
+      value !== null &&
+      typeof value === "object" &&
+      !(value instanceof Date) &&
+      !Array.isArray(value);
+    if (
+      looksLikeObject &&
+      field.components &&
+      field.components.length > 0
+    ) {
+      value = this._composeFromObject(
+        value as Record<string, unknown>,
+        field.components,
+        `${spec.name}.${fieldNum}`,
+      );
+    }
+
     const version = this.version as HL7Version;
     const usage: HL7UsageCode | undefined = field.usage[version];
     const hasValue = value !== undefined && value !== null && value !== "";
@@ -1467,6 +1489,74 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
     }
 
     return this._validatorSetValue(String(fieldNum), value, rule);
+  }
+
+  /**
+   * Convert a typed component object (e.g. `{ streetAddress: "...", city: "..." }`)
+   * into the HL7 `^`-delimited composite string the wire format expects, while
+   * validating each piece against its `ComponentSpec`.
+   *
+   * @remarks
+   * Lookup precedence for each component, in order:
+   *   1. `obj[<num>]` — numeric key, e.g. `1`.
+   *   2. `obj["<num>"]` — numeric-as-string.
+   *   3. Any key matching `*_<num>` (e.g. `xad_1`, `xpn_3`).
+   *   4. The camelCase rendering of the component name (e.g.
+   *      `"Street Address"` → `streetAddress`, `"Zip Or Postal Code"` →
+   *      `zipOrPostalCode`).
+   *
+   * Per-component validation enforced here:
+   *   - `R` => required, throws if unset.
+   *   - `W` / `X` => withdrawn / not supported, throws if a value is provided.
+   *   - `length` => max-length check.
+   * Trailing empty components are trimmed so the wire output stays clean
+   * (e.g. an XAD with only Street/City emits `Street^^City`, not
+   * `Street^^City^^^…^^`).
+   *
+   * @since 4.0.0
+   */
+  protected _composeFromObject(
+    obj: Record<string, unknown>,
+    components: readonly ComponentSpec[],
+    fieldPath: string,
+  ): string {
+    const parts: string[] = [];
+    let lastFilled = -1;
+    for (const c of components) {
+      const v = pickComponentValue(obj, c);
+      const hasValue = v !== undefined && v !== null && v !== "";
+
+      if ((c.usage === "W" || c.usage === "X") && hasValue) {
+        const label = c.usage === "W" ? "withdrawn" : "not supported";
+        throw new HL7ValidationError(
+          `Component ${fieldPath}.${c.num} (${c.name}) is ${label}`,
+        );
+      }
+      if (c.usage === "R" && !hasValue) {
+        throw new HL7ValidationError(
+          `Component ${fieldPath}.${c.num} (${c.name}) is required`,
+        );
+      }
+      if (hasValue && c.length) {
+        const s = String(v);
+        const max = typeof c.length === "number" ? c.length : c.length.max;
+        const min = typeof c.length === "object" ? c.length.min : undefined;
+        if (max !== undefined && s.length > max) {
+          throw new HL7ValidationError(
+            `Component ${fieldPath}.${c.num} (${c.name}) must be at most ${max} characters`,
+          );
+        }
+        if (min !== undefined && s.length < min) {
+          throw new HL7ValidationError(
+            `Component ${fieldPath}.${c.num} (${c.name}) must be at least ${min} characters`,
+          );
+        }
+      }
+
+      parts.push(hasValue ? String(v) : "");
+      if (hasValue) lastFilled = parts.length - 1;
+    }
+    return parts.slice(0, lastFilled + 1).join("^");
   }
 
   /**
@@ -1722,10 +1812,63 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
     message: string,
     forceThrow: boolean = false,
   ): void {
-    this.emit("error", message);
     if (this.hardError || forceThrow) {
+      // Throw FIRST. Emitting `"error"` here without a listener triggers
+      // Node's "Unhandled error" wrapper before our HL7ValidationError can
+      // throw — the caller would then catch a generic Error, defeating the
+      // whole point of `hardError: true`.
       throw new HL7ValidationError(message);
     }
+    this.emit("error", message);
     errors.push(message);
   }
+}
+
+/**
+ * Convert a free-form HL7 component label like `"Zip Or Postal Code"` into
+ * the camelCase property key (`zipOrPostalCode`) the generator emits in
+ * `HL7_<TYPE>` interfaces. Parenthesized clarifications like
+ * `"Suffix (e.g., Jr Or Iii)"` are dropped so the key stays readable.
+ *
+ * Must stay in sync with the corresponding `camelize` in
+ * `scripts/generate-segment-specs.mjs`.
+ *
+ * @internal
+ */
+function camelizeComponentName(name: string): string {
+  const stripped = String(name).replace(/\([^)]*\)/g, "");
+  const tokens = stripped.split(/[^A-Za-z0-9]+/).filter((t) => t.length > 0);
+  if (tokens.length === 0) return "";
+  return (
+    tokens[0].toLowerCase() +
+    tokens
+      .slice(1)
+      .map((t) => t[0].toUpperCase() + t.slice(1).toLowerCase())
+      .join("")
+  );
+}
+
+/**
+ * Resolve which key in a typed-component object holds the value for a
+ * given `ComponentSpec`, trying numeric, numeric-as-string, `*_<num>`, and
+ * camelCase keys in that order.
+ *
+ * @internal
+ */
+function pickComponentValue(
+  obj: Record<string, unknown>,
+  c: ComponentSpec,
+): unknown {
+  if (obj[c.num] !== undefined) return obj[c.num];
+  if (obj[String(c.num)] !== undefined) return obj[String(c.num)];
+
+  const tailKey = Object.keys(obj).find((k) =>
+    new RegExp(`_${c.num}$`).test(k),
+  );
+  if (tailKey !== undefined) return obj[tailKey];
+
+  const camel = camelizeComponentName(c.name);
+  if (camel && obj[camel] !== undefined) return obj[camel];
+
+  return undefined;
 }

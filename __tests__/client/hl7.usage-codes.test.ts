@@ -1,6 +1,6 @@
-import { HL7ValidationError } from "node-hl7-client/src/helpers";
-import { HL7_BASE } from "node-hl7-client/src/hl7/base";
-import { SegmentSpec } from "node-hl7-client/src/hl7/metadata/types";
+import { HL7ValidationError } from "node-hl7-client/src";
+import { HL7_BASE } from "node-hl7-client/src";
+import { SegmentSpec } from "node-hl7-client/src";
 import { describe, expect, test } from "vitest";
 
 /**

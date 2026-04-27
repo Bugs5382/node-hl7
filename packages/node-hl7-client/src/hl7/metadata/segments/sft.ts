@@ -20,6 +20,18 @@ export const SFT_SPEC: SegmentSpec = {
       name: "Software Vendor Organization",
       hl7Type: "XON",
       usage: {"2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+      components: [
+        { num: 1, name: "Organization Name", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 2, name: "Organization Name Type Code", hl7Type: "CWE", table: 204, usage: "O", rpt: "1" },
+        { num: 3, name: "Id Number", hl7Type: "ST", usage: "W", rpt: "1" },
+        { num: 4, name: "Identifier Check Digit", hl7Type: "ST", usage: "W", rpt: "1" },
+        { num: 5, name: "Check Digit Scheme", hl7Type: "ST", length: { max: 3 }, usage: "W", rpt: "1" },
+        { num: 6, name: "Assigning Authority", hl7Type: "HD", table: 363, usage: "O", rpt: "1" },
+        { num: 7, name: "Identifier Type Code", hl7Type: "ID", length: { max: 5 }, table: 203, usage: "O", rpt: "1" },
+        { num: 8, name: "Assigning Facility", hl7Type: "HD", usage: "O", rpt: "1" },
+        { num: 9, name: "Name Representation Code", hl7Type: "ID", length: { max: 1 }, table: 465, usage: "O", rpt: "1" },
+        { num: 10, name: "Organization Identifier", hl7Type: "ST", usage: "O", rpt: "1" },
+      ],
     },
     {
       num: 2,

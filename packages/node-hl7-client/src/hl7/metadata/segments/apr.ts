@@ -20,18 +20,30 @@ export const APR_SPEC: SegmentSpec = {
       name: "Time Selection Criteria",
       hl7Type: "SCV",
       usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Parameter Class", hl7Type: "CWE", table: 294, usage: "O", rpt: "1" },
+        { num: 2, name: "Parameter Value", hl7Type: "ST", usage: "O", rpt: "1" },
+      ],
     },
     {
       num: 2,
       name: "Resource Selection Criteria",
       hl7Type: "SCV",
       usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Parameter Class", hl7Type: "CWE", table: 294, usage: "O", rpt: "1" },
+        { num: 2, name: "Parameter Value", hl7Type: "ST", usage: "O", rpt: "1" },
+      ],
     },
     {
       num: 3,
       name: "Location Selection Criteria",
       hl7Type: "SCV",
       usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Parameter Class", hl7Type: "CWE", table: 294, usage: "O", rpt: "1" },
+        { num: 2, name: "Parameter Value", hl7Type: "ST", usage: "O", rpt: "1" },
+      ],
     },
     {
       num: 4,
@@ -44,6 +56,10 @@ export const APR_SPEC: SegmentSpec = {
       name: "Filler Override Criteria",
       hl7Type: "SCV",
       usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Parameter Class", hl7Type: "CWE", table: 294, usage: "O", rpt: "1" },
+        { num: 2, name: "Parameter Value", hl7Type: "ST", usage: "O", rpt: "1" },
+      ],
     },
   ],
 };

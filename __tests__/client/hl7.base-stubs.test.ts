@@ -1,11 +1,11 @@
 import { HL7FatalError, HL7ValidationError } from "node-hl7-client/src";
-import { HL7_2_1 } from "node-hl7-client/src/hl7/2.1";
-import { HL7_2_2 } from "node-hl7-client/src/hl7/2.2";
-import { HL7_2_3 } from "node-hl7-client/src/hl7/2.3";
-import { HL7_2_4 } from "node-hl7-client/src/hl7/2.4";
-import { HL7_2_5 } from "node-hl7-client/src/hl7/2.5";
-import { HL7_2_6 } from "node-hl7-client/src/hl7/2.6";
-import { HL7_2_7 } from "node-hl7-client/src/hl7/2.7";
+import { HL7_2_1 } from "node-hl7-client/src";
+import { HL7_2_2 } from "node-hl7-client/src";
+import { HL7_2_3 } from "node-hl7-client/src";
+import { HL7_2_4 } from "node-hl7-client/src";
+import { HL7_2_5 } from "node-hl7-client/src";
+import { HL7_2_6 } from "node-hl7-client/src";
+import { HL7_2_7 } from "node-hl7-client/src";
 import { beforeEach, describe, expect, test } from "vitest";
 
 const DATE = new Date("2024-01-15T10:20:30Z");
@@ -165,12 +165,13 @@ describe("HL7_BASE — implemented but rarely-called helpers", () => {
 
   test("buildNST builds a statistics segment with required nst_1", () => {
     const b = v21();
+    // NST.1 is a Y/N "Statistics Available" flag per HL7.
     b.buildNST({
-      nst_1: "0",
+      nst_1: "Y",
       nst_2: "1",
       nst_3: "2",
     });
-    expect(b.toString()).toContain("\rNST|0|1|2");
+    expect(b.toString()).toContain("\rNST|Y|1|2");
   });
 
   test("buildDSP — 2.1 length rules", () => {

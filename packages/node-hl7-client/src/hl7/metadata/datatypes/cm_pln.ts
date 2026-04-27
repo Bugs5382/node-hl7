@@ -1,0 +1,28 @@
+/**
+ * CM_PLN — composite HL7 data type.
+ *
+ * Generated from the Caristix HL7 Definition API
+ * (https://hl7-definition.caristix.com/v2/HL7v2.X/DataTypes/CM_PLN)
+ * by scripts/generate-segment-specs.mjs. Do not edit by hand — re-run
+ * the generator instead.
+ *
+ * Both numeric (`cm_pln_<n>`) and camelCase keys are accepted; pick
+ * whichever reads better. The runtime composer joins set components
+ * with the HL7 component separator (`^`) and validates each piece.
+ *
+ * @since 4.0.0
+ */
+export interface HL7_CM_PLN {
+  /** CM_PLN.1 - ID Number */
+  cm_pln_1?: string;
+  idNumber?: string;
+  /** CM_PLN.2 - Type Of ID Number */
+  cm_pln_2?: string;
+  typeOfIdNumber?: string;
+  /** CM_PLN.3 - State/other Qualifying Info */
+  cm_pln_3?: string;
+  stateOtherQualifyingInfo?: string;
+  /** CM_PLN.4 - Expiration Date */
+  cm_pln_4?: string;
+  expirationDate?: string;
+}

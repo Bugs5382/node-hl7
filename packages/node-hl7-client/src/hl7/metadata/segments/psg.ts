@@ -20,12 +20,24 @@ export const PSG_SPEC: SegmentSpec = {
       name: "Provider Product/Service Group Number",
       hl7Type: "EI",
       usage: {"2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+      components: [
+        { num: 1, name: "Entity Identifier", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 2, name: "Namespace Id", hl7Type: "IS", table: 363, usage: "O", rpt: "1" },
+        { num: 3, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 4, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 2,
       name: "Payer Product/Service Group Number",
       hl7Type: "EI",
       usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Entity Identifier", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 2, name: "Namespace Id", hl7Type: "IS", table: 363, usage: "O", rpt: "1" },
+        { num: 3, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 4, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 3,
@@ -47,6 +59,14 @@ export const PSG_SPEC: SegmentSpec = {
       name: "Product/Service Group Billed Amount",
       hl7Type: "CP",
       usage: {"2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+      components: [
+        { num: 1, name: "Price", hl7Type: "MO", usage: "R", rpt: "1" },
+        { num: 2, name: "Price Type", hl7Type: "ID", length: { max: 2 }, table: 205, usage: "O", rpt: "1" },
+        { num: 3, name: "From Value", hl7Type: "NM", usage: "O", rpt: "1" },
+        { num: 4, name: "To Value", hl7Type: "NM", usage: "O", rpt: "1" },
+        { num: 5, name: "Range Units", hl7Type: "CWE", usage: "D", rpt: "1" },
+        { num: 6, name: "Range Type", hl7Type: "ID", length: { max: 1 }, table: 298, usage: "O", rpt: "1" },
+      ],
     },
     {
       num: 6,

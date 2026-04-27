@@ -34,24 +34,44 @@ export const FHS_SPEC: SegmentSpec = {
       name: "File Sending Application",
       hl7Type: "HD",
       usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Namespace Id", hl7Type: "IS", table: 300, usage: "O", rpt: "1" },
+        { num: 2, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 3, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 4,
       name: "File Sending Facility",
       hl7Type: "HD",
       usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Namespace Id", hl7Type: "IS", table: 300, usage: "O", rpt: "1" },
+        { num: 2, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 3, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 5,
       name: "File Receiving Application",
       hl7Type: "HD",
       usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Namespace Id", hl7Type: "IS", table: 300, usage: "O", rpt: "1" },
+        { num: 2, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 3, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 6,
       name: "File Receiving Facility",
       hl7Type: "HD",
       usage: {"2.1":"O","2.2":"O","2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Namespace Id", hl7Type: "IS", table: 300, usage: "O", rpt: "1" },
+        { num: 2, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 3, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 7,
@@ -94,12 +114,22 @@ export const FHS_SPEC: SegmentSpec = {
       name: "File Sending Network Address",
       hl7Type: "HD",
       usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Namespace Id", hl7Type: "IS", table: 300, usage: "O", rpt: "1" },
+        { num: 2, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 3, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 14,
       name: "File Receiving Network Address",
       hl7Type: "HD",
       usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Namespace Id", hl7Type: "IS", table: 300, usage: "O", rpt: "1" },
+        { num: 2, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 3, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
   ],
 };

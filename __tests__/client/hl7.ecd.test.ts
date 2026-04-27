@@ -1,8 +1,8 @@
-import { HL7ValidationError } from "node-hl7-client/src/helpers";
-import { HL7_2_3_1 } from "node-hl7-client/src/hl7/2.3.1";
-import { HL7_2_4 } from "node-hl7-client/src/hl7/2.4";
-import { HL7_2_6 } from "node-hl7-client/src/hl7/2.6";
-import { HL7_2_8 } from "node-hl7-client/src/hl7/2.8";
+import { HL7ValidationError } from "node-hl7-client/src";
+import { HL7_2_3_1 } from "node-hl7-client/src";
+import { HL7_2_4 } from "node-hl7-client/src";
+import { HL7_2_6 } from "node-hl7-client/src";
+import { HL7_2_8 } from "node-hl7-client/src";
 import { describe, expect, test } from "vitest";
 
 /**

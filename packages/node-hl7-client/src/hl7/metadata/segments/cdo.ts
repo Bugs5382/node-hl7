@@ -33,6 +33,10 @@ export const CDO_SPEC: SegmentSpec = {
       name: "Cumulative Dosage Limit",
       hl7Type: "CQ",
       usage: {"2.8":"O"},
+      components: [
+        { num: 1, name: "Quantity", hl7Type: "NM", usage: "O", rpt: "1" },
+        { num: 2, name: "Units", hl7Type: "CWE", usage: "O", rpt: "1" },
+      ],
     },
     {
       num: 4,
@@ -40,6 +44,10 @@ export const CDO_SPEC: SegmentSpec = {
       hl7Type: "CQ",
       table: 924,
       usage: {"2.8":"O"},
+      components: [
+        { num: 1, name: "Quantity", hl7Type: "NM", usage: "O", rpt: "1" },
+        { num: 2, name: "Units", hl7Type: "CWE", usage: "O", rpt: "1" },
+      ],
     },
   ],
 };

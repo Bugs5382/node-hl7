@@ -1,0 +1,34 @@
+/**
+ * CM_SPS — composite HL7 data type.
+ *
+ * Generated from the Caristix HL7 Definition API
+ * (https://hl7-definition.caristix.com/v2/HL7v2.X/DataTypes/CM_SPS)
+ * by scripts/generate-segment-specs.mjs. Do not edit by hand — re-run
+ * the generator instead.
+ *
+ * Both numeric (`cm_sps_<n>`) and camelCase keys are accepted; pick
+ * whichever reads better. The runtime composer joins set components
+ * with the HL7 component separator (`^`) and validates each piece.
+ *
+ * @since 4.0.0
+ */
+export interface HL7_CM_SPS {
+  /** CM_SPS.1 - Specimen Source Name Or Code */
+  cm_sps_1?: string;
+  specimenSourceNameOrCode?: string;
+  /** CM_SPS.2 - Additives */
+  cm_sps_2?: string;
+  additives?: string;
+  /** CM_SPS.3 - Freetext */
+  cm_sps_3?: string;
+  freetext?: string;
+  /** CM_SPS.4 - Body Site */
+  cm_sps_4?: string;
+  bodySite?: string;
+  /** CM_SPS.5 - Site Modifier */
+  cm_sps_5?: string;
+  siteModifier?: string;
+  /** CM_SPS.6 - Collection Modifier Method Code */
+  cm_sps_6?: string;
+  collectionModifierMethodCode?: string;
+}

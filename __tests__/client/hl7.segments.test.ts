@@ -1,14 +1,13 @@
 import { HL7FatalError } from "node-hl7-client/src";
-import { HL7_2_1 } from "node-hl7-client/src/hl7/2.1";
-import { HL7_2_2 } from "node-hl7-client/src/hl7/2.2";
-import { HL7_2_3 } from "node-hl7-client/src/hl7/2.3";
-import { HL7_2_4 } from "node-hl7-client/src/hl7/2.4";
-import { HL7_2_5 } from "node-hl7-client/src/hl7/2.5";
-import { HL7_2_5_1 } from "node-hl7-client/src/hl7/2.5.1";
-import { HL7_2_6 } from "node-hl7-client/src/hl7/2.6";
-import { HL7_2_7 } from "node-hl7-client/src/hl7/2.7";
-import { HL7_2_7_1 } from "node-hl7-client/src/hl7/2.7.1";
-import { HL7_2_8 } from "node-hl7-client/src/hl7/2.8";
+import { HL7_2_1 } from "node-hl7-client/src";
+import { HL7_2_2 } from "node-hl7-client/src";
+import { HL7_2_4 } from "node-hl7-client/src";
+import { HL7_2_5 } from "node-hl7-client/src";
+import { HL7_2_5_1 } from "node-hl7-client/src";
+import { HL7_2_6 } from "node-hl7-client/src";
+import { HL7_2_7 } from "node-hl7-client/src";
+import { HL7_2_7_1 } from "node-hl7-client/src";
+import { HL7_2_8 } from "node-hl7-client/src";
 import { beforeEach, describe, expect, test } from "vitest";
 
 // One reusable date so generated MSH.7 is deterministic in assertions

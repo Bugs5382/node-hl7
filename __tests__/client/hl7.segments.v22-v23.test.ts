@@ -1,5 +1,5 @@
-import { HL7_2_2 } from "node-hl7-client/src/hl7/2.2";
-import { HL7_2_3 } from "node-hl7-client/src/hl7/2.3";
+import { HL7_2_2 } from "node-hl7-client/src";
+import { HL7_2_3 } from "node-hl7-client/src";
 import { beforeEach, describe, expect, test } from "vitest";
 
 const DATE = new Date("2024-01-15T10:20:30Z");

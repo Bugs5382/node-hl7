@@ -35,18 +35,36 @@ export const TQ2_SPEC: SegmentSpec = {
       name: "Related Placer Number",
       hl7Type: "EI",
       usage: {"2.5":"D","2.5.1":"D","2.6":"D","2.7":"D","2.7.1":"D","2.8":"D"},
+      components: [
+        { num: 1, name: "Entity Identifier", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 2, name: "Namespace Id", hl7Type: "IS", table: 363, usage: "O", rpt: "1" },
+        { num: 3, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 4, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 4,
       name: "Related Filler Number",
       hl7Type: "EI",
       usage: {"2.5":"D","2.5.1":"D","2.6":"D","2.7":"D","2.7.1":"D","2.8":"D"},
+      components: [
+        { num: 1, name: "Entity Identifier", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 2, name: "Namespace Id", hl7Type: "IS", table: 363, usage: "O", rpt: "1" },
+        { num: 3, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 4, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 5,
       name: "Related Placer Group Number",
       hl7Type: "EI",
       usage: {"2.5":"D","2.5.1":"D","2.6":"D","2.7":"D","2.7.1":"D","2.8":"D"},
+      components: [
+        { num: 1, name: "Entity Identifier", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 2, name: "Namespace Id", hl7Type: "IS", table: 363, usage: "O", rpt: "1" },
+        { num: 3, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 4, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 6,
@@ -68,6 +86,10 @@ export const TQ2_SPEC: SegmentSpec = {
       name: "Sequence Condition Time Interval",
       hl7Type: "CQ",
       usage: {"2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Quantity", hl7Type: "NM", usage: "O", rpt: "1" },
+        { num: 2, name: "Units", hl7Type: "CWE", usage: "O", rpt: "1" },
+      ],
     },
     {
       num: 9,

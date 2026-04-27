@@ -39,6 +39,7 @@ export type { HL7_SPEC } from "@/hl7/specs";
 export type { HL7_ECD } from "@/hl7/types/ecd";
 export type { HL7_2_4_ECD } from "@/hl7/2.4/ecd";
 export type {
+  ComponentSpec,
   HL7UsageCode,
   HL7Version,
   FieldSpec,
@@ -46,3 +47,16 @@ export type {
 } from "@/hl7/metadata/types";
 export { SEGMENT_SPECS } from "@/hl7/metadata/segments";
 export { ECD_SPEC } from "@/hl7/metadata/segments/ecd";
+export {
+  DATA_TYPES,
+  type HL7_XAD,
+  type HL7_XPN,
+  type HL7_CE,
+  type HL7_CWE,
+  type HL7_CX,
+  type HL7_EI,
+  type HL7_HD,
+  type HL7_XCN,
+  type HL7_XON,
+  type HL7_XTN,
+} from "@/hl7/metadata/datatypes";

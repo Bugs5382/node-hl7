@@ -1,14 +1,14 @@
-import { HL7ValidationError } from "node-hl7-client/src/helpers";
-import { HL7_2_1 } from "node-hl7-client/src/hl7/2.1";
-import { HL7_2_3_1 } from "node-hl7-client/src/hl7/2.3.1";
-import { HL7_2_4 } from "node-hl7-client/src/hl7/2.4";
-import { HL7_2_6 } from "node-hl7-client/src/hl7/2.6";
-import { HL7_2_7 } from "node-hl7-client/src/hl7/2.7";
-import { HL7_2_8 } from "node-hl7-client/src/hl7/2.8";
+import { HL7ValidationError } from "node-hl7-client/src";
+import { HL7_2_1 } from "node-hl7-client/src";
+import { HL7_2_3_1 } from "node-hl7-client/src";
+import { HL7_2_4 } from "node-hl7-client/src";
+import { HL7_2_6 } from "node-hl7-client/src";
+import { HL7_2_7 } from "node-hl7-client/src";
+import { HL7_2_8 } from "node-hl7-client/src";
 import {
   ECD_SPEC,
   SEGMENT_SPECS,
-} from "node-hl7-client/src/hl7/metadata/segments";
+} from "node-hl7-client/src";
 import { describe, expect, test } from "vitest";
 
 /**
@@ -63,6 +63,33 @@ describe("SegmentSpec catalogue coverage", () => {
     // ECD did not exist before v2.4
     expect(ECD_SPEC.versions).not.toContain("2.3.1");
     expect(ECD_SPEC.versions).not.toContain("2.1");
+  });
+
+  test("composite fields carry sub-component metadata (PID.11 / XAD)", () => {
+    const pid11 = SEGMENT_SPECS.PID.fields.find((f) => f.num === 11);
+    expect(pid11?.hl7Type).toBe("XAD");
+    expect(pid11?.components?.length ?? 0).toBeGreaterThan(5);
+
+    const byName = (n: string) =>
+      pid11!.components!.find((c) => c.name.toLowerCase() === n.toLowerCase());
+    expect(byName("Street Address")).toBeDefined();
+    expect(byName("City")).toBeDefined();
+    expect(byName("State Or Province")).toBeDefined();
+    expect(byName("Zip Or Postal Code")).toBeDefined();
+  });
+
+  test("primitive fields have no sub-components", () => {
+    // PID.1 is SI (primitive) — no decomposition.
+    const pid1 = SEGMENT_SPECS.PID.fields.find((f) => f.num === 1);
+    expect(pid1?.hl7Type).toMatch(/SI|NM/);
+    expect(pid1?.components).toBeUndefined();
+  });
+
+  test("composite components track HL7 tables when applicable", () => {
+    // XAD.6 (Country) is an ID field validated against table 399.
+    const pid11 = SEGMENT_SPECS.PID.fields.find((f) => f.num === 11);
+    const country = pid11?.components?.find((c) => c.name === "Country");
+    expect(country?.table).toBe(399);
   });
 });
 

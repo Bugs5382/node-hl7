@@ -37,6 +37,12 @@ import { SEGMENT_SPECS } from "node-hl7-client";
 const ecd = SEGMENT_SPECS.ECD;
 ecd.versions;                        // ["2.4", "2.5", …, "2.8"]
 ecd.fields[3].usage["2.8"];          // "W" — ECD.4 was withdrawn in 2.8
+
+// Composite fields (XAD, XPN, CE, CWE, …) carry sub-component metadata too.
+const pid11 = SEGMENT_SPECS.PID.fields.find((f) => f.num === 11);
+pid11.components.map((c) => c.name);
+// → ["Street Address", "Other Designation", "City",
+//    "State Or Province", "Zip Or Postal Code", "Country", …23 total]
 ```
 
 Use this with `builder.buildSegment(name, props)` to cover the long tail of segments that don't have a hand-tuned typed method:

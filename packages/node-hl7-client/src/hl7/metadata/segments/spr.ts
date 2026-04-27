@@ -36,6 +36,14 @@ export const SPR_SPEC: SegmentSpec = {
       hl7Type: "CE",
       length: { max: 250 },
       usage: {"2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R"},
+      components: [
+        { num: 1, name: "Identifier", hl7Type: "ST", usage: "W", rpt: "1" },
+        { num: 2, name: "Text", hl7Type: "ST", usage: "W", rpt: "1" },
+        { num: 3, name: "Name Of Coding System", hl7Type: "ID", table: 396, usage: "W", rpt: "1" },
+        { num: 4, name: "Alternate Identifier", hl7Type: "ST", usage: "W", rpt: "1" },
+        { num: 5, name: "Alternate Text", hl7Type: "ST", usage: "W", rpt: "1" },
+        { num: 6, name: "Name Of Alternate Coding System", hl7Type: "ID", table: 396, usage: "W", rpt: "1" },
+      ],
     },
     {
       num: 4,
@@ -43,6 +51,10 @@ export const SPR_SPEC: SegmentSpec = {
       hl7Type: "QIP",
       length: { max: 256 },
       usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O"},
+      components: [
+        { num: 1, name: "Segment Field Name", hl7Type: "ST", length: { max: 12 }, usage: "R", rpt: "1" },
+        { num: 2, name: "Values", hl7Type: "ST", length: { max: 199 }, usage: "R", rpt: "1" },
+      ],
     },
   ],
 };

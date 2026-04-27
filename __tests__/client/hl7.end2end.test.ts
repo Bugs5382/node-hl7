@@ -6,7 +6,7 @@ import Client, {
   NotifyPendingCount,
   ReadyState,
 } from "node-hl7-client/src";
-import { HL7_2_1 } from "node-hl7-client/src/hl7/2.1";
+import { HL7_2_1 } from "node-hl7-client/src";
 import { createDeferred } from "node-hl7-client/src/utils";
 import { Server } from "node-hl7-server";
 import fs from "node:fs";

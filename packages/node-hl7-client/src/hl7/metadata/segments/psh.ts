@@ -50,12 +50,20 @@ export const PSH_SPEC: SegmentSpec = {
       name: "Quantity Manufactured",
       hl7Type: "CQ",
       usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Quantity", hl7Type: "NM", usage: "O", rpt: "1" },
+        { num: 2, name: "Units", hl7Type: "CWE", usage: "O", rpt: "1" },
+      ],
     },
     {
       num: 7,
       name: "Quantity Distributed",
       hl7Type: "CQ",
       usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Quantity", hl7Type: "NM", usage: "O", rpt: "1" },
+        { num: 2, name: "Units", hl7Type: "CWE", usage: "O", rpt: "1" },
+      ],
     },
     {
       num: 8,
@@ -76,6 +84,10 @@ export const PSH_SPEC: SegmentSpec = {
       name: "Quantity In Use",
       hl7Type: "CQ",
       usage: {"2.3":"O","2.3.1":"O","2.4":"O","2.5":"O","2.5.1":"O","2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Quantity", hl7Type: "NM", usage: "O", rpt: "1" },
+        { num: 2, name: "Units", hl7Type: "CWE", usage: "O", rpt: "1" },
+      ],
     },
     {
       num: 11,

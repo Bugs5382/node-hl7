@@ -20,6 +20,12 @@ export const SLT_SPEC: SegmentSpec = {
       name: "Device Number",
       hl7Type: "EI",
       usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Entity Identifier", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 2, name: "Namespace Id", hl7Type: "IS", table: 363, usage: "O", rpt: "1" },
+        { num: 3, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 4, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 2,
@@ -32,12 +38,24 @@ export const SLT_SPEC: SegmentSpec = {
       name: "Lot Number",
       hl7Type: "EI",
       usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Entity Identifier", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 2, name: "Namespace Id", hl7Type: "IS", table: 363, usage: "O", rpt: "1" },
+        { num: 3, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 4, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 4,
       name: "Item Identifier",
       hl7Type: "EI",
       usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      components: [
+        { num: 1, name: "Entity Identifier", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 2, name: "Namespace Id", hl7Type: "IS", table: 363, usage: "O", rpt: "1" },
+        { num: 3, name: "Universal Id", hl7Type: "ST", usage: "D", rpt: "1" },
+        { num: 4, name: "Universal Id Type", hl7Type: "ID", length: { max: 6 }, table: 301, usage: "D", rpt: "1" },
+      ],
     },
     {
       num: 5,

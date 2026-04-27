@@ -1,6 +1,6 @@
 # 🩺 Node HL7 Client
 
-> A pure TypeScript HL7 client/builder/parser for Node.js — build, send, parse, and reply to HL7 v2.x messages over MLLP.
+> A pure TypeScript HL7 client/builder/parser for Node.js — build, send, parse, and reply to HL7 v2.x messages over MLLP. For the receiving side, see the companion [`node-hl7-server`](https://www.npmjs.com/package/node-hl7-server) package.
 
 `node-hl7-client` is a lightweight, **dependency-free** library for healthcare integrations. It speaks the traditional TCP/MLLP transport, ships typed builders for every HL7 v2.1 → 2.8 segment, parses inbound responses, and includes the `MLLPCodec` re‑used by [`node-hl7-server`](https://www.npmjs.com/package/node-hl7-server).
 
@@ -13,6 +13,7 @@
 - 🧮 **Per-version field availability** — every segment carries an HL7 v2 usage code per version (R/O/B/W/D/X), sourced from the [Caristix HL7 Definition API](https://hl7-definition.caristix.com/v2/). Withdrawn fields throw, deprecated (B) fields warn, segments that didn't exist in your version are rejected. The full catalogue is exported as `SEGMENT_SPECS`.
 - 🔗 **Chainable builders** — every `build*` returns the builder, so you can compose `new HL7_2_8().buildMSH(...).buildPID(...).toString()` top-to-bottom.
 - 🧰 **`buildSegment(name, props)`** — universal spec-driven builder for the long tail of ~187 segments when a hand-tuned method isn't available.
+- 🧬 **Typed composite inputs** — composite fields (`XAD`, `XPN`, `CWE`, `CX`, `EI`, `HD`, …) accept either a `^`-delimited string or a typed object: `pid_11: { streetAddress: "123 Elm St", city: "Springfield", stateOrProvince: "IL" }`. Per-component length, required, withdrawn, and not-supported rules are enforced.
 - 🔁 **Auto reconnect & retry** — exponential backoff, configurable attempt cap.
 - 🧠 **Pluggable queue** — default in‑memory, or wire it up to Redis / RabbitMQ / SQL.
 - 📦 **Builder + Parser + Client** — one package covers send, receive, and round‑trip.

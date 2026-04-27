@@ -1,7 +1,7 @@
-import { HL7_2_4 } from "node-hl7-client/src/hl7/2.4";
-import { HL7_2_5 } from "node-hl7-client/src/hl7/2.5";
-import { HL7_2_5_1 } from "node-hl7-client/src/hl7/2.5.1";
-import { HL7_2_6 } from "node-hl7-client/src/hl7/2.6";
+import { HL7_2_4 } from "node-hl7-client/src";
+import { HL7_2_5 } from "node-hl7-client/src";
+import { HL7_2_5_1 } from "node-hl7-client/src";
+import { HL7_2_6 } from "node-hl7-client/src";
 import { beforeEach, describe, expect, test } from "vitest";
 
 const DATE = new Date("2024-01-15T10:20:30Z");

@@ -21,6 +21,14 @@ export const ORO_SPEC: SegmentSpec = {
       hl7Type: "CE",
       length: { max: 200 },
       usage: {"2.1":"O"},
+      components: [
+        { num: 1, name: "Identifier", hl7Type: "ID", usage: "O", rpt: "1" },
+        { num: 2, name: "Text", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 3, name: "Name Of Coding System", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 4, name: "Alternate Identifier", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 5, name: "Alternate Text", hl7Type: "ST", usage: "O", rpt: "1" },
+        { num: 6, name: "Name Of Alternate Coding System", hl7Type: "ST", usage: "O", rpt: "1" },
+      ],
     },
     {
       num: 2,

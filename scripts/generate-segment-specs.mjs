@@ -118,6 +118,55 @@ await pool(
   }),
 );
 
+// Composite data types (XAD, XPN, CE, CWE, CX, ...) decompose into
+// sub-components. Fetch each version's DataType list, then per data type
+// fetch its component breakdown. Cache by version + data type id.
+console.log("\nFetching DataType components for all versions...");
+const dataTypesByVersion = {};
+await pool(
+  VERSIONS.map((v) => async () => {
+    try {
+      const list = await fetchCached(`${API}/HL7v${v}/DataTypes`);
+      dataTypesByVersion[v] = list;
+    } catch (err) {
+      dataTypesByVersion[v] = [];
+      console.warn(`  warn: HL7v${v}/DataTypes — ${err.message}`);
+    }
+  }),
+);
+
+const componentsByVersionAndType = {};
+const dtFetchTasks = [];
+for (const v of VERSIONS) {
+  componentsByVersionAndType[v] = {};
+  for (const dt of dataTypesByVersion[v] ?? []) {
+    if (dt.type !== "DataType") continue;
+    dtFetchTasks.push(async () => {
+      try {
+        const detail = await fetchCached(
+          `${API}/HL7v${v}/DataTypes/${dt.id}`,
+        );
+        const subs = (detail.fields ?? []).map((f, i) => ({
+          num: i + 1,
+          name: f.name || `${dt.id}.${i + 1}`,
+          hl7Type: f.dataType || undefined,
+          length: parseLength(f.length),
+          table: parseTable(f.tableId),
+          usage: normalizeUsage(f.usage),
+          rpt: f.rpt || undefined,
+        }));
+        componentsByVersionAndType[v][dt.id] = subs;
+      } catch (err) {
+        console.warn(`  warn: v${v}/DataTypes/${dt.id} — ${err.message}`);
+      }
+    });
+  }
+}
+await pool(dtFetchTasks, 16);
+console.log(
+  `  fetched ${dtFetchTasks.length} data-type detail records (composite breakdowns)\n`,
+);
+
 const allSegmentNames = new Set();
 for (const v of VERSIONS) {
   for (const s of segmentsByVersion[v]) allSegmentNames.add(s.id);
@@ -193,6 +242,20 @@ function buildSpec(name) {
     }
     if (Object.keys(usage).length === 0) continue;
 
+    // If the field's data type is composite, attach sub-components from
+    // the DataType cache (latest available version where the segment exists).
+    let components;
+    if (canonical.dataType) {
+      for (const v of [...presence].reverse()) {
+        const lookup = v === "2.8" ? "2.8" : v;
+        const subs = componentsByVersionAndType[lookup]?.[canonical.dataType];
+        if (subs && subs.length > 0) {
+          components = subs;
+          break;
+        }
+      }
+    }
+
     const field = {
       num: pos,
       name: canonical.name || `${name}.${pos}`,
@@ -200,6 +263,7 @@ function buildSpec(name) {
       length: parseLength(canonical.length),
       table: parseTable(canonical.tableId),
       usage,
+      components,
     };
     fields.push(field);
   }
@@ -241,6 +305,19 @@ function renderSpec(spec) {
     }
     if (typeof f.table === "number") lines.push(`      table: ${f.table},`);
     lines.push(`      usage: ${JSON.stringify(f.usage)},`);
+    if (Array.isArray(f.components) && f.components.length > 0) {
+      lines.push(`      components: [`);
+      for (const c of f.components) {
+        const parts = [`num: ${c.num}`, `name: ${JSON.stringify(c.name)}`];
+        if (c.hl7Type) parts.push(`hl7Type: ${JSON.stringify(c.hl7Type)}`);
+        if (typeof c.length === "number") parts.push(`length: { max: ${c.length} }`);
+        if (typeof c.table === "number") parts.push(`table: ${c.table}`);
+        if (c.usage) parts.push(`usage: ${JSON.stringify(c.usage)}`);
+        if (c.rpt) parts.push(`rpt: ${JSON.stringify(c.rpt)}`);
+        lines.push(`        { ${parts.join(", ")} },`);
+      }
+      lines.push(`      ],`);
+    }
     lines.push(`    },`);
   }
   lines.push(`  ],`);
@@ -295,3 +372,144 @@ barrelLines.push(``);
 fs.writeFileSync(path.join(OUT_DIR, "index.ts"), barrelLines.join("\n"));
 
 console.log(`\nGenerated ${generated.length} segment specs in ${OUT_DIR}`);
+
+// ---------------------------------------------------------------------------
+// Generate per-data-type metadata + typed interfaces.
+// ---------------------------------------------------------------------------
+
+const DT_OUT_DIR = path.join(
+  REPO_ROOT,
+  "packages/node-hl7-client/src/hl7/metadata/datatypes",
+);
+fs.mkdirSync(DT_OUT_DIR, { recursive: true });
+
+/** Convert "Street Address" → "streetAddress", strip parens, drop punctuation. */
+function camelize(name) {
+  // Drop parenthesized clarifications: "Suffix (e.g., Jr Or Iii)" → "Suffix"
+  let s = String(name).replace(/\([^)]*\)/g, "");
+  // Replace non-alpha-numeric with space, then split.
+  const tokens = s
+    .split(/[^A-Za-z0-9]+/)
+    .filter((t) => t.length > 0);
+  if (tokens.length === 0) return "";
+  return (
+    tokens[0].toLowerCase() +
+    tokens
+      .slice(1)
+      .map((t) => t[0].toUpperCase() + t.slice(1).toLowerCase())
+      .join("")
+  );
+}
+
+/**
+ * Build the canonical components list for a data type, picking the version
+ * with the most components (composite types added components over time;
+ * we want the most permissive shape).
+ */
+function pickCanonicalComponents(dtId) {
+  let best = null;
+  for (const v of VERSIONS) {
+    const subs = componentsByVersionAndType[v]?.[dtId];
+    if (subs && (!best || subs.length > best.length)) best = subs;
+  }
+  return best ?? [];
+}
+
+const allDataTypeIds = new Set();
+for (const v of VERSIONS) {
+  for (const id of Object.keys(componentsByVersionAndType[v] ?? {})) {
+    allDataTypeIds.add(id);
+  }
+}
+const sortedDtIds = [...allDataTypeIds].sort();
+
+const generatedDts = [];
+for (const dtId of sortedDtIds) {
+  const subs = pickCanonicalComponents(dtId);
+  if (subs.length === 0) continue; // primitives — no interface needed
+  const lower = dtId.toLowerCase();
+  const interfaceName = `HL7_${dtId}`;
+  const lines = [
+    `/**`,
+    ` * ${dtId} — composite HL7 data type.`,
+    ` *`,
+    ` * Generated from the Caristix HL7 Definition API`,
+    ` * (https://hl7-definition.caristix.com/v2/HL7v2.X/DataTypes/${dtId})`,
+    ` * by scripts/generate-segment-specs.mjs. Do not edit by hand — re-run`,
+    ` * the generator instead.`,
+    ` *`,
+    ` * Both numeric (\`${lower}_<n>\`) and camelCase keys are accepted; pick`,
+    ` * whichever reads better. The runtime composer joins set components`,
+    ` * with the HL7 component separator (\`^\`) and validates each piece.`,
+    ` *`,
+    ` * @since 4.0.0`,
+    ` */`,
+    `export interface ${interfaceName} {`,
+  ];
+  const usedCamel = new Set();
+  for (const c of subs) {
+    let camel = camelize(c.name);
+    // Avoid duplicate camelCase keys (e.g. "Family Name" appears twice in
+    // some interfaces); when collision detected, suffix with the position.
+    if (camel === "" || usedCamel.has(camel)) camel = `${camel || "field"}${c.num}`;
+    usedCamel.add(camel);
+    const comment = c.name.replace(/\*\//g, "*\\/");
+    lines.push(`  /** ${dtId}.${c.num} - ${comment} */`);
+    lines.push(`  ${lower}_${c.num}?: string;`);
+    lines.push(`  ${camel}?: string;`);
+  }
+  lines.push(`}`);
+  lines.push(``);
+  fs.writeFileSync(path.join(DT_OUT_DIR, `${lower}.ts`), lines.join("\n"));
+  generatedDts.push(dtId);
+}
+
+// Barrel + DATA_TYPES lookup keyed by uppercase id.
+const dtBarrel = [
+  `// Auto-generated by scripts/generate-segment-specs.mjs.`,
+  `// Do not edit by hand — re-run the generator instead.`,
+  `import { ComponentSpec } from "@/hl7/metadata/types";`,
+  ``,
+];
+for (const id of generatedDts) {
+  dtBarrel.push(
+    `export type { HL7_${id} } from "@/hl7/metadata/datatypes/${id.toLowerCase()}";`,
+  );
+}
+dtBarrel.push(``);
+dtBarrel.push(`/**`);
+dtBarrel.push(` * Sub-component layout for every composite HL7 data type, keyed by`);
+dtBarrel.push(` * uppercase id (e.g. \`"XAD"\`, \`"XPN"\`, \`"CWE"\`). Used by the runtime`);
+dtBarrel.push(` * composer to validate and assemble \`^\`-delimited composite values.`);
+dtBarrel.push(` *`);
+dtBarrel.push(` * Components are taken from the version with the largest set, since`);
+dtBarrel.push(` * composite types only ever grow (added components never break older`);
+dtBarrel.push(` * positions).`);
+dtBarrel.push(` *`);
+dtBarrel.push(` * @since 4.0.0`);
+dtBarrel.push(` */`);
+dtBarrel.push(
+  `export const DATA_TYPES: Readonly<Record<string, readonly ComponentSpec[]>> = {`,
+);
+for (const id of generatedDts) {
+  const subs = pickCanonicalComponents(id);
+  const compactSubs = subs.map((c) => {
+    const parts = [`num: ${c.num}`, `name: ${JSON.stringify(c.name)}`];
+    if (c.hl7Type) parts.push(`hl7Type: ${JSON.stringify(c.hl7Type)}`);
+    if (typeof c.length === "number") parts.push(`length: { max: ${c.length} }`);
+    if (typeof c.table === "number") parts.push(`table: ${c.table}`);
+    if (c.usage) parts.push(`usage: ${JSON.stringify(c.usage)}`);
+    if (c.rpt) parts.push(`rpt: ${JSON.stringify(c.rpt)}`);
+    return `    { ${parts.join(", ")} }`;
+  });
+  dtBarrel.push(`  ${id}: [`);
+  dtBarrel.push(compactSubs.join(",\n") + ",");
+  dtBarrel.push(`  ],`);
+}
+dtBarrel.push(`};`);
+dtBarrel.push(``);
+fs.writeFileSync(path.join(DT_OUT_DIR, "index.ts"), dtBarrel.join("\n"));
+
+console.log(
+  `Generated ${generatedDts.length} composite data-type interfaces in ${DT_OUT_DIR}`,
+);
