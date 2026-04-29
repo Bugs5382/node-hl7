@@ -96,7 +96,7 @@ export class Inbound extends EventEmitter implements IInbound {
       const parsed = new Message({ text: message.toString() });
       ++this.stats.totalMessage;
 
-      const req = new InboundRequest(parsed, { type });
+      const req = new InboundRequest(parsed, { type, socket });
       const res = new this._sendResponseClass(
         socket,
         parsed,
@@ -225,7 +225,10 @@ export class Inbound extends EventEmitter implements IInbound {
             const parsed = new Message({ text: completedMessageCopy });
             ++this.stats.totalMessage;
 
-            const req = new InboundRequest(parsed, { type: "message" });
+            const req = new InboundRequest(parsed, {
+              type: "message",
+              socket,
+            });
             const res = new this._sendResponseClass(
               socket,
               parsed,
