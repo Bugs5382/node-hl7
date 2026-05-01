@@ -13,22 +13,22 @@
  * @since 4.0.0
  */
 export interface HL7_CM_SPS {
+  additives?: string;
+  bodySite?: string;
   /** CM_SPS.1 - Specimen Source Name Or Code */
   cm_sps_1?: string;
-  specimenSourceNameOrCode?: string;
   /** CM_SPS.2 - Additives */
   cm_sps_2?: string;
-  additives?: string;
   /** CM_SPS.3 - Freetext */
   cm_sps_3?: string;
-  freetext?: string;
   /** CM_SPS.4 - Body Site */
   cm_sps_4?: string;
-  bodySite?: string;
   /** CM_SPS.5 - Site Modifier */
   cm_sps_5?: string;
-  siteModifier?: string;
   /** CM_SPS.6 - Collection Modifier Method Code */
   cm_sps_6?: string;
   collectionModifierMethodCode?: string;
+  freetext?: string;
+  siteModifier?: string;
+  specimenSourceNameOrCode?: string;
 }

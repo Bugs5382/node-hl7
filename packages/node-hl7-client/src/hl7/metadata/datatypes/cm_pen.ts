@@ -15,8 +15,8 @@
 export interface HL7_CM_PEN {
   /** CM_PEN.1 - Penalty Id */
   cm_pen_1?: string;
-  penaltyId?: string;
   /** CM_PEN.2 - Penalty Amount */
   cm_pen_2?: string;
   penaltyAmount?: string;
+  penaltyId?: string;
 }

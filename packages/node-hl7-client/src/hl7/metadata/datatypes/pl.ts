@@ -13,37 +13,37 @@
  * @since 4.0.0
  */
 export interface HL7_PL {
+  assigningAuthorityForLocation?: string;
+  bed?: string;
+  building?: string;
+  comprehensiveLocationIdentifier?: string;
+  facility?: string;
+  floor?: string;
+  locationDescription?: string;
+  locationStatus?: string;
+  personLocationType?: string;
   /** PL.1 - Point Of Care */
   pl_1?: string;
-  pointOfCare?: string;
-  /** PL.2 - Room */
-  pl_2?: string;
-  room?: string;
-  /** PL.3 - Bed */
-  pl_3?: string;
-  bed?: string;
-  /** PL.4 - Facility */
-  pl_4?: string;
-  facility?: string;
-  /** PL.5 - Location Status */
-  pl_5?: string;
-  locationStatus?: string;
-  /** PL.6 - Person Location Type */
-  pl_6?: string;
-  personLocationType?: string;
-  /** PL.7 - Building */
-  pl_7?: string;
-  building?: string;
-  /** PL.8 - Floor */
-  pl_8?: string;
-  floor?: string;
-  /** PL.9 - Location Description */
-  pl_9?: string;
-  locationDescription?: string;
   /** PL.10 - Comprehensive Location Identifier */
   pl_10?: string;
-  comprehensiveLocationIdentifier?: string;
   /** PL.11 - Assigning Authority For Location */
   pl_11?: string;
-  assigningAuthorityForLocation?: string;
+  /** PL.2 - Room */
+  pl_2?: string;
+  /** PL.3 - Bed */
+  pl_3?: string;
+  /** PL.4 - Facility */
+  pl_4?: string;
+  /** PL.5 - Location Status */
+  pl_5?: string;
+  /** PL.6 - Person Location Type */
+  pl_6?: string;
+  /** PL.7 - Building */
+  pl_7?: string;
+  /** PL.8 - Floor */
+  pl_8?: string;
+  /** PL.9 - Location Description */
+  pl_9?: string;
+  pointOfCare?: string;
+  room?: string;
 }

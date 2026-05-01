@@ -15,8 +15,8 @@
 export interface HL7_CM_VR {
   /** CM_VR.1 - First Data Code Value */
   cm_vr_1?: string;
-  firstDataCodeValue?: string;
   /** CM_VR.2 - Last Data Code Calue */
   cm_vr_2?: string;
+  firstDataCodeValue?: string;
   lastDataCodeCalue?: string;
 }

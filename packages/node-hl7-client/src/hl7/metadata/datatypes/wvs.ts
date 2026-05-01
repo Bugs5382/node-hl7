@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_WVS {
+  sourceName1?: string;
+  sourceName2?: string;
   /** WVS.1 - Source Name 1 */
   wvs_1?: string;
-  sourceName1?: string;
   /** WVS.2 - Source Name 2 */
   wvs_2?: string;
-  sourceName2?: string;
 }

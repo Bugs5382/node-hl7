@@ -8,7 +8,7 @@ export interface HL7_2_3_MSH extends HL7_2_2_MSH {
   /** Processing ID: D=Debugging, P=Production, T=Test */
   msh_11_1: "D" | "P" | "T";
   /** Processing Mode */
-  msh_11_2?: "A" | "I" | "R" | "";
+  msh_11_2?: "" | "A" | "I" | "R";
   /** MSH.13 - Sequence Number */
   msh_13?: string;
   /** MSH.14 - Continuation Pointer */

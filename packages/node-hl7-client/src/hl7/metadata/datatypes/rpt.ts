@@ -13,37 +13,37 @@
  * @since 4.0.0
  */
 export interface HL7_RPT {
+  calendarAlignment?: string;
+  event?: string;
+  eventOffsetQuantity?: string;
+  eventOffsetUnits?: string;
+  generalTimingSpecification?: string;
+  institutionSpecifiedTime?: string;
+  periodQuantity?: string;
+  periodUnits?: string;
+  phaseRangeBeginValue?: string;
+  phaseRangeEndValue?: string;
+  repeatPatternCode?: string;
   /** RPT.1 - Repeat Pattern Code */
   rpt_1?: string;
-  repeatPatternCode?: string;
-  /** RPT.2 - Calendar Alignment */
-  rpt_2?: string;
-  calendarAlignment?: string;
-  /** RPT.3 - Phase Range Begin Value */
-  rpt_3?: string;
-  phaseRangeBeginValue?: string;
-  /** RPT.4 - Phase Range End Value */
-  rpt_4?: string;
-  phaseRangeEndValue?: string;
-  /** RPT.5 - Period Quantity */
-  rpt_5?: string;
-  periodQuantity?: string;
-  /** RPT.6 - Period Units */
-  rpt_6?: string;
-  periodUnits?: string;
-  /** RPT.7 - Institution Specified Time */
-  rpt_7?: string;
-  institutionSpecifiedTime?: string;
-  /** RPT.8 - Event */
-  rpt_8?: string;
-  event?: string;
-  /** RPT.9 - Event Offset Quantity */
-  rpt_9?: string;
-  eventOffsetQuantity?: string;
   /** RPT.10 - Event Offset Units */
   rpt_10?: string;
-  eventOffsetUnits?: string;
   /** RPT.11 - General Timing Specification */
   rpt_11?: string;
-  generalTimingSpecification?: string;
+  /** RPT.2 - Calendar Alignment */
+  rpt_2?: string;
+  /** RPT.3 - Phase Range Begin Value */
+  rpt_3?: string;
+  /** RPT.4 - Phase Range End Value */
+  rpt_4?: string;
+  /** RPT.5 - Period Quantity */
+  rpt_5?: string;
+  /** RPT.6 - Period Units */
+  rpt_6?: string;
+  /** RPT.7 - Institution Specified Time */
+  rpt_7?: string;
+  /** RPT.8 - Event */
+  rpt_8?: string;
+  /** RPT.9 - Event Offset Quantity */
+  rpt_9?: string;
 }

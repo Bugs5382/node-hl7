@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_CM_RMC {
+  amountType?: string;
   /** CM_RMC.1 - Room Type */
   cm_rmc_1?: string;
-  roomType?: string;
   /** CM_RMC.2 - Amount Type */
   cm_rmc_2?: string;
-  amountType?: string;
   /** CM_RMC.3 - Coverage Amount */
   cm_rmc_3?: string;
   coverageAmount?: string;
+  roomType?: string;
 }

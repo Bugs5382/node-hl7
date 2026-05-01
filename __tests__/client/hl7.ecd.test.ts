@@ -20,11 +20,11 @@ const DATE = new Date("2024-01-15T10:20:30Z");
 
 function header() {
   return {
+    msh_10: "X",
+    msh_11_1: "P" as const,
     msh_7: DATE,
     msh_9_1: "ADT",
     msh_9_2: "A01",
-    msh_10: "X",
-    msh_11_1: "P" as const,
   };
 }
 

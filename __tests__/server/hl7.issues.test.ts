@@ -1,29 +1,27 @@
 import Client, {
+  createHL7Date,
   InboundResponse,
   Message,
-  createHL7Date,
 } from "node-hl7-client/src";
-import Server, {
-  HL7ListenerError,
-  InboundRequest,
-} from "node-hl7-server/src";
+import Server, { HL7ListenerError, InboundRequest } from "node-hl7-server/src";
 import net, { Socket } from "node:net";
 import portfinder from "portfinder";
 import { describe, expect, test } from "vitest";
+
 import { createDeferred, expectEvent } from "./__utils__";
+
+/** Minimal valid HL7 message used by these tests. */
+function makeTestMessage(controlId: string = "CONTROL_ID"): Message {
+  return new Message({
+    text: String.raw`MSH|^~\&|SENDER|FAC|RECEIVER|RFAC|20240101000000||ADT^A01|${controlId}|D|2.7`,
+  });
+}
 
 /** Pick a free port for a test. Uses a high start port to avoid colliding
  *  with sibling test files that also use portfinder (which defaults to 8000). */
 async function pickPort(): Promise<number> {
   return portfinder.getPortPromise({
-    port: 15000 + Math.floor(Math.random() * 10000),
-  });
-}
-
-/** Minimal valid HL7 message used by these tests. */
-function makeTestMessage(controlId: string = "CONTROL_ID"): Message {
-  return new Message({
-    text: `MSH|^~\\&|SENDER|FAC|RECEIVER|RFAC|20240101000000||ADT^A01|${controlId}|D|2.7`,
+    port: 15_000 + Math.floor(Math.random() * 10_000),
   });
 }
 
@@ -32,17 +30,19 @@ describe("node hl7 server - issue coverage", () => {
     test("InboundRequest.getSocket() returns the socket passed in props", () => {
       const fakeSocket = { foo: "bar" } as unknown as Socket;
       const message = makeTestMessage();
-      const req = new InboundRequest(message, {
-        type: "message",
+      const request = new InboundRequest(message, {
         socket: fakeSocket,
+        type: "message",
       });
-      expect(req.getSocket()).toBe(fakeSocket);
+      expect(request.getSocket()).toBe(fakeSocket);
     });
 
     test("InboundRequest.getSocket() throws when no socket was provided", () => {
-      const req = new InboundRequest(makeTestMessage(), { type: "message" });
-      expect(() => req.getSocket()).toThrow(HL7ListenerError);
-      expect(() => req.getSocket()).toThrow("Socket is not defined.");
+      const request = new InboundRequest(makeTestMessage(), {
+        type: "message",
+      });
+      expect(() => request.getSocket()).toThrow(HL7ListenerError);
+      expect(() => request.getSocket()).toThrow("Socket is not defined.");
     });
 
     test("createInbound handler receives a real net.Socket via req.getSocket()", async () => {
@@ -50,8 +50,8 @@ describe("node hl7 server - issue coverage", () => {
       const dfd = createDeferred<void>();
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (req, res) => {
-        const socket = req.getSocket();
+      const listener = server.createInbound({ port }, async (request, res) => {
+        const socket = request.getSocket();
         // The exact concrete class is net.Socket (or tls.TLSSocket which extends it).
         expect(socket).toBeInstanceOf(net.Socket);
         // localPort should match the port we bound to.
@@ -88,14 +88,14 @@ describe("node hl7 server - issue coverage", () => {
       const dfd = createDeferred<void>();
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (req, res) => {
-        const original = req.getMessage();
+      const listener = server.createInbound({ port }, async (request, res) => {
+        const original = request.getMessage();
         // Build a vendor-shaped ACK that does NOT come from the auto-generator.
         // Note the additional MSA fields (MSA.3 text + custom MSA.6) and the
         // explicit ERR segment that sendResponse() would never produce.
         const customAck = new Message({
           text: [
-            `MSH|^~\\&|CUSTOM_APP|CUSTOM_FAC|REMOTE_APP|REMOTE_FAC|${createHL7Date(new Date())}||ACK^A01|RESP_${original.get("MSH.10").toString()}|P|2.5`,
+            String.raw`MSH|^~\&|CUSTOM_APP|CUSTOM_FAC|REMOTE_APP|REMOTE_FAC|${createHL7Date(new Date())}||ACK^A01|RESP_${original.get("MSH.10").toString()}|P|2.5`,
             `MSA|AA|${original.get("MSH.10").toString()}|Custom message accepted|||VENDOR_CODE`,
             `ERR|||0^Message accepted^HL70357|I`,
           ].join("\r"),
@@ -106,9 +106,7 @@ describe("node hl7 server - issue coverage", () => {
         // After sending, getAckMessage() should reflect the custom ACK.
         const stored = res.getAckMessage();
         expect(stored?.get("MSH.3").toString()).toBe("CUSTOM_APP");
-        expect(stored?.get("MSA.3").toString()).toBe(
-          "Custom message accepted",
-        );
+        expect(stored?.get("MSA.3").toString()).toBe("Custom message accepted");
         expect(stored?.get("MSA.6").toString()).toBe("VENDOR_CODE");
       });
 
@@ -143,10 +141,10 @@ describe("node hl7 server - issue coverage", () => {
       const dfd = createDeferred<void>();
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (req, res) => {
-        const original = req.getMessage();
+      const listener = server.createInbound({ port }, async (request, res) => {
+        const original = request.getMessage();
         const raw = [
-          `MSH|^~\\&|RAW|FAC|R|RF|${createHL7Date(new Date())}||ACK^A01|RAW_${original.get("MSH.10").toString()}|P|2.5`,
+          String.raw`MSH|^~\&|RAW|FAC|R|RF|${createHL7Date(new Date())}||ACK^A01|RAW_${original.get("MSH.10").toString()}|P|2.5`,
           `MSA|AA|${original.get("MSH.10").toString()}`,
         ].join("\r");
 
@@ -181,11 +179,11 @@ describe("node hl7 server - issue coverage", () => {
       const ackReceived = createDeferred<void>();
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (req, res) => {
+      const listener = server.createInbound({ port }, async (request, res) => {
         const ack = new Message({
           text: [
-            `MSH|^~\\&|A|F|R|RF|${createHL7Date(new Date())}||ACK|X${req.getMessage().get("MSH.10").toString()}|P|2.5`,
-            `MSA|AA|${req.getMessage().get("MSH.10").toString()}`,
+            String.raw`MSH|^~\&|A|F|R|RF|${createHL7Date(new Date())}||ACK|X${request.getMessage().get("MSH.10").toString()}|P|2.5`,
+            `MSA|AA|${request.getMessage().get("MSH.10").toString()}`,
           ].join("\r"),
         });
         await res.sendCustomResponse(ack);
@@ -227,13 +225,13 @@ describe("node hl7 server - issue coverage", () => {
       const dataErrors: any[] = [];
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (req, res) => {
-        const id = req.getMessage().get("MSH.10").toString();
+      const listener = server.createInbound({ port }, async (request, res) => {
+        const id = request.getMessage().get("MSH.10").toString();
         seenControlIds.add(id);
         await res.sendResponse("AA");
         if (seenControlIds.size === expected) allDone.resolve();
       });
-      listener.on("data.error", (err) => dataErrors.push(err));
+      listener.on("data.error", (error) => dataErrors.push(error));
 
       await expectEvent(listener, "listen");
 
@@ -286,19 +284,18 @@ describe("node hl7 server - issue coverage", () => {
       const dataErrors: any[] = [];
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (req, res) => {
+      const listener = server.createInbound({ port }, async (request, res) => {
         await res.sendResponse("AA");
       });
-      listener.on("data.error", (err) => dataErrors.push(err));
+      listener.on("data.error", (error) => dataErrors.push(error));
 
       await expectEvent(listener, "listen");
 
       // Build a "large" ADT^A08 with a long OBX so the framed bytes total
       // several KB, then split into 64-byte chunks for the wire.
-      const big =
-        "X".repeat(8 * 1024); // 8KB of payload inside an OBX field
+      const big = "X".repeat(8 * 1024); // 8KB of payload inside an OBX field
       const text = [
-        `MSH|^~\\&|EPIC|HOSP|RECV|RFAC|20240101000000||ADT^A08|FRAG_001|P|2.5`,
+        String.raw`MSH|^~\&|EPIC|HOSP|RECV|RFAC|20240101000000||ADT^A08|FRAG_001|P|2.5`,
         `EVN|A08|20240101000000`,
         `PID|1||MRN12345^^^HOSP^MR||DOE^JANE^A||19800101|F`,
         `OBX|1|TX|NOTE^Long Note^L||${big}||||||F`,
@@ -326,8 +323,8 @@ describe("node hl7 server - issue coverage", () => {
       // Write in 64-byte chunks with a microtask gap so the receiver sees
       // many separate "data" events.
       const chunkSize = 64;
-      for (let i = 0; i < framed.length; i += chunkSize) {
-        raw.write(framed.subarray(i, i + chunkSize));
+      for (let index = 0; index < framed.length; index += chunkSize) {
+        raw.write(framed.subarray(index, index + chunkSize));
         await new Promise((r) => setImmediate(r));
       }
 
@@ -353,13 +350,13 @@ describe("node hl7 server - issue coverage", () => {
       const dataErrors: any[] = [];
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (req, res) => {
-        const id = req.getMessage().get("MSH.10").toString();
+      const listener = server.createInbound({ port }, async (request, res) => {
+        const id = request.getMessage().get("MSH.10").toString();
         seen.add(id);
         await res.sendResponse("AA");
         if (seen.size === total) allDone.resolve();
       });
-      listener.on("data.error", (err) => dataErrors.push(err));
+      listener.on("data.error", (error) => dataErrors.push(error));
 
       await expectEvent(listener, "listen");
 
@@ -373,8 +370,8 @@ describe("node hl7 server - issue coverage", () => {
 
       const start = Date.now();
       const sends: Promise<unknown>[] = [];
-      for (let i = 0; i < total; i++) {
-        sends.push(outbound.sendMessage(makeTestMessage(`PERF_${i}`)));
+      for (let index = 0; index < total; index++) {
+        sends.push(outbound.sendMessage(makeTestMessage(`PERF_${index}`)));
       }
       await Promise.all(sends);
       await allDone.promise;

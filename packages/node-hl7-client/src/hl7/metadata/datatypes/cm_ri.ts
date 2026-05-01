@@ -15,8 +15,8 @@
 export interface HL7_CM_RI {
   /** CM_RI.1 - Repeat Pattern */
   cm_ri_1?: string;
-  repeatPattern?: string;
   /** CM_RI.2 - Explicit Time Intevall */
   cm_ri_2?: string;
   explicitTimeIntevall?: string;
+  repeatPattern?: string;
 }

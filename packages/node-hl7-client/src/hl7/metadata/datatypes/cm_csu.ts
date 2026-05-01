@@ -15,23 +15,23 @@
 export interface HL7_CM_CSU {
   /** CM_CSU.1 - Sensitivity */
   cm_csu_1?: string;
-  sensitivity?: string;
   /** CM_CSU.2 - Unit Identifier */
   cm_csu_2?: string;
-  unitIdentifier?: string;
   /** CM_CSU.3 - Unit Text */
   cm_csu_3?: string;
-  unitText?: string;
   /** CM_CSU.4 - Units Name Of Coding System */
   cm_csu_4?: string;
-  unitsNameOfCodingSystem?: string;
   /** CM_CSU.5 - Units Alternate Identifier */
   cm_csu_5?: string;
-  unitsAlternateIdentifier?: string;
   /** CM_CSU.6 - Units Alternate Text */
   cm_csu_6?: string;
-  unitsAlternateText?: string;
   /** CM_CSU.7 - Units Name Of Alternate Coding System */
   cm_csu_7?: string;
+  sensitivity?: string;
+  unitIdentifier?: string;
+  unitsAlternateIdentifier?: string;
+  unitsAlternateText?: string;
   unitsNameOfAlternateCodingSystem?: string;
+  unitsNameOfCodingSystem?: string;
+  unitText?: string;
 }

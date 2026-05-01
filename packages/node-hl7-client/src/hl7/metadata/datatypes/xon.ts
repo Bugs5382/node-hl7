@@ -13,34 +13,34 @@
  * @since 4.0.0
  */
 export interface HL7_XON {
+  assigningAuthority?: string;
+  assigningFacility?: string;
+  checkDigit?: string;
+  checkDigitScheme?: string;
+  identifierTypeCode?: string;
+  idNumber?: string;
+  nameRepresentationCode?: string;
+  organizationIdentifier?: string;
+  organizationName?: string;
+  organizationNameTypeCode?: string;
   /** XON.1 - Organization Name */
   xon_1?: string;
-  organizationName?: string;
-  /** XON.2 - Organization Name Type Code */
-  xon_2?: string;
-  organizationNameTypeCode?: string;
-  /** XON.3 - Id Number */
-  xon_3?: string;
-  idNumber?: string;
-  /** XON.4 - Check Digit */
-  xon_4?: string;
-  checkDigit?: string;
-  /** XON.5 - Check Digit Scheme */
-  xon_5?: string;
-  checkDigitScheme?: string;
-  /** XON.6 - Assigning Authority */
-  xon_6?: string;
-  assigningAuthority?: string;
-  /** XON.7 - Identifier Type Code */
-  xon_7?: string;
-  identifierTypeCode?: string;
-  /** XON.8 - Assigning Facility */
-  xon_8?: string;
-  assigningFacility?: string;
-  /** XON.9 - Name Representation Code */
-  xon_9?: string;
-  nameRepresentationCode?: string;
   /** XON.10 - Organization Identifier */
   xon_10?: string;
-  organizationIdentifier?: string;
+  /** XON.2 - Organization Name Type Code */
+  xon_2?: string;
+  /** XON.3 - Id Number */
+  xon_3?: string;
+  /** XON.4 - Check Digit */
+  xon_4?: string;
+  /** XON.5 - Check Digit Scheme */
+  xon_5?: string;
+  /** XON.6 - Assigning Authority */
+  xon_6?: string;
+  /** XON.7 - Identifier Type Code */
+  xon_7?: string;
+  /** XON.8 - Assigning Facility */
+  xon_8?: string;
+  /** XON.9 - Name Representation Code */
+  xon_9?: string;
 }

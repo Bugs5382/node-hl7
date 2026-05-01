@@ -15,8 +15,8 @@
 export interface HL7_CM_MSG {
   /** CM_MSG.1 - Message Type */
   cm_msg_1?: string;
-  messageType?: string;
   /** CM_MSG.2 - Trigger Event */
   cm_msg_2?: string;
+  messageType?: string;
   triggerEvent?: string;
 }

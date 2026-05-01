@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_SRT {
+  sequencing?: string;
+  sortByField?: string;
   /** SRT.1 - Sort-by Field */
   srt_1?: string;
-  sortByField?: string;
   /** SRT.2 - Sequencing */
   srt_2?: string;
-  sequencing?: string;
 }

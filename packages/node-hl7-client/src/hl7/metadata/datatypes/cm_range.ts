@@ -15,8 +15,8 @@
 export interface HL7_CM_RANGE {
   /** CM_RANGE.1 - Low Value */
   cm_range_1?: string;
-  lowValue?: string;
   /** CM_RANGE.2 - High Value */
   cm_range_2?: string;
   highValue?: string;
+  lowValue?: string;
 }

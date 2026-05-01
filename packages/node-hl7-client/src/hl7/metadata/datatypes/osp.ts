@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_OSP {
+  occurrenceSpanCode?: string;
+  occurrenceSpanStartDate?: string;
+  occurrenceSpanStopDate?: string;
   /** OSP.1 - Occurrence Span Code */
   osp_1?: string;
-  occurrenceSpanCode?: string;
   /** OSP.2 - Occurrence Span Start Date */
   osp_2?: string;
-  occurrenceSpanStartDate?: string;
   /** OSP.3 - Occurrence Span Stop Date */
   osp_3?: string;
-  occurrenceSpanStopDate?: string;
 }

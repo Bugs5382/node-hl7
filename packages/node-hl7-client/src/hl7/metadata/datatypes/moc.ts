@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_MOC {
+  chargeCode?: string;
+  dollarAmount?: string;
   /** MOC.1 - Dollar Amount */
   moc_1?: string;
-  dollarAmount?: string;
   /** MOC.2 - Charge Code */
   moc_2?: string;
-  chargeCode?: string;
 }

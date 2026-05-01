@@ -13,22 +13,22 @@
  * @since 4.0.0
  */
 export interface HL7_CD {
+  calibrationParameters?: string;
   /** CD.1 - Channel Identifier */
   cd_1?: string;
-  channelIdentifier?: string;
   /** CD.2 - Waveform source */
   cd_2?: string;
-  waveformSource?: string;
   /** CD.3 - Channel Sensitivity/units */
   cd_3?: string;
-  channelSensitivityUnits?: string;
   /** CD.4 - Calibration Parameters */
   cd_4?: string;
-  calibrationParameters?: string;
   /** CD.5 - Sampling Frequency */
   cd_5?: string;
-  samplingFrequency?: string;
   /** CD.6 - Minimum/maximum Data Values */
   cd_6?: string;
+  channelIdentifier?: string;
+  channelSensitivityUnits?: string;
   minimumMaximumDataValues?: string;
+  samplingFrequency?: string;
+  waveformSource?: string;
 }

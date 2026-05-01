@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_PT {
+  processingId?: string;
+  processingMode?: string;
   /** PT.1 - Processing ID */
   pt_1?: string;
-  processingId?: string;
   /** PT.2 - Processing Mode */
   pt_2?: string;
-  processingMode?: string;
 }

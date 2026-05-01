@@ -15,8 +15,8 @@
 export interface HL7_CM_DIN {
   /** CM_DIN.1 - Date */
   cm_din_1?: string;
-  date?: string;
   /** CM_DIN.2 - Institution Name */
   cm_din_2?: string;
+  date?: string;
   institutionName?: string;
 }

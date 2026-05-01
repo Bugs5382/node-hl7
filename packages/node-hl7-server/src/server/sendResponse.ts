@@ -1,8 +1,9 @@
-import { ISendRequest } from "@/declaration/ISendRequest";
+import { createHL7Date, Message, randomString } from "node-hl7-client";
+
 import { BaseSendResponse } from "@/declaration/baseSendRequest";
+import { ISendRequest } from "@/declaration/ISendRequest";
 import { validMSA1 } from "@/utils/constants";
 import { HL7ServerError } from "@/utils/exception";
-import { Message, createHL7Date, randomString } from "node-hl7-client";
 
 /**
  * Send Response
@@ -60,8 +61,8 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
   ): Promise<void> {
     try {
       this._ack = this._createAckMessage(type, this._message);
-    } catch (_e: any) {
-      if (_e instanceof HL7ServerError) throw _e;
+    } catch (error: any) {
+      if (error instanceof HL7ServerError) throw error;
 
       this._ack = this._createAEAckMessage();
     }
@@ -90,7 +91,7 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
     const msh9 = eventCode ? `ACK^${eventCode}` : "ACK";
 
     const text = [
-      `MSH|^~\\&|${sendApp}|${sendFac}|${recvApp}|${recvFac}|${createHL7Date(new Date())}||${msh9}|${randomString()}|${processingId}|${spec}`,
+      String.raw`MSH|^~\&|${sendApp}|${sendFac}|${recvApp}|${recvFac}|${createHL7Date(new Date())}||${msh9}|${randomString()}|${processingId}|${spec}`,
       `MSA|${type}|${origControlId}`,
     ].join("\r");
 
@@ -98,12 +99,12 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
 
     // Apply MSH field overrides if set
     if (typeof this._mshOverrides === "object") {
-      Object.entries(this._mshOverrides).forEach(([path, override]) => {
+      for (const [path, override] of Object.entries(this._mshOverrides)) {
         ackMessage.set(
           `MSH.${path}`,
           typeof override === "function" ? override(message) : override,
         );
-      });
+      }
     }
 
     return ackMessage;
@@ -113,7 +114,7 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
   private _createAEAckMessage(): Message {
     // Z99 is an unassigned event code used as a placeholder for unknown failures
     const text = [
-      `MSH|^~\\&|||||${createHL7Date(new Date())}||ACK^Z99^ACK|${randomString()}|P|2.7`,
+      String.raw`MSH|^~\&|||||${createHL7Date(new Date())}||ACK^Z99^ACK|${randomString()}|P|2.7`,
       `MSA|AE|`,
     ].join("\r");
     return new Message({ text });

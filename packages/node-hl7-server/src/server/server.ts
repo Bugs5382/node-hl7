@@ -1,9 +1,11 @@
+import EventEmitter from "node:events";
+
 import {
   ListenerOptions,
-  ServerOptions,
   normalizeServerOptions,
+  ServerOptions,
 } from "@/utils/normalize";
-import EventEmitter from "events";
+
 import { Inbound, InboundHandler } from "./inbound";
 
 /**
@@ -40,9 +42,9 @@ export class Server extends EventEmitter {
    *   ```
    *
    */
-  constructor(props?: ServerOptions) {
+  constructor(properties?: ServerOptions) {
     super();
-    this._opt = normalizeServerOptions(props);
+    this._opt = normalizeServerOptions(properties);
   }
 
   /** This creates an instance of a HL7 server.
@@ -60,7 +62,10 @@ export class Server extends EventEmitter {
    *```
    *
    * */
-  createInbound(props: ListenerOptions, cb: InboundHandler): Inbound {
-    return new Inbound(this, props, cb);
+  createInbound(
+    properties: ListenerOptions,
+    callback: InboundHandler,
+  ): Inbound {
+    return new Inbound(this, properties, callback);
   }
 }

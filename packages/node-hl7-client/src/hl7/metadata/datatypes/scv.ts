@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_SCV {
+  parameterClass?: string;
+  parameterValue?: string;
   /** SCV.1 - Parameter Class */
   scv_1?: string;
-  parameterClass?: string;
   /** SCV.2 - Parameter Value */
   scv_2?: string;
-  parameterValue?: string;
 }

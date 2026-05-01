@@ -6,13 +6,13 @@
  */
 export class ParserPlan {
   /** @internal */
-  separatorField: string;
-  /** @internal */
   separatorComponent: string;
   /** @internal */
-  separatorRepetition: string;
-  /** @internal */
   separatorEscape: string;
+  /** @internal */
+  separatorField: string;
+  /** @internal */
+  separatorRepetition: string;
   /** @internal */
   separatorSubComponent: string;
 
@@ -24,25 +24,9 @@ export class ParserPlan {
     const seps = data.split("");
 
     this.separatorField = seps[0];
-    if (seps.length > 2) {
-      this.separatorRepetition = seps[2];
-    } else {
-      this.separatorRepetition = "~";
-    }
-    if (seps.length > 1) {
-      this.separatorComponent = seps[1];
-    } else {
-      this.separatorComponent = "^";
-    }
-    if (seps.length > 4) {
-      this.separatorSubComponent = seps[4];
-    } else {
-      this.separatorSubComponent = "&";
-    }
-    if (seps.length > 3) {
-      this.separatorEscape = seps[3];
-    } else {
-      this.separatorEscape = "\\";
-    }
+    this.separatorRepetition = seps.length > 2 ? seps[2] : "~";
+    this.separatorComponent = seps.length > 1 ? seps[1] : "^";
+    this.separatorSubComponent = seps.length > 4 ? seps[4] : "&";
+    this.separatorEscape = seps.length > 3 ? seps[3] : "\\";
   }
 }

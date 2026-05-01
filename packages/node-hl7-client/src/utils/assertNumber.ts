@@ -7,22 +7,22 @@
  * @param max Max Number
  */
 export const assertNumber = (
-  props: Record<string, number>,
+  properties: Record<string, number>,
   name: string,
   min: number,
   max?: number,
 ): void => {
-  const val = props[name];
+  const value = properties[name];
   if (
-    isNaN(val) ||
-    !Number.isFinite(val) ||
-    val < min ||
-    (max != null && val > max)
+    isNaN(value) ||
+    !Number.isFinite(value) ||
+    value < min ||
+    (max != undefined && value > max)
   ) {
     throw new TypeError(
-      max != null
-        ? `${name} must be a number (${min}, ${max}).`
-        : `${name} must be a number >= ${min}.`,
+      max == undefined
+        ? `${name} must be a number >= ${min}.`
+        : `${name} must be a number (${min}, ${max}).`,
     );
   }
 };

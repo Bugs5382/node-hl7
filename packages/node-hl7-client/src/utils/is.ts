@@ -30,8 +30,8 @@ export const isFile = (message: string): boolean => {
  * @since 1.0.0
  * @param value
  */
-export const isHL7Number = (value: string | number): boolean => {
-  value = typeof value === "string" ? parseInt(value) : value;
+export const isHL7Number = (value: number | string): boolean => {
+  value = typeof value === "string" ? Number.parseInt(value) : value;
   return !isNaN(value) || !Number.isFinite(value);
 };
 

@@ -1,5 +1,6 @@
 import { Message } from "node-hl7-client/src";
 import { describe, expect, test } from "vitest";
+
 import { MSH_HEADER } from "./__data__/constants";
 
 /**
@@ -36,7 +37,6 @@ describe("Segment.set — array values, numeric paths, bad input", () => {
     seg.set(3, "MRN1");
     expect(m.get("PID.3").toString()).toContain("MRN1");
   });
-
 });
 
 describe("SegmentList — repeated segments expose read/write/path", () => {
@@ -104,7 +104,7 @@ describe("RootBase escape / unescape", () => {
     expect(m.get("PID.5.1").toString()).toBe("DOE");
   });
 
-  test("unescape decodes \\F\\, \\S\\, \\R\\, \\T\\, \\E\\ sequences", () => {
+  test(String.raw`unescape decodes \F\, \S\, \R\, \T\, \E\ sequences`, () => {
     // Build raw text containing each escape — \F\ → |, \S\ → ^, etc.
     const raw =
       "MSH|^~\\&|||||20240101000000||ADT^A01|CTRL|D|2.7\rNTE|1|L|A\\F\\B\\S\\C\\R\\D\\T\\E\\E\\F";
@@ -117,7 +117,7 @@ describe("RootBase escape / unescape", () => {
     expect(out).toContain("&E");
   });
 
-  test("unescape decodes \\X..\\ hex sequences to characters", () => {
+  test(String.raw`unescape decodes \X..\ hex sequences to characters`, () => {
     // \X4869\ → "Hi"
     const raw =
       "MSH|^~\\&|||||20240101000000||ADT^A01|CTRL|D|2.7\rNTE|1|L|\\X4869\\";

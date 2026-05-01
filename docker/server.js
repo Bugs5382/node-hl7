@@ -15,27 +15,47 @@ const PORT = Number(process.env.HL7_PORT || 3000);
 const BIND = process.env.BIND_ADDRESS || "0.0.0.0";
 
 const log = (level, message, extra = {}) => {
-  console.log(JSON.stringify({ level, time: new Date().toISOString(), message, ...extra }));
+  console.log(
+    JSON.stringify({
+      level,
+      message,
+      time: new Date().toISOString(),
+      ...extra,
+    }),
+  );
 };
 
 const server = new Server({ bindAddress: BIND });
 
-const inbound = server.createInbound({ port: PORT, name: "hl7-listener" }, async (req, res) => {
-  const msg = req.getMessage();
-  log("info", "received", {
-    controlId: msg.get("MSH.10").toString(),
-    type: msg.get("MSH.9").toString(),
-    from: req.getSocket().remoteAddress,
-  });
-  await res.sendResponse("AA");
-});
+const inbound = server.createInbound(
+  { name: "hl7-listener", port: PORT },
+  async (request, res) => {
+    const message = request.getMessage();
+    log("info", "received", {
+      controlId: message.get("MSH.10").toString(),
+      from: request.getSocket().remoteAddress,
+      type: message.get("MSH.9").toString(),
+    });
+    await res.sendResponse("AA");
+  },
+);
 
-inbound.on("listen",        () => log("info",  "listening", { port: PORT, bind: BIND }));
-inbound.on("client.connect", (s) => log("info",  "client.connect", { from: s.remoteAddress }));
-inbound.on("client.close",   (hadError) => log("info", "client.close", { hadError }));
-inbound.on("client.error",   (err) => log("warn", "client.error", { err: String(err) }));
-inbound.on("data.error",     (err) => log("warn", "data.error",   { err: String(err) }));
-inbound.on("response.sent",  () => log("debug", "response.sent"));
+inbound.on("listen", () =>
+  log("info", "listening", { bind: BIND, port: PORT }),
+);
+inbound.on("client.connect", (s) =>
+  log("info", "client.connect", { from: s.remoteAddress }),
+);
+inbound.on("client.close", (hadError) =>
+  log("info", "client.close", { hadError }),
+);
+inbound.on("client.error", (error) =>
+  log("warn", "client.error", { err: String(error) }),
+);
+inbound.on("data.error", (error) =>
+  log("warn", "data.error", { err: String(error) }),
+);
+inbound.on("response.sent", () => log("debug", "response.sent"));
 
 // Graceful shutdown — Kubernetes sends SIGTERM before SIGKILL. Drain
 // in-flight ACKs so we don't drop messages mid-flight.
@@ -48,11 +68,11 @@ const shutdown = async (signal) => {
     await inbound.close();
     log("info", "shutdown.complete");
     process.exit(0);
-  } catch (err) {
-    log("error", "shutdown.failed", { err: String(err) });
+  } catch (error) {
+    log("error", "shutdown.failed", { err: String(error) });
     process.exit(1);
   }
 };
 
 process.on("SIGTERM", () => shutdown("SIGTERM"));
-process.on("SIGINT",  () => shutdown("SIGINT"));
+process.on("SIGINT", () => shutdown("SIGINT"));

@@ -1,6 +1,6 @@
 {
   "name": "node-hl7-client",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "description": "A pure Node.js HL7 Client that allows for communication to a HL7 Broker/Server that can send properly formatted HL7 messages with ease.It can also parse and then you can extract message segments out.",
   "keywords": [
     "hl7",
@@ -19,19 +19,19 @@
     "url": "git+https://github.com/Bugs5382/node-hl7.git"
   },
   "license": "MIT",
-  "author": "Shane Froebel",
+  "author": "Shane A. Froebel",
   "exports": {
     ".": {
-      "types": "./lib/types/index.d.ts",
+      "types": "./lib/types/index.d.mts",
       "import": "./lib/esm/index.mjs",
-      "require": "./lib/cjs/index.js",
-      "default": "./lib/cjs/index.js"
+      "require": "./lib/cjs/index.cjs",
+      "default": "./lib/cjs/index.cjs"
     },
     "./hl7": {
-      "types": "./lib/types/hl7.d.ts",
+      "types": "./lib/types/hl7.d.mts",
       "import": "./lib/esm/hl7.mjs",
-      "require": "./lib/cjs/hl7.js",
-      "default": "./lib/cjs/hl7.js"
+      "require": "./lib/cjs/hl7.cjs",
+      "default": "./lib/cjs/hl7.cjs"
     },
     "./src": {
       "types": "./src/index.ts",
@@ -42,13 +42,13 @@
       "default": "./src/*"
     }
   },
-  "main": "./lib/cjs/index.js",
+  "main": "./lib/cjs/index.cjs",
   "module": "./lib/esm/index.mjs",
-  "types": "./lib/types/index.d.ts",
+  "types": "./lib/types/index.d.mts",
   "typesVersions": {
     "*": {
       "hl7": [
-        "lib/types/hl7"
+        "lib/types/hl7.d.mts"
       ]
     }
   },
@@ -61,10 +61,8 @@
     "build": "tsdown",
     "build:dev": "NODE_ENV=development tsdown",
     "clean": "rm -rf coverage docs lib temp",
-    "lint": "npm run lint:npm && eslint | snazzy",
-    "lint:fix": "npm run lint:npm && eslint --fix | snazzy",
+    "lint:npm": "npmPkgJsonLint .",
     "lint:package": "npx sort-package-json",
-    "npm:lint": "npmPkgJsonLint .",
     "pack": "npm pack",
     "prepublishOnly": "npm run clean && npm run build && npm run pack",
     "typedoc": "typedoc",
@@ -74,7 +72,7 @@
   },
   "devDependencies": {
     "@redis/client": "^5.12.1",
-    "node-hl7-server": "^3.3.0",
+    "node-hl7-server": "^4.0.0",
     "redis-memory-server": "^0.16.1"
   },
   "engines": {

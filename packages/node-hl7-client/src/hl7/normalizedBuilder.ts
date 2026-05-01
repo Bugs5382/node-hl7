@@ -13,21 +13,26 @@ const DEFAULT_CLIENT_BUILDER_OPTS = {
 export function normalizedClientBuilderOptions(
   raw?: ClientBuilderOptions,
 ): ClientBuilderOptions {
-  const props: ClientBuilderOptions = {
+  const properties: ClientBuilderOptions = {
     ...DEFAULT_CLIENT_BUILDER_OPTS,
     ...raw,
   };
 
   if (
-    (typeof props.newLine !== "undefined" && props.newLine === "\\r") ||
-    props.newLine === "\\n"
+    (properties.newLine !== undefined &&
+      properties.newLine === String.raw`\r`) ||
+    properties.newLine === String.raw`\n`
   ) {
     throw new HL7FatalError("newLine must be \r or \n");
   }
 
-  if (props.date !== "8" && props.date !== "12" && props.date !== "14") {
-    props.date = "14";
+  if (
+    properties.date !== "8" &&
+    properties.date !== "12" &&
+    properties.date !== "14"
+  ) {
+    properties.date = "14";
   }
 
-  return props;
+  return properties;
 }

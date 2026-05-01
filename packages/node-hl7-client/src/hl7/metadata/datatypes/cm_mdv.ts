@@ -15,8 +15,8 @@
 export interface HL7_CM_MDV {
   /** CM_MDV.1 - Minimum Value */
   cm_mdv_1?: string;
-  minimumValue?: string;
   /** CM_MDV.2 - Maximum Value */
   cm_mdv_2?: string;
   maximumValue?: string;
+  minimumValue?: string;
 }

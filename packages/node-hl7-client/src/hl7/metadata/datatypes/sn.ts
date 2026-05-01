@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_SN {
+  comparator?: string;
+  num1?: string;
+  num2?: string;
+  separatorOrSuffix?: string;
   /** SN.1 - Comparator */
   sn_1?: string;
-  comparator?: string;
   /** SN.2 - Num1 */
   sn_2?: string;
-  num1?: string;
   /** SN.3 - Separator Or Suffix */
   sn_3?: string;
-  separatorOrSuffix?: string;
   /** SN.4 - Num2 */
   sn_4?: string;
-  num2?: string;
 }

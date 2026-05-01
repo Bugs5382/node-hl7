@@ -13,37 +13,37 @@
  * @since 4.0.0
  */
 export interface HL7_CNN {
+  assigningAuthorityNamespaceId?: string;
+  assigningAuthorityUniversalId?: string;
+  assigningAuthorityUniversalIdType?: string;
   /** CNN.1 - ID Number */
   cnn_1?: string;
-  idNumber?: string;
-  /** CNN.2 - Family Name */
-  cnn_2?: string;
-  familyName?: string;
-  /** CNN.3 - Given Name */
-  cnn_3?: string;
-  givenName?: string;
-  /** CNN.4 - Second And Further Given Names Or Initials Thereof */
-  cnn_4?: string;
-  secondAndFurtherGivenNamesOrInitialsThereof?: string;
-  /** CNN.5 - Suffix */
-  cnn_5?: string;
-  suffix?: string;
-  /** CNN.6 - Prefix */
-  cnn_6?: string;
-  prefix?: string;
-  /** CNN.7 - Degree */
-  cnn_7?: string;
-  degree?: string;
-  /** CNN.8 - Source Table */
-  cnn_8?: string;
-  sourceTable?: string;
-  /** CNN.9 - Assigning Authority Namespace ID */
-  cnn_9?: string;
-  assigningAuthorityNamespaceId?: string;
   /** CNN.10 - Assigning Authority Universal ID */
   cnn_10?: string;
-  assigningAuthorityUniversalId?: string;
   /** CNN.11 - Assigning Authority Universal ID Type */
   cnn_11?: string;
-  assigningAuthorityUniversalIdType?: string;
+  /** CNN.2 - Family Name */
+  cnn_2?: string;
+  /** CNN.3 - Given Name */
+  cnn_3?: string;
+  /** CNN.4 - Second And Further Given Names Or Initials Thereof */
+  cnn_4?: string;
+  /** CNN.5 - Suffix */
+  cnn_5?: string;
+  /** CNN.6 - Prefix */
+  cnn_6?: string;
+  /** CNN.7 - Degree */
+  cnn_7?: string;
+  /** CNN.8 - Source Table */
+  cnn_8?: string;
+  /** CNN.9 - Assigning Authority Namespace ID */
+  cnn_9?: string;
+  degree?: string;
+  familyName?: string;
+  givenName?: string;
+  idNumber?: string;
+  prefix?: string;
+  secondAndFurtherGivenNamesOrInitialsThereof?: string;
+  sourceTable?: string;
+  suffix?: string;
 }

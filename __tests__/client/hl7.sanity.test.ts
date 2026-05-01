@@ -7,6 +7,7 @@ import {
   Message,
 } from "node-hl7-client/src";
 import { describe, expect, test } from "vitest";
+
 import { MSH_HEADER } from "./__data__/constants";
 
 describe("node hl7 client - sanity tests", () => {
@@ -14,8 +15,8 @@ describe("node hl7 client - sanity tests", () => {
     test("rejects construction with no arguments", async () => {
       try {
         const message = new Message();
-      } catch (err) {
-        expect(err).toEqual(
+      } catch (error) {
+        expect(error).toEqual(
           new HL7FatalError(
             "mshHeader must be set if no HL7 message is being passed.",
           ),
@@ -26,8 +27,8 @@ describe("node hl7 client - sanity tests", () => {
     test("rejects empty text payload", async () => {
       try {
         new Message({ text: "" });
-      } catch (err) {
-        expect(err).toEqual(
+      } catch (error) {
+        expect(error).toEqual(
           new HL7FatalError(
             "mshHeader must be set if no HL7 message is being passed.",
           ),
@@ -38,8 +39,10 @@ describe("node hl7 client - sanity tests", () => {
     test("rejects text that does not start with MSH", async () => {
       try {
         new Message({ text: "PV1|||||||^Jones\r" });
-      } catch (err) {
-        expect(err).toEqual(new Error("text must begin with the MSH segment."));
+      } catch (error) {
+        expect(error).toEqual(
+          new Error("text must begin with the MSH segment."),
+        );
       }
     });
 
@@ -51,8 +54,8 @@ describe("node hl7 client - sanity tests", () => {
             msh_9_1: "",
           },
         });
-      } catch (err) {
-        expect(err).toEqual(new Error("MSH.9.1 & MSH 9.2 must be defined."));
+      } catch (error) {
+        expect(error).toEqual(new Error("MSH.9.1 & MSH 9.2 must be defined."));
       }
     });
 
@@ -67,8 +70,8 @@ describe("node hl7 client - sanity tests", () => {
             msh_9_2: "",
           },
         });
-      } catch (err) {
-        expect(err).toEqual(
+      } catch (error) {
+        expect(error).toEqual(
           new Error("MSH.9.2 must be 3 characters in length."),
         );
       }
@@ -81,13 +84,13 @@ describe("node hl7 client - sanity tests", () => {
            * @ts-expect-error not filling this out for unit testing
            */
           messageHeader: {
+            msh_10: "123456",
             msh_9_1: "ADTY",
             msh_9_2: "A01",
-            msh_10: "123456",
           },
         });
-      } catch (err) {
-        expect(err).toEqual(
+      } catch (error) {
+        expect(error).toEqual(
           new Error("MSH.9.1 must be 3 characters in length."),
         );
       }
@@ -100,13 +103,13 @@ describe("node hl7 client - sanity tests", () => {
            * @ts-expect-error not filling this out for unit testing
            */
           messageHeader: {
+            msh_10: "123456",
             msh_9_1: "ADT",
             msh_9_2: "A01Y",
-            msh_10: "123456",
           },
         });
-      } catch (err) {
-        expect(err).toEqual(
+      } catch (error) {
+        expect(error).toEqual(
           new Error("MSH.9.2 must be 3 characters in length."),
         );
       }
@@ -119,14 +122,14 @@ describe("node hl7 client - sanity tests", () => {
            * @ts-expect-error not filling this out for unit testing
            */
           messageHeader: {
+            msh_10: "12345",
             msh_9_1: "ADT",
             msh_9_2: "A01",
             msh_9_3: "AC",
-            msh_10: "12345",
           },
         });
-      } catch (err) {
-        expect(err).toEqual(
+      } catch (error) {
+        expect(error).toEqual(
           new Error(
             "MSH.9.3 must be 3 to 10 characters in length if specified.",
           ),
@@ -141,14 +144,14 @@ describe("node hl7 client - sanity tests", () => {
            * @ts-expect-error not filling this out for unit testing
            */
           messageHeader: {
+            msh_10: "12345",
             msh_9_1: "ADT",
             msh_9_2: "A01",
             msh_9_3: "ADT_A01_ABCDE",
-            msh_10: "12345",
           },
         });
-      } catch (err) {
-        expect(err).toEqual(
+      } catch (error) {
+        expect(error).toEqual(
           new Error(
             "MSH.9.3 must be 3 to 10 characters in length if specified.",
           ),
@@ -163,14 +166,14 @@ describe("node hl7 client - sanity tests", () => {
            * @ts-expect-error not filling this out for unit testing
            */
           messageHeader: {
-            msh_9_1: "ADT",
-            msh_9_2: "A01",
             msh_10:
               "AaasdfjlsdjflskdfsdflkjjsdlkflkasdflsjdflkjasdlfjsldkjlskjdfksajflksjdfAaasdfjlsdjflskdfsdflkjjsdlkflkasdflsjdflkjasdlfjsldkjlskjdfksajflksjdfAaasdfjlsdjflskdfsdflkjjsdlkflkasdflsjdflkjasdlfjsldkjlskjdfksajflksjdf",
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
           },
         });
-      } catch (err) {
-        expect(err).toEqual(
+      } catch (error) {
+        expect(error).toEqual(
           new Error(
             "MSH.10 must be greater than 0 and less than 199 characters.",
           ),
@@ -185,13 +188,13 @@ describe("node hl7 client - sanity tests", () => {
            * @ts-expect-error not filling this out for unit testing
            */
           messageHeader: {
+            msh_10: "",
             msh_9_1: "ADT",
             msh_9_2: "A01",
-            msh_10: "",
           },
         });
-      } catch (err) {
-        expect(err).toEqual(
+      } catch (error) {
+        expect(error).toEqual(
           new Error(
             "MSH.10 must be greater than 0 and less than 199 characters.",
           ),
@@ -206,8 +209,8 @@ describe("node hl7 client - sanity tests", () => {
         const batch = new Batch({
           text: "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231",
         });
-      } catch (err) {
-        expect(err).toEqual(
+      } catch (error) {
+        expect(error).toEqual(
           new HL7FatalError(
             "Unable to process a single MSH as a batch. Use Message.",
           ),
@@ -272,8 +275,7 @@ describe("node hl7 client - sanity tests", () => {
       "BHS:-+?*:::::20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1";
     const hl7_line_breaks: string =
       "MSH|^~\\&|device||Host||20240101000000+0000||OUL^R22^OUL_R22|2|P|2.5.1|||NE|AL||UNICODE UTF-8|||LAB-01^IHE\r";
-    const hl7_timezone: string =
-      "MSH|^~\\\\&|device||Host||19981004010159+0100||OUL^R22^OUL_R22|2|P|2.5.1|||NE|AL||UNICODE UTF-8|||LAB-01^IHE\\r";
+    const hl7_timezone: string = String.raw`MSH|^~\\&|device||Host||19981004010159+0100||OUL^R22^OUL_R22|2|P|2.5.1|||NE|AL||UNICODE UTF-8|||LAB-01^IHE\r`;
 
     test("MSH.7 timezone offset is parsed to UTC", async () => {
       const message = new Message({ text: hl7_timezone });
@@ -290,7 +292,7 @@ describe("node hl7 client - sanity tests", () => {
     test("MSH fields and EVN segment count parse correctly", async () => {
       const message = new Message({ text: hl7_string });
 
-      expect(message.toString().substring(0, 8)).toBe("MSH|^~\\&");
+      expect(message.toString().slice(0, 8)).toBe(String.raw`MSH|^~\&`);
       expect(message.get("MSH.3").exists("")).toBe(false);
       expect(message.get("MSH.9.1").toString()).toBe("ADT");
       expect(message.get("MSH.9.2").toString()).toBe("A01");
@@ -301,10 +303,10 @@ describe("node hl7 client - sanity tests", () => {
       expect(message.get("EVN.2").toString()).toBe("20081231");
 
       let count: number = 0;
-      message.get("EVN").forEach((segment): void => {
+      for (const segment of message.get("EVN")) {
         expect(segment.name).toBe("EVN");
         count++;
-      });
+      }
 
       expect(count).toBe(1);
     });
@@ -324,13 +326,13 @@ describe("node hl7 client - sanity tests", () => {
     test("Batch parses BHS header from text input", async () => {
       const batch = new Batch({ text: hl7_batch });
 
-      expect(batch.toString().substring(0, 8)).toBe("BHS|^~\\&");
+      expect(batch.toString().slice(0, 8)).toBe(String.raw`BHS|^~\&`);
     });
 
     test("non-standard BHS delimiters are honored on parse", async () => {
       const batch = new Batch({ text: hl7_batch_non_standard });
 
-      expect(batch.toString().substring(0, 8)).toBe("BHS:-+?*");
+      expect(batch.toString().slice(0, 8)).toBe("BHS:-+?*");
     });
 
     test("BHS yields one Message containing two EVN segments", async () => {
@@ -340,10 +342,10 @@ describe("node hl7 client - sanity tests", () => {
 
       messages.forEach((message: Message): void => {
         let count: number = 0;
-        message.get("EVN").forEach((segment): void => {
+        for (const segment of message.get("EVN")) {
           expect(segment.name).toBe("EVN");
           count++;
-        });
+        }
         expect(count).toBe(2);
       });
     });
@@ -351,8 +353,8 @@ describe("node hl7 client - sanity tests", () => {
     test("Message rejects multi-MSH input and points to Batch", async () => {
       try {
         const message = new Message({ text: hl7_batch_msh_string });
-      } catch (err) {
-        expect(err).toEqual(
+      } catch (error) {
+        expect(error).toEqual(
           new HL7FatalError("Multiple MSH segments found. Use Batch."),
         );
       }
@@ -366,10 +368,10 @@ describe("node hl7 client - sanity tests", () => {
 
       messages.forEach((message: Message): void => {
         let count: number = 0;
-        message.get("EVN").forEach((segment): void => {
+        for (const segment of message.get("EVN")) {
           expect(segment.name).toBe("EVN");
           count++;
-        });
+        }
         expect(count).toBe(1);
       });
     });
@@ -395,7 +397,7 @@ describe("node hl7 client - sanity tests", () => {
       const fileBatch = new FileBatch({ fileBuffer: Buffer.from(lf_content) });
 
       const raw = fileBatch.toString();
-      expect(raw).not.toContain("\\r");
+      expect(raw).not.toContain(String.raw`\r`);
       expect(raw).toContain("\r");
     });
   });

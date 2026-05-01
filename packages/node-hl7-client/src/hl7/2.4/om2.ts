@@ -2,6 +2,8 @@
 export interface HL7_2_4_OM2 {
   /** OM2.1 - Sequence Number (required) */
   om2_1: number | string;
+  /** OM2.10 - Minimum Meaningful Increments */
+  om2_10?: string;
   /** OM2.2 - Units of Measure */
   om2_2?: string;
   /** OM2.3 - Range of Decimal Precision */
@@ -18,6 +20,4 @@ export interface HL7_2_4_OM2 {
   om2_8?: string;
   /** OM2.9 - Delta Check Criteria */
   om2_9?: string;
-  /** OM2.10 - Minimum Meaningful Increments */
-  om2_10?: string;
 }

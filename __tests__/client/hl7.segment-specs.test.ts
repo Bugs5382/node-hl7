@@ -5,10 +5,7 @@ import { HL7_2_4 } from "node-hl7-client/src";
 import { HL7_2_6 } from "node-hl7-client/src";
 import { HL7_2_7 } from "node-hl7-client/src";
 import { HL7_2_8 } from "node-hl7-client/src";
-import {
-  ECD_SPEC,
-  SEGMENT_SPECS,
-} from "node-hl7-client/src";
+import { ECD_SPEC, SEGMENT_SPECS } from "node-hl7-client/src";
 import { describe, expect, test } from "vitest";
 
 /**
@@ -25,11 +22,11 @@ const DATE = new Date("2024-01-15T10:20:30Z");
 
 function header() {
   return {
+    msh_10: "X",
+    msh_11_1: "P" as const,
     msh_7: DATE,
     msh_9_1: "ADT",
     msh_9_2: "A01",
-    msh_10: "X",
-    msh_11_1: "P" as const,
   };
 }
 
@@ -135,12 +132,12 @@ describe("buildSegment — generic spec-driven builder", () => {
     const b = new HL7_2_1();
     b.on("error", () => {});
     b.buildMSH({
+      msh_10: "X",
+      msh_11: "T",
       msh_3: "APP",
       msh_5: "RECV_APP",
       msh_7: DATE,
       msh_9: "ACK",
-      msh_10: "X",
-      msh_11: "T",
     });
     expect(() => b.buildSegment("ECD", { ecd_1: "1" })).toThrow(
       /not part of HL7 v2\.1/,
@@ -165,8 +162,8 @@ describe("buildSegment — generic spec-driven builder", () => {
     const b = new HL7_2_4();
     b.on("error", () => {});
     b.buildMSH(header());
-    const ret = b.buildSegment("ECD", { ecd_1: "1", ecd_2: "RC" });
-    expect(ret).toBe(b);
+    const returnValue = b.buildSegment("ECD", { ecd_1: "1", ecd_2: "RC" });
+    expect(returnValue).toBe(b);
   });
 
   test("v2.6 emits B warning for ECD.4 (Backward Compatibility)", () => {

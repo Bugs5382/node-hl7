@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_MOP {
+  currencyDenomination?: string;
+  moneyOrPercentageIndicator?: string;
+  moneyOrPercentageQuantity?: string;
   /** MOP.1 - Money Or Percentage Indicator */
   mop_1?: string;
-  moneyOrPercentageIndicator?: string;
   /** MOP.2 - Money Or Percentage Quantity */
   mop_2?: string;
-  moneyOrPercentageQuantity?: string;
   /** MOP.3 - Currency Denomination */
   mop_3?: string;
-  currencyDenomination?: string;
 }

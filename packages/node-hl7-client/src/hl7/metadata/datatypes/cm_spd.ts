@@ -15,14 +15,14 @@
 export interface HL7_CM_SPD {
   /** CM_SPD.1 - Specialty Name */
   cm_spd_1?: string;
-  specialtyName?: string;
   /** CM_SPD.2 - Governing Board */
   cm_spd_2?: string;
-  governingBoard?: string;
   /** CM_SPD.3 - Eligible Or Certified */
   cm_spd_3?: string;
-  eligibleOrCertified?: string;
   /** CM_SPD.4 - Date Of Certification */
   cm_spd_4?: string;
   dateOfCertification?: string;
+  eligibleOrCertified?: string;
+  governingBoard?: string;
+  specialtyName?: string;
 }

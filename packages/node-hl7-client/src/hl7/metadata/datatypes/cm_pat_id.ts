@@ -13,19 +13,19 @@
  * @since 4.0.0
  */
 export interface HL7_CM_PAT_ID {
+  checkDigit?: string;
+  checkDigitScheme?: string;
   /** CM_PAT_ID.1 - Patient Id */
   cm_pat_id_1?: string;
-  patientId?: string;
   /** CM_PAT_ID.2 - Check Digit */
   cm_pat_id_2?: string;
-  checkDigit?: string;
   /** CM_PAT_ID.3 - Check Digit Scheme */
   cm_pat_id_3?: string;
-  checkDigitScheme?: string;
   /** CM_PAT_ID.4 - Facility Id */
   cm_pat_id_4?: string;
-  facilityId?: string;
   /** CM_PAT_ID.5 - Type */
   cm_pat_id_5?: string;
+  facilityId?: string;
+  patientId?: string;
   type?: string;
 }

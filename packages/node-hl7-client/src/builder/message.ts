@@ -1,3 +1,5 @@
+import { HL7Node } from "@/builder/interface/hL7Node";
+import { SegmentList } from "@/builder/modules/segmentList";
 import { normalizedClientMessageParserOptions } from "@/builder/normalizedParser";
 import { HL7FatalError, HL7ParserError } from "@/helpers/exception";
 import {
@@ -8,12 +10,11 @@ import { createHL7Date } from "@/utils/createHL7Date";
 import { isHL7Number } from "@/utils/is";
 import { randomString } from "@/utils/randomString";
 import { split } from "@/utils/spilt";
+
 import { FileBatch } from "./fileBatch";
-import { HL7Node } from "@/builder/interface/hL7Node";
 import { NodeBase } from "./modules/nodeBase";
 import { RootBase } from "./modules/rootBase";
 import { Segment } from "./modules/segment";
-import { SegmentList } from "@/builder/modules/segmentList";
 
 /**
  * Message Class
@@ -40,24 +41,26 @@ export class Message extends RootBase {
    * which then you add segments with fields and values for your Hl7 message.
    *
    */
-  constructor(props?: ClientBuilderMessageOptions) {
-    const opt = normalizedClientMessageParserOptions(props);
+  constructor(properties?: ClientBuilderMessageOptions) {
+    const opt = normalizedClientMessageParserOptions(properties);
 
     super(opt);
 
     this._opt = opt;
 
-    if (typeof opt.text !== "undefined" && opt.text !== "") {
-      const totalMsh = split(opt.text).filter((line: string) => line.startsWith("MSH"));
-      if (totalMsh.length !== 0 && totalMsh.length !== 1) {
+    if (opt.text !== undefined && opt.text !== "") {
+      const totalMsh = split(opt.text).filter((line: string) =>
+        line.startsWith("MSH"),
+      );
+      if (totalMsh.length > 0 && totalMsh.length !== 1) {
         throw new HL7FatalError("Multiple MSH segments found. Use Batch.");
       }
     }
 
-    if (typeof this._opt.messageHeader !== "undefined") {
+    if (this._opt.messageHeader !== undefined) {
       const msh = this._opt.messageHeader as any;
 
-      if (!msh.msh_9_1 || typeof msh.msh_9_2 === "undefined") {
+      if (!msh.msh_9_1 || msh.msh_9_2 === undefined) {
         throw new Error("MSH.9.1 & MSH 9.2 must be defined.");
       }
       if (msh.msh_9_1.length !== 3) {
@@ -67,7 +70,7 @@ export class Message extends RootBase {
         throw new Error("MSH.9.2 must be 3 characters in length.");
       }
       if (
-        typeof msh.msh_9_3 !== "undefined" &&
+        msh.msh_9_3 !== undefined &&
         (msh.msh_9_3.length < 3 || msh.msh_9_3.length > 10)
       ) {
         throw new Error(
@@ -75,8 +78,8 @@ export class Message extends RootBase {
         );
       }
       if (
-        typeof msh.msh_10 !== "undefined" &&
-        (msh.msh_10.length < 1 || msh.msh_10.length > 199)
+        msh.msh_10 !== undefined &&
+        (msh.msh_10.length === 0 || msh.msh_10.length > 199)
       ) {
         throw new Error(
           "MSH.10 must be greater than 0 and less than 199 characters.",
@@ -88,20 +91,20 @@ export class Message extends RootBase {
       this.set("MSH.9.2", msh.msh_9_2.toString());
       this.set(
         "MSH.9.3",
-        typeof msh.msh_9_3 !== "undefined"
-          ? msh.msh_9_3.toString()
-          : `${msh.msh_9_1}_${msh.msh_9_2}`,
+        msh.msh_9_3 === undefined
+          ? `${msh.msh_9_1}_${msh.msh_9_2}`
+          : msh.msh_9_3.toString(),
       );
       this.set(
         "MSH.10",
-        typeof msh.msh_10 !== "undefined" ? msh.msh_10.toString() : randomString(),
+        msh.msh_10 === undefined ? randomString() : msh.msh_10.toString(),
       );
-      if (typeof msh.msh_11_1 !== "undefined") {
+      if (msh.msh_11_1 !== undefined) {
         this.set("MSH.11.1", msh.msh_11_1.toString());
-      } else if (typeof msh.msh_11 !== "undefined") {
+      } else if (msh.msh_11 !== undefined) {
         this.set("MSH.11", msh.msh_11.toString());
       }
-      if (typeof msh.msh_11_2 !== "undefined") {
+      if (msh.msh_11_2 !== undefined) {
         this.set("MSH.11.2", msh.msh_11_2.toString());
       }
       this.set("MSH.12", "2.7");
@@ -128,7 +131,7 @@ export class Message extends RootBase {
    *
    */
   addSegment(path: string): Segment {
-    if (typeof path === "undefined") {
+    if (path === undefined) {
       throw new HL7ParserError("Missing segment path.");
     }
 
@@ -145,21 +148,29 @@ export class Message extends RootBase {
    * @since 1.0.0
    * @param path
    */
-  get(path: string | number): HL7Node {
-    let ret: any;
+  get(path: number | string): HL7Node {
+    let returnValue: any;
 
     if (typeof path === "number") {
       if (path >= 0 && path < this.children.length) {
-        ret = this.children[path];
+        returnValue = this.children[path];
       }
     } else if (path !== "") {
       const _path = this.preparePath(path);
-      ret = this.read(_path);
+      returnValue = this.read(_path);
     }
 
-    return typeof ret !== "undefined"
-      ? (ret as HL7Node)
-      : (NodeBase.empty as HL7Node);
+    return returnValue === undefined
+      ? (NodeBase.empty as HL7Node)
+      : (returnValue as HL7Node);
+  }
+
+  getFirstSegment(): Segment {
+    return this.children[0] as Segment;
+  }
+
+  getLastSegment(): Segment {
+    return this.children.at(-1) as Segment;
   }
 
   /**
@@ -178,11 +189,11 @@ export class Message extends RootBase {
         return new SegmentList(this, segments) as HL7Node;
       }
     } else {
-      if (typeof segmentName === "undefined") {
+      if (segmentName === undefined) {
         throw new HL7ParserError("Segment name is not defined.");
       }
       const segment = this._getFirstSegment(segmentName);
-      if (typeof segment !== "undefined") {
+      if (segment !== undefined) {
         return segment.read(path);
       }
     }
@@ -195,15 +206,15 @@ export class Message extends RootBase {
    * @param path
    * @param value
    */
-  set(path: string | number, value?: any): HL7Node {
+  set(path: number | string, value?: any): HL7Node {
     if (arguments.length === 1) {
       return this.ensure(path);
     }
 
     if (typeof path === "string") {
       if (Array.isArray(value)) {
-        for (let i = 0; i < value.length; i++) {
-          this.set(`${path}.${i + 1}`, value[i]);
+        for (let index = 0; index < value.length; index++) {
+          this.set(`${path}.${index + 1}`, value[index]);
         }
       } else {
         const _path = this.preparePath(path);
@@ -214,8 +225,8 @@ export class Message extends RootBase {
     } else if (isHL7Number(path)) {
       if (Array.isArray(value)) {
         const child = this.ensure(path);
-        for (let i = 0, l = value.length; i < l; i++) {
-          child.set(i, value[i]);
+        for (let index = 0, l = value.length; index < l; index++) {
+          child.set(index, value[index]);
         }
         return this;
       } else {
@@ -252,9 +263,9 @@ export class Message extends RootBase {
     extension: string = "hl7",
   ): string {
     const fileBatch = new FileBatch({
+      extension,
       location,
       newLine: newLine === true ? "\n" : "",
-      extension,
     });
     fileBatch.start();
 
@@ -279,22 +290,14 @@ export class Message extends RootBase {
   }
 
   /**
-   * Write Core of the Message
-   * @since 1.0.0
-   * @param path
-   * @param value
-   * @protected
+   * Total Segments
+   * @remarks That match the name.
+   * @since 4.0.0
+   * @param name
    */
-  protected writeCore(path: string[], value: string): HL7Node {
-    const segmentName = path.shift() as string;
-    if (typeof segmentName === "undefined") {
-      throw new HL7ParserError("Segment name is not defined.");
-    }
-    let index = this._getFirstSegmentIndex(segmentName);
-    if (index === undefined) {
-      index = this.children.length;
-    }
-    return this.writeAtIndex(path, value, index, segmentName);
+  totalSegment(name: string): number {
+    return this.children.filter((segment) => (segment as Segment).name === name)
+      .length;
   }
 
   /**
@@ -319,29 +322,29 @@ export class Message extends RootBase {
   }
 
   /**
-   * Total Segments
-   * @remarks That match the name.
-   * @since 4.0.0
-   * @param name
+   * Write Core of the Message
+   * @since 1.0.0
+   * @param path
+   * @param value
+   * @protected
    */
-  totalSegment(name: string): number {
-    return this.children.filter((segment) => (segment as Segment).name === name)
-      .length;
-  }
-
-  getLastSegment(): Segment {
-    return this.children[this.children.length - 1] as Segment;
-  }
-
-  getFirstSegment(): Segment {
-    return this.children[0] as Segment;
+  protected writeCore(path: string[], value: string): HL7Node {
+    const segmentName = path.shift() as string;
+    if (segmentName === undefined) {
+      throw new HL7ParserError("Segment name is not defined.");
+    }
+    let index = this._getFirstSegmentIndex(segmentName);
+    if (index === undefined) {
+      index = this.children.length;
+    }
+    return this.writeAtIndex(path, value, index, segmentName);
   }
 
   /** @internal */
   private _getFirstSegment(name: string): Segment | undefined {
     const children = this.children;
-    for (let i = 0, l = children.length; i < l; i++) {
-      const segment = children[i] as Segment;
+    for (let index = 0, l = children.length; index < l; index++) {
+      const segment = children[index] as Segment;
       if (segment.name === name) {
         return segment;
       }
@@ -352,10 +355,10 @@ export class Message extends RootBase {
   /** @internal */
   private _getFirstSegmentIndex(name: string): number | undefined {
     const children = this.children;
-    for (let i = 0, l = children.length; i < l; i++) {
-      const segment = children[i] as Segment;
+    for (let index = 0, l = children.length; index < l; index++) {
+      const segment = children[index] as Segment;
       if (segment.name === name) {
-        return i;
+        return index;
       }
     }
     return undefined;

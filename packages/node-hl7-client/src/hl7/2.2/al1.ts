@@ -2,10 +2,6 @@ import { TABLE_0127 } from "@/hl7/tables/0127";
 import { TABLE_0128 } from "@/hl7/tables/0128";
 import { TABLE_0136 } from "@/hl7/tables/0136";
 
-export type Table0127Value = (typeof TABLE_0127)[number];
-export type Table0128Value = (typeof TABLE_0128)[number];
-export type Table0136Value = (typeof TABLE_0136)[number];
-
 /** HL7 2.2 AL1 - Patient Allergy Information */
 export interface HL7_2_2_AL1 {
   /** AL1.1 - Set ID (required) */
@@ -21,3 +17,7 @@ export interface HL7_2_2_AL1 {
   /** AL1.6 - Identification Date */
   al1_6?: Date | string;
 }
+export type Table0127Value = (typeof TABLE_0127)[number];
+export type Table0128Value = (typeof TABLE_0128)[number];
+
+export type Table0136Value = (typeof TABLE_0136)[number];

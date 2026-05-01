@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_CM_DDI {
+  amount?: string;
   /** CM_DDI.1 - Delay Days */
   cm_ddi_1?: string;
-  delayDays?: string;
   /** CM_DDI.2 - Amount */
   cm_ddi_2?: string;
-  amount?: string;
   /** CM_DDI.3 - Number Of Days */
   cm_ddi_3?: string;
+  delayDays?: string;
   numberOfDays?: string;
 }

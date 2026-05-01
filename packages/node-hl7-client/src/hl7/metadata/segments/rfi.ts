@@ -11,35 +11,35 @@ import { SegmentSpec } from "@/hl7/metadata/types";
  * @since 4.0.0
  */
 export const RFI_SPEC: SegmentSpec = {
-  name: "RFI",
   description: "Request For Information",
-  versions: ["2.6","2.7","2.7.1","2.8"],
   fields: [
     {
-      num: 1,
+      hl7Type: "DTM",
       name: "Request Date",
-      hl7Type: "DTM",
-      usage: {"2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+      num: 1,
+      usage: { "2.6": "R", "2.7": "R", "2.7.1": "R", "2.8": "R" },
     },
     {
-      num: 2,
+      hl7Type: "DTM",
       name: "Response Due Date",
-      hl7Type: "DTM",
-      usage: {"2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+      num: 2,
+      usage: { "2.6": "R", "2.7": "R", "2.7.1": "R", "2.8": "R" },
     },
     {
-      num: 3,
-      name: "Patient Consent",
       hl7Type: "ID",
       length: { max: 1 },
+      name: "Patient Consent",
+      num: 3,
       table: 136,
-      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      usage: { "2.6": "O", "2.7": "O", "2.7.1": "O", "2.8": "O" },
     },
     {
-      num: 4,
-      name: "Date Additional Information Was Submitted",
       hl7Type: "DTM",
-      usage: {"2.6":"O","2.7":"O","2.7.1":"O","2.8":"O"},
+      name: "Date Additional Information Was Submitted",
+      num: 4,
+      usage: { "2.6": "O", "2.7": "O", "2.7.1": "O", "2.8": "O" },
     },
   ],
+  name: "RFI",
+  versions: ["2.6", "2.7", "2.7.1", "2.8"],
 };

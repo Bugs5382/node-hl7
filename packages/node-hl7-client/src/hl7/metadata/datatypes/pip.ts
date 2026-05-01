@@ -13,19 +13,19 @@
  * @since 4.0.0
  */
 export interface HL7_PIP {
+  activationDate?: string;
+  expirationDate?: string;
+  facility?: string;
   /** PIP.1 - Privilege */
   pip_1?: string;
-  privilege?: string;
   /** PIP.2 - Privilege Class */
   pip_2?: string;
-  privilegeClass?: string;
   /** PIP.3 - Expiration Date */
   pip_3?: string;
-  expirationDate?: string;
   /** PIP.4 - Activation Date */
   pip_4?: string;
-  activationDate?: string;
   /** PIP.5 - Facility */
   pip_5?: string;
-  facility?: string;
+  privilege?: string;
+  privilegeClass?: string;
 }

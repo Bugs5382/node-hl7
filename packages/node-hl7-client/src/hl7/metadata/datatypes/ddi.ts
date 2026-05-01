@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_DDI {
+  amount?: string;
   /** DDI.1 - Delay Days */
   ddi_1?: string;
-  delayDays?: string;
   /** DDI.2 - Amount */
   ddi_2?: string;
-  amount?: string;
   /** DDI.3 - Number Of Days */
   ddi_3?: string;
+  delayDays?: string;
   numberOfDays?: string;
 }

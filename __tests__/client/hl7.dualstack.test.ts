@@ -1,17 +1,14 @@
 import Client, { InboundResponse, Message } from "node-hl7-client/src";
-import {
-  detectIPFamily,
-  validIPv4,
-  validIPv6,
-} from "node-hl7-client/src";
+import { detectIPFamily, validIPv4, validIPv6 } from "node-hl7-client/src";
 import Server from "node-hl7-server/src";
 import portfinder from "portfinder";
 import { describe, expect, test } from "vitest";
+
 import { createDeferred, expectEvent } from "../server/__utils__";
 
 function makeTestMessage(): Message {
   return new Message({
-    text: `MSH|^~\\&|||||20240101000000||ADT^A01|CONTROL_ID|D|2.7`,
+    text: String.raw`MSH|^~\&|||||20240101000000||ADT^A01|CONTROL_ID|D|2.7`,
   });
 }
 
@@ -120,10 +117,10 @@ describe("dual-stack & IP family handling", () => {
 
     test("autoSelectFamily can be disabled", () => {
       const client = new Client({
+        autoSelectFamily: false,
         host: "hl7.example.com",
         ipv4: true,
         ipv6: true,
-        autoSelectFamily: false,
       });
       expect(client._opt.autoSelectFamily).toBe(false);
     });
@@ -132,8 +129,8 @@ describe("dual-stack & IP family handling", () => {
       expect.assertions(1);
       try {
         new Client({ host: "::1", ipv4: true });
-      } catch (err: any) {
-        expect(err.message).toBe("host is not a valid IPv4 address.");
+      } catch (error: any) {
+        expect(error.message).toBe("host is not a valid IPv4 address.");
       }
     });
 
@@ -141,8 +138,8 @@ describe("dual-stack & IP family handling", () => {
       expect.assertions(1);
       try {
         new Client({ host: "127.0.0.1", ipv6: true });
-      } catch (err: any) {
-        expect(err.message).toBe("host is not a valid IPv6 address.");
+      } catch (error: any) {
+        expect(error.message).toBe("host is not a valid IPv6 address.");
       }
     });
 
@@ -150,11 +147,11 @@ describe("dual-stack & IP family handling", () => {
       expect.assertions(1);
       try {
         new Client({
-          host: "192.0.2.1",
           autoSelectFamilyAttemptTimeout: 5,
+          host: "192.0.2.1",
         });
-      } catch (err: any) {
-        expect(err.message).toMatch(
+      } catch (error: any) {
+        expect(error.message).toMatch(
           /autoSelectFamilyAttemptTimeout must be a number/,
         );
       }
@@ -206,8 +203,7 @@ describe("dual-stack & IP family handling", () => {
 
     test("dual-stack accepts an IPv4 or IPv6 bindAddress", () => {
       expect(
-        () =>
-          new Server({ bindAddress: "127.0.0.1", ipv4: true, ipv6: true }),
+        () => new Server({ bindAddress: "127.0.0.1", ipv4: true, ipv6: true }),
       ).not.toThrow();
       expect(
         () => new Server({ bindAddress: "::", ipv4: true, ipv6: true }),
@@ -221,8 +217,8 @@ describe("dual-stack & IP family handling", () => {
       expect.assertions(1);
       try {
         new Server({ bindAddress: "127.0.0.1", ipv6: true });
-      } catch (err: any) {
-        expect(err.message).toBe("bindAddress is an invalid ipv6 address.");
+      } catch (error: any) {
+        expect(error.message).toBe("bindAddress is an invalid ipv6 address.");
       }
     });
 
@@ -230,15 +226,13 @@ describe("dual-stack & IP family handling", () => {
       expect.assertions(1);
       try {
         new Server({ bindAddress: "::1", ipv4: true });
-      } catch (err: any) {
-        expect(err.message).toBe("bindAddress is an invalid ipv4 address.");
+      } catch (error: any) {
+        expect(error.message).toBe("bindAddress is an invalid ipv4 address.");
       }
     });
 
     test("localhost is always allowed", () => {
-      expect(
-        () => new Server({ bindAddress: "localhost" }),
-      ).not.toThrow();
+      expect(() => new Server({ bindAddress: "localhost" })).not.toThrow();
       expect(
         () => new Server({ bindAddress: "localhost", ipv4: true }),
       ).not.toThrow();
@@ -254,7 +248,7 @@ describe("dual-stack & IP family handling", () => {
       const dfd = createDeferred<void>();
 
       const server = new Server({ bindAddress: "127.0.0.1", ipv4: true });
-      const listener = server.createInbound({ port }, async (_req, res) => {
+      const listener = server.createInbound({ port }, async (_request, res) => {
         await res.sendResponse("AA");
       });
 
@@ -283,7 +277,7 @@ describe("dual-stack & IP family handling", () => {
       const dfd = createDeferred<void>();
 
       const server = new Server({ bindAddress: "::1", ipv6: true });
-      const listener = server.createInbound({ port }, async (_req, res) => {
+      const listener = server.createInbound({ port }, async (_request, res) => {
         await res.sendResponse("AA");
       });
 
@@ -312,7 +306,7 @@ describe("dual-stack & IP family handling", () => {
 
       // Opt into dual-stack: bindAddress "::", ipv6Only=false
       const server = new Server({ ipv4: true, ipv6: true });
-      const listener = server.createInbound({ port }, async (_req, res) => {
+      const listener = server.createInbound({ port }, async (_request, res) => {
         await res.sendResponse("AA");
       });
 
@@ -321,10 +315,13 @@ describe("dual-stack & IP family handling", () => {
       // IPv4 client
       const v4Done = createDeferred<void>();
       const clientV4 = new Client({ host: "127.0.0.1", ipv4: true });
-      const v4Out = clientV4.createConnection({ port }, async (res: InboundResponse) => {
-        expect(res.getMessage().get("MSA.1").toString()).toBe("AA");
-        v4Done.resolve();
-      });
+      const v4Out = clientV4.createConnection(
+        { port },
+        async (res: InboundResponse) => {
+          expect(res.getMessage().get("MSA.1").toString()).toBe("AA");
+          v4Done.resolve();
+        },
+      );
       await expectEvent(v4Out, "connect");
       await v4Out.sendMessage(makeTestMessage());
       await v4Done.promise;
@@ -334,10 +331,13 @@ describe("dual-stack & IP family handling", () => {
       // IPv6 client
       const v6Done = createDeferred<void>();
       const clientV6 = new Client({ host: "::1", ipv6: true });
-      const v6Out = clientV6.createConnection({ port }, async (res: InboundResponse) => {
-        expect(res.getMessage().get("MSA.1").toString()).toBe("AA");
-        v6Done.resolve();
-      });
+      const v6Out = clientV6.createConnection(
+        { port },
+        async (res: InboundResponse) => {
+          expect(res.getMessage().get("MSA.1").toString()).toBe("AA");
+          v6Done.resolve();
+        },
+      );
       await expectEvent(v6Out, "connect");
       await v6Out.sendMessage(makeTestMessage());
       await v6Done.promise;
@@ -356,7 +356,7 @@ describe("dual-stack & IP family handling", () => {
       const dfd = createDeferred<void>();
 
       const server = new Server({ bindAddress: "127.0.0.1", ipv4: true });
-      const listener = server.createInbound({ port }, async (_req, res) => {
+      const listener = server.createInbound({ port }, async (_request, res) => {
         await res.sendResponse("AA");
       });
 
@@ -369,7 +369,7 @@ describe("dual-stack & IP family handling", () => {
         ipv6: true,
       });
       const outbound = client.createConnection(
-        { port, maxConnectionAttempts: 2 },
+        { maxConnectionAttempts: 2, port },
         async (res: InboundResponse) => {
           expect(res.getMessage().get("MSA.1").toString()).toBe("AA");
           dfd.resolve();

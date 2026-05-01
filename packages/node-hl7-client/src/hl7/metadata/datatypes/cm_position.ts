@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_CM_POSITION {
+  chair?: string;
   /** CM_POSITION.1 - Hall */
   cm_position_1?: string;
-  hall?: string;
   /** CM_POSITION.2 - Table */
   cm_position_2?: string;
-  table?: string;
   /** CM_POSITION.3 - Chair */
   cm_position_3?: string;
-  chair?: string;
+  hall?: string;
+  table?: string;
 }

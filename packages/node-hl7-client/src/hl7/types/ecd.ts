@@ -1,4 +1,15 @@
 /**
+ * v2.8 narrowing of `HL7_ECD`. ECD.4 was withdrawn in v2.8 — typing it as
+ * `never` makes assignment a compile-time error.
+ *
+ * @since 4.0.0
+ */
+export type HL7_2_8_ECD = {
+  ecd_4?: never;
+  requestedCompletionTime?: never;
+} & Omit<HL7_ECD, "ecd_4" | "requestedCompletionTime">;
+
+/**
  * HL7 ECD — Equipment Command segment.
  *
  * Field availability differs per HL7 spec version. The base `HL7_ECD`
@@ -11,14 +22,11 @@
  */
 export interface HL7_ECD {
   /** ECD.1 — Reference Command Number (NM, R). */
-  ecd_1: string | number;
-  referenceCommandNumber?: string | number;
+  ecd_1: number | string;
   /** ECD.2 — Remote Control Command (CWE, R, table 0368). */
   ecd_2: string;
-  remoteControlCommand?: string;
   /** ECD.3 — Response Required (ID, O, table 0136). */
-  ecd_3?: "Y" | "N";
-  responseRequired?: "Y" | "N";
+  ecd_3?: "N" | "Y";
   /**
    * ECD.4 — Requested Completion Time (TQ).
    *
@@ -28,22 +36,11 @@ export interface HL7_ECD {
    * to set it as a TypeScript error. Runtime check enforces the same.
    */
   ecd_4?: string;
-  requestedCompletionTime?: string;
   /** ECD.5 — Parameters (TX, O, repeatable). */
   ecd_5?: string;
   parameters?: string;
+  referenceCommandNumber?: number | string;
+  remoteControlCommand?: string;
+  requestedCompletionTime?: string;
+  responseRequired?: "N" | "Y";
 }
-
-/**
- * v2.8 narrowing of `HL7_ECD`. ECD.4 was withdrawn in v2.8 — typing it as
- * `never` makes assignment a compile-time error.
- *
- * @since 4.0.0
- */
-export type HL7_2_8_ECD = Omit<
-  HL7_ECD,
-  "ecd_4" | "requestedCompletionTime"
-> & {
-  ecd_4?: never;
-  requestedCompletionTime?: never;
-};

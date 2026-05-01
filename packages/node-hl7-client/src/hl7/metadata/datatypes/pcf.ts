@@ -15,11 +15,11 @@
 export interface HL7_PCF {
   /** PCF.1 - Pre-certification Patient Type */
   pcf_1?: string;
-  preCertificationPatientType?: string;
   /** PCF.2 - Pre-certification Required */
   pcf_2?: string;
-  preCertificationRequired?: string;
   /** PCF.3 - Pre-certification Window */
   pcf_3?: string;
+  preCertificationPatientType?: string;
+  preCertificationRequired?: string;
   preCertificationWindow?: string;
 }

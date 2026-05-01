@@ -15,8 +15,8 @@
 export interface HL7_CM_UVC {
   /** CM_UVC.1 - Value Code */
   cm_uvc_1?: string;
-  valueCode?: string;
   /** CM_UVC.2 - Value Amount */
   cm_uvc_2?: string;
   valueAmount?: string;
+  valueCode?: string;
 }

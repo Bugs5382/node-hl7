@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_RI {
+  explicitTimeInterval?: string;
+  repeatPattern?: string;
   /** RI.1 - Repeat Pattern */
   ri_1?: string;
-  repeatPattern?: string;
   /** RI.2 - Explicit Time Interval */
   ri_2?: string;
-  explicitTimeInterval?: string;
 }

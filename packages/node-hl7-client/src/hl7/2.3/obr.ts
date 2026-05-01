@@ -13,9 +13,9 @@ export interface HL7_2_3_OBR extends HL7_2_2_OBR {
   /** OBR.40 - Transport Arrangement Responsibility */
   obr_40?: string;
   /** OBR.41 - Transport Arranged */
-  obr_41?: "A" | "W" | "N";
+  obr_41?: "A" | "N" | "W";
   /** OBR.42 - Escort Required */
-  obr_42?: "R" | "O" | "N";
+  obr_42?: "N" | "O" | "R";
   /** OBR.43 - Planned Patient Transport Comment */
   obr_43?: string;
 }

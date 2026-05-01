@@ -2,6 +2,18 @@
 export interface HL7_2_2_RXD {
   /** RXD.1 - Dispense Sub-ID Counter (required) */
   rxd_1: string;
+  /** RXD.10 - Dispensing Provider */
+  rxd_10?: string;
+  /** RXD.11 - Substitution Status */
+  rxd_11?: string;
+  /** RXD.12 - Total Daily Dose */
+  rxd_12?: string;
+  /** RXD.13 - Dispense-to Location */
+  rxd_13?: string;
+  /** RXD.14 - Needs Human Review */
+  rxd_14?: "N" | "Y";
+  /** RXD.15 - Pharmacy/Treatment Supplier's Special Dispensing Instructions */
+  rxd_15?: string;
   /** RXD.2 - Dispense/Give Code (required) */
   rxd_2: string;
   /** RXD.3 - Date/Time Dispensed (required) */
@@ -18,16 +30,4 @@ export interface HL7_2_2_RXD {
   rxd_8?: string;
   /** RXD.9 - Dispense Notes */
   rxd_9?: string;
-  /** RXD.10 - Dispensing Provider */
-  rxd_10?: string;
-  /** RXD.11 - Substitution Status */
-  rxd_11?: string;
-  /** RXD.12 - Total Daily Dose */
-  rxd_12?: string;
-  /** RXD.13 - Dispense-to Location */
-  rxd_13?: string;
-  /** RXD.14 - Needs Human Review */
-  rxd_14?: "Y" | "N";
-  /** RXD.15 - Pharmacy/Treatment Supplier's Special Dispensing Instructions */
-  rxd_15?: string;
 }

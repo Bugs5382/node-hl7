@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_UVC {
+  nonMonetaryValueAmountQuantity?: string;
+  nonMonetaryValueAmountUnits?: string;
   /** UVC.1 - Value Code */
   uvc_1?: string;
-  valueCode?: string;
   /** UVC.2 - Value Amount */
   uvc_2?: string;
-  valueAmount?: string;
   /** UVC.3 - Non-monetary Value Amount / Quantity */
   uvc_3?: string;
-  nonMonetaryValueAmountQuantity?: string;
   /** UVC.4 - Non-monetary Value Amount / Units */
   uvc_4?: string;
-  nonMonetaryValueAmountUnits?: string;
+  valueAmount?: string;
+  valueCode?: string;
 }

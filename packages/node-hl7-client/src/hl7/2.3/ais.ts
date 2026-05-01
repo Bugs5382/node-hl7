@@ -2,6 +2,8 @@
 export interface HL7_2_3_AIS {
   /** AIS.1 - Set ID (required) */
   ais_1: number | string;
+  /** AIS.10 - Filler Status Code */
+  ais_10?: string;
   /** AIS.2 - Segment Action Code */
   ais_2?: "A" | "D" | "U";
   /** AIS.3 - Universal Service Identifier (required) */
@@ -18,6 +20,4 @@ export interface HL7_2_3_AIS {
   ais_8?: string;
   /** AIS.9 - Allow Substitution Code */
   ais_9?: string;
-  /** AIS.10 - Filler Status Code */
-  ais_10?: string;
 }

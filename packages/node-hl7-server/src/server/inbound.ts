@@ -1,19 +1,40 @@
-import { BaseSendResponse } from "@/declaration/baseSendRequest";
-import { ListenerOptions, normalizeListenerOptions } from "@/utils/normalize";
-import EventEmitter from "events";
-import net, { Socket } from "net";
 import {
   Batch,
   FileBatch,
-  MLLPCodec,
-  Message,
   isBatch,
   isFile,
+  Message,
+  MLLPCodec,
 } from "node-hl7-client";
-import tls from "tls";
+import EventEmitter from "node:events";
+import net, { Socket } from "node:net";
+import tls from "node:tls";
+
+import { BaseSendResponse } from "@/declaration/baseSendRequest";
+import { ListenerOptions, normalizeListenerOptions } from "@/utils/normalize";
+
 import { InboundRequest } from "./inboundRequest";
 import { SendResponse } from "./sendResponse";
 import { Server } from "./server";
+
+export interface IInbound extends EventEmitter {
+  /** When the connection form the client is closed. We might have an error, we might not. */
+  on(name: "client.close", callback: (hasError: boolean) => void): this;
+  /** When a connection from the client is made. */
+  on(name: "client.connect", callback: (socket: Socket) => void): this;
+  /** When an error was sent by the connecting source. */
+  on(name: "client.error", callback: (error: any) => void): this;
+  /** Something wrong happened during data parsing. */
+  on(name: "data.error", callback: (error: any) => void): this;
+  /** The raw data received by this particular inbound connection. */
+  on(name: "data.raw", callback: (rawData: string) => void): this;
+  /** When the socket itself has an error. */
+  on(name: "error", callback: (error: any) => void): this;
+  /** When the socket is ready and listening on the port. */
+  on(name: "listen", callback: () => void): this;
+  /** An HL7 response was sent */
+  on(name: "response.sent", callback: () => void): this;
+}
 
 /**
  * Inbound Handler
@@ -29,34 +50,19 @@ import { Server } from "./server";
  *```
  */
 export type InboundHandler = (
-  req: InboundRequest,
-  res: SendResponse | BaseSendResponse,
+  request: InboundRequest,
+  res: BaseSendResponse | SendResponse,
 ) => void;
-
-export interface IInbound extends EventEmitter {
-  /** When the connection form the client is closed. We might have an error, we might not. */
-  on(name: "client.close", cb: (hasError: boolean) => void): this;
-  /** When a connection from the client is made. */
-  on(name: "client.connect", cb: (socket: Socket) => void): this;
-  /** When an error was sent by the connecting source. */
-  on(name: "client.error", cb: (err: any) => void): this;
-  /** Something wrong happened during data parsing. */
-  on(name: "data.error", cb: (err: any) => void): this;
-  /** The raw data received by this particular inbound connection. */
-  on(name: "data.raw", cb: (rawData: string) => void): this;
-  /** When the socket itself has an error. */
-  on(name: "error", cb: (err: any) => void): this;
-  /** When the socket is ready and listening on the port. */
-  on(name: "listen", cb: () => void): this;
-  /** An HL7 response was sent */
-  on(name: "response.sent", cb: () => void): this;
-}
 
 /**
  * Inbound Listener Class
  * @since 1.0.0
  */
 export class Inbound extends EventEmitter implements IInbound {
+  /** @internal */
+  _main: Server;
+  /** @internal */
+  _opt: ReturnType<typeof normalizeListenerOptions>;
   /** @internal */
   readonly stats = {
     /** Total message received to server.
@@ -68,41 +74,15 @@ export class Inbound extends EventEmitter implements IInbound {
   };
   /** @internal */
   private readonly _handler: (
-    req: InboundRequest,
-    res: SendResponse | BaseSendResponse,
+    request: InboundRequest,
+    res: BaseSendResponse | SendResponse,
   ) => void;
-  /** @internal */
-  _main: Server;
-  /** @internal */
-  _opt: ReturnType<typeof normalizeListenerOptions>;
   /** @internal */
   private _sendResponseClass: typeof BaseSendResponse;
   /** @internal */
   private readonly _socket: net.Server | tls.Server;
   /** @internal */
   private readonly _sockets: Socket[];
-
-  /** @internal */
-  private _handleMessages = (
-    socket: Socket,
-    messages: Message[],
-    type: "file" | "batch",
-  ) => {
-    messages.forEach((message: Message) => {
-      const parsed = new Message({ text: message.toString() });
-      ++this.stats.totalMessage;
-
-      const req = new InboundRequest(parsed, { type, socket });
-      const res = new this._sendResponseClass(
-        socket,
-        parsed,
-        this._opt.mshOverrides,
-      );
-
-      res.on("response.sent", () => this.emit("response.sent"));
-      void this._handler(req, res);
-    });
-  };
 
   /**
    * Build a Listener
@@ -111,13 +91,17 @@ export class Inbound extends EventEmitter implements IInbound {
    * @param props
    * @param handler
    */
-  constructor(server: Server, props: ListenerOptions, handler: InboundHandler) {
+  constructor(
+    server: Server,
+    properties: ListenerOptions,
+    handler: InboundHandler,
+  ) {
     super();
 
     this._handler = handler;
     this._main = server;
 
-    this._opt = normalizeListenerOptions(props);
+    this._opt = normalizeListenerOptions(properties);
 
     this._sendResponseClass = this._opt.responseClass ?? SendResponse;
 
@@ -133,9 +117,9 @@ export class Inbound extends EventEmitter implements IInbound {
    * This be called for each listener, but if the server instance is closed and shut down, this will also fire off.
    * @since 1.0.0 */
   async close(): Promise<boolean> {
-    this._sockets.forEach((socket) => {
+    for (const socket of this._sockets) {
       socket.destroy();
-    });
+    }
 
     this._socket?.close(() => {
       this._socket?.unref();
@@ -145,6 +129,34 @@ export class Inbound extends EventEmitter implements IInbound {
   }
 
   /** @internal */
+  private _closeSocket(socket: Socket): void {
+    socket.destroy();
+    this._sockets.splice(this._sockets.indexOf(socket), 1);
+  }
+
+  /** @internal */
+  private _handleMessages = (
+    socket: Socket,
+    messages: Message[],
+    type: "batch" | "file",
+  ) => {
+    messages.forEach((message: Message) => {
+      const parsed = new Message({ text: message.toString() });
+      ++this.stats.totalMessage;
+
+      const request = new InboundRequest(parsed, { socket, type });
+      const res = new this._sendResponseClass(
+        socket,
+        parsed,
+        this._opt.mshOverrides,
+      );
+
+      res.on("response.sent", () => this.emit("response.sent"));
+      void this._handler(request, res);
+    });
+  };
+
+  /** @internal */
   private _listen(): net.Server | tls.Server {
     let socket: net.Server | tls.Server;
     const port = this._opt.port;
@@ -152,47 +164,47 @@ export class Inbound extends EventEmitter implements IInbound {
     const ipv6Only = this._main._opt.ipv6Only;
     const dualStack = this._main._opt.ipv4 && this._main._opt.ipv6;
 
-    if (typeof this._main._opt.tls !== "undefined") {
-      const { key, cert, requestCert, ca } = this._main._opt.tls;
-      socket = tls.createServer({ key, cert, requestCert, ca }, (socket) => {
+    if (this._main._opt.tls === undefined) {
+      socket = net.createServer((socket) => {
         this._onTcpClientConnected(socket);
       });
     } else {
-      socket = net.createServer((socket) => {
+      const { ca, cert, key, requestCert } = this._main._opt.tls;
+      socket = tls.createServer({ ca, cert, key, requestCert }, (socket) => {
         this._onTcpClientConnected(socket);
       });
     }
 
-    socket.on("error", (err) => {
-      this.emit("error", err);
+    socket.on("error", (error) => {
+      this.emit("error", error);
     });
 
     const listenOptions = {
-      port,
       host: bindAddress,
       ipv6Only,
+      port,
     };
 
     // Dual-stack fallback: if binding the IPv6 wildcard fails (the host kernel
     // has IPv6 disabled, no v6 stack, or a duplicate v6 socket), fall back to
     // an IPv4-only listener on `0.0.0.0`. The user can still terminate on a
     // specific address by passing an explicit `bindAddress`.
-    const tryListen = (opts: typeof listenOptions, onError: () => void) => {
-      const errorHandler = (err: NodeJS.ErrnoException) => {
+    const tryListen = (options: typeof listenOptions, onError: () => void) => {
+      const errorHandler = (error: NodeJS.ErrnoException) => {
         if (
           dualStack &&
-          (err.code === "EAFNOSUPPORT" ||
-            err.code === "EADDRNOTAVAIL" ||
-            err.code === "EINVAL")
+          (error.code === "EAFNOSUPPORT" ||
+            error.code === "EADDRNOTAVAIL" ||
+            error.code === "EINVAL")
         ) {
           socket.removeListener("error", errorHandler);
           onError();
         } else {
-          this.emit("error", err);
+          this.emit("error", error);
         }
       };
       socket.once("error", errorHandler);
-      socket.listen(opts, () => {
+      socket.listen(options, () => {
         socket.removeListener("error", errorHandler);
         this.emit("listen");
       });
@@ -201,9 +213,9 @@ export class Inbound extends EventEmitter implements IInbound {
     tryListen(listenOptions, () => {
       // IPv6 not available on this host — retry as IPv4-only.
       const fallback = {
-        port,
         host: bindAddress === "::" ? "0.0.0.0" : bindAddress,
         ipv6Only: false,
+        port,
       };
       socket.listen(fallback, () => {
         this.emit("listen");
@@ -231,8 +243,8 @@ export class Inbound extends EventEmitter implements IInbound {
       let dataResult: boolean | undefined;
       try {
         dataResult = codec.receiveData(buffer);
-      } catch (err) {
-        this.emit("data.error", err);
+      } catch (error) {
+        this.emit("data.error", error);
       }
 
       socket.uncork();
@@ -262,9 +274,9 @@ export class Inbound extends EventEmitter implements IInbound {
             const parsed = new Message({ text: completedMessageCopy });
             ++this.stats.totalMessage;
 
-            const req = new InboundRequest(parsed, {
-              type: "message",
+            const request = new InboundRequest(parsed, {
               socket,
+              type: "message",
             });
             const res = new this._sendResponseClass(
               socket,
@@ -273,16 +285,16 @@ export class Inbound extends EventEmitter implements IInbound {
             );
 
             res.on("response.sent", () => this.emit("response.sent"));
-            void this._handler(req, res);
+            void this._handler(request, res);
           }
-        } catch (err) {
-          this.emit("data.error", err);
+        } catch (error) {
+          this.emit("data.error", error);
         }
       }
     });
 
-    socket.on("error", (err) => {
-      this.emit("client.error", err);
+    socket.on("error", (error) => {
+      this.emit("client.error", error);
       this._closeSocket(socket);
     });
 
@@ -292,11 +304,5 @@ export class Inbound extends EventEmitter implements IInbound {
     });
 
     this.emit("client.connect", socket);
-  }
-
-  /** @internal */
-  private _closeSocket(socket: Socket): void {
-    socket.destroy();
-    this._sockets.splice(this._sockets.indexOf(socket), 1);
   }
 }

@@ -1,5 +1,6 @@
 import { EmptyNode, Message } from "node-hl7-client/src";
 import { describe, expect, test } from "vitest";
+
 import { MSH_HEADER } from "./__data__/constants";
 
 /**

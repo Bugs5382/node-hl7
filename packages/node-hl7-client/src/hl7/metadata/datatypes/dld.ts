@@ -13,9 +13,9 @@
  * @since 4.0.0
  */
 export interface HL7_DLD {
+  dischargeLocation?: string;
   /** DLD.1 - Discharge Location */
   dld_1?: string;
-  dischargeLocation?: string;
   /** DLD.2 - Effective Date */
   dld_2?: string;
   effectiveDate?: string;

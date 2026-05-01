@@ -15,8 +15,8 @@
 export interface HL7_CM_OCD {
   /** CM_OCD.1 - Occurrence Code */
   cm_ocd_1?: string;
-  occurrenceCode?: string;
   /** CM_OCD.2 - Occurrence Date */
   cm_ocd_2?: string;
+  occurrenceCode?: string;
   occurrenceDate?: string;
 }

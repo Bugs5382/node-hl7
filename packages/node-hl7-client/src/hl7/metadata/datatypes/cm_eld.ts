@@ -15,14 +15,14 @@
 export interface HL7_CM_ELD {
   /** CM_ELD.1 - Segment-id */
   cm_eld_1?: string;
-  segmentId?: string;
   /** CM_ELD.2 - Sequence */
   cm_eld_2?: string;
-  sequence?: string;
   /** CM_ELD.3 - Field-position */
   cm_eld_3?: string;
-  fieldPosition?: string;
   /** CM_ELD.4 - Code Identifying Error */
   cm_eld_4?: string;
   codeIdentifyingError?: string;
+  fieldPosition?: string;
+  segmentId?: string;
+  sequence?: string;
 }

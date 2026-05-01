@@ -1,6 +1,7 @@
 import { HL7_2_7 } from "@/hl7/2.7";
-import { ClientBuilderOptions_Hl7_2_7_1 } from "./types";
+
 import { HL7_2_7_1_MSH } from "./msh";
+import { ClientBuilderOptions_Hl7_2_7_1 } from "./types";
 
 export type { HL7_2_7_1_MSH } from "./msh";
 export type { ClientBuilderOptions_Hl7_2_7_1 } from "./types";
@@ -10,8 +11,8 @@ export type { ClientBuilderOptions_Hl7_2_7_1 } from "./types";
  * @since 1.0.0
  */
 export class HL7_2_7_1 extends HL7_2_7 {
-  constructor(props?: ClientBuilderOptions_Hl7_2_7_1) {
-    super(props);
+  constructor(properties?: ClientBuilderOptions_Hl7_2_7_1) {
+    super(properties);
     this.version = "2.7.1";
   }
 

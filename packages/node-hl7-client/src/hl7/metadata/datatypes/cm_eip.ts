@@ -15,8 +15,8 @@
 export interface HL7_CM_EIP {
   /** CM_EIP.1 - Parent's Placer Order Number */
   cm_eip_1?: string;
-  parentSPlacerOrderNumber?: string;
   /** CM_EIP.2 - Parent's Filler Order Number */
   cm_eip_2?: string;
   parentSFillerOrderNumber?: string;
+  parentSPlacerOrderNumber?: string;
 }

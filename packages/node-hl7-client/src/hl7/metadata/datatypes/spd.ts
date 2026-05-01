@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_SPD {
+  dateOfCertification?: string;
+  eligibleOrCertified?: string;
+  governingBoard?: string;
   /** SPD.1 - Specialty Name */
   spd_1?: string;
-  specialtyName?: string;
   /** SPD.2 - Governing Board */
   spd_2?: string;
-  governingBoard?: string;
   /** SPD.3 - Eligible Or Certified */
   spd_3?: string;
-  eligibleOrCertified?: string;
   /** SPD.4 - Date Of Certification */
   spd_4?: string;
-  dateOfCertification?: string;
+  specialtyName?: string;
 }

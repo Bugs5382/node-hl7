@@ -25,45 +25,43 @@ class TestBuilder extends HL7_BASE {
    * Set a field on the current synthetic segment. The segment is created
    * lazily on first call so dependsOn checks can find prior fields.
    */
-  public callSetField(spec: SegmentSpec, num: number, value: unknown) {
+  public callSetField(spec: SegmentSpec, number_: number, value: unknown) {
     if (!this._segment || this._segment._name !== spec.name) {
       this._segment = this._message.addSegment(spec.name);
     }
-    return this._validatorSetField(spec, num, value);
+    return this._validatorSetField(spec, number_, value);
   }
 }
 
 const SPEC: SegmentSpec = {
-  name: "TST",
   description: "Test",
-  versions: ["2.4", "2.5", "2.5.1", "2.6", "2.7"],
   fields: [
-    { num: 1, name: "Required Field", usage: { "2.6": "R" } },
-    { num: 2, name: "Optional Field", usage: { "2.6": "O" } },
+    { name: "Required Field", num: 1, usage: { "2.6": "R" } },
+    { name: "Optional Field", num: 2, usage: { "2.6": "O" } },
     {
-      num: 3,
+      length: { max: 5, min: 1 },
       name: "Backward Compat",
+      num: 3,
       usage: { "2.6": "B" },
-      length: { min: 1, max: 5 },
     },
-    { num: 4, name: "Withdrawn", usage: { "2.6": "W" } },
-    { num: 5, name: "Not Supported", usage: { "2.6": "X" } },
+    { name: "Withdrawn", num: 4, usage: { "2.6": "W" } },
+    { name: "Not Supported", num: 5, usage: { "2.6": "X" } },
     {
-      num: 6,
+      dependsOn: { mustBeSet: true, path: "1" },
       name: "Conditional",
+      num: 6,
       usage: { "2.6": "D" },
-      dependsOn: { path: "1", mustBeSet: true },
     },
-    { num: 7, name: "Future Field", usage: { "2.7": "O" } },
+    { name: "Future Field", num: 7, usage: { "2.7": "O" } },
   ],
+  name: "TST",
+  versions: ["2.4", "2.5", "2.5.1", "2.6", "2.7"],
 };
 
 describe("usage codes — spec-driven validator", () => {
   test("R required field unset throws HL7ValidationError", () => {
     const b = new TestBuilder();
-    expect(() => b.callSetField(SPEC, 1, undefined)).toThrow(
-      HL7ValidationError,
-    );
+    expect(() => b.callSetField(SPEC, 1)).toThrow(HL7ValidationError);
   });
 
   test("R required field with value succeeds", () => {
@@ -73,7 +71,7 @@ describe("usage codes — spec-driven validator", () => {
 
   test("O optional field unset is fine", () => {
     const b = new TestBuilder();
-    expect(b.callSetField(SPEC, 2, undefined)).toEqual([]);
+    expect(b.callSetField(SPEC, 2)).toEqual([]);
   });
 
   test("B backward-compat field warns but still serializes", () => {
@@ -120,6 +118,6 @@ describe("usage codes — spec-driven validator", () => {
 
   test("field not present in this version + no value is a no-op", () => {
     const b = new TestBuilder();
-    expect(b.callSetField(SPEC, 7, undefined)).toEqual([]);
+    expect(b.callSetField(SPEC, 7)).toEqual([]);
   });
 });

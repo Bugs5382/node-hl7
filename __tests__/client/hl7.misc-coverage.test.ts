@@ -1,6 +1,7 @@
 import { Batch, FileBatch, Message } from "node-hl7-client/src";
 import { ParserPlan } from "node-hl7-client/src/modules/parserPlan";
 import { describe, expect, test } from "vitest";
+
 import { MSH_HEADER } from "./__data__/constants";
 
 /**
@@ -46,7 +47,7 @@ describe("ParserPlan — separator defaults when input is short", () => {
   });
 
   test("full canonical separator set is parsed verbatim", () => {
-    const p = new ParserPlan("|^~\\&");
+    const p = new ParserPlan(String.raw`|^~\&`);
     expect(p.separatorField).toBe("|");
     expect(p.separatorComponent).toBe("^");
     expect(p.separatorRepetition).toBe("~");
@@ -56,7 +57,7 @@ describe("ParserPlan — separator defaults when input is short", () => {
 });
 
 describe("Batch / FileBatch — basic round-trip", () => {
-  function newMsg(controlId: string): Message {
+  function newMessage(controlId: string): Message {
     return new Message({
       messageHeader: { ...MSH_HEADER, msh_10: controlId },
     });
@@ -65,8 +66,8 @@ describe("Batch / FileBatch — basic round-trip", () => {
   test("Batch can wrap multiple messages and produce a string", () => {
     const batch = new Batch();
     batch.start();
-    batch.add(newMsg("CTRL_A"));
-    batch.add(newMsg("CTRL_B"));
+    batch.add(newMessage("CTRL_A"));
+    batch.add(newMessage("CTRL_B"));
     batch.end();
     const out = batch.toString();
     expect(out).toContain("BHS");
@@ -78,7 +79,7 @@ describe("Batch / FileBatch — basic round-trip", () => {
   test("FileBatch produces FHS/FTS framing", () => {
     const file = new FileBatch();
     file.start();
-    file.add(newMsg("CTRL_FILE"));
+    file.add(newMessage("CTRL_FILE"));
     file.end();
     const out = file.toString();
     expect(out).toContain("FHS");
@@ -121,7 +122,9 @@ describe("Message — high-level segment helpers", () => {
     const m = new Message({
       messageHeader: { ...MSH_HEADER, msh_10: "X" },
     });
-    expect(() => m.addSegment(undefined as any)).toThrow(/Missing segment path/);
+    expect(() => m.addSegment(undefined as any)).toThrow(
+      /Missing segment path/,
+    );
   });
 
   test("addSegment with a multi-segment path throws HL7ParserError", () => {

@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_CM_CCP {
+  baseline?: string;
   /** CM_CCP.1 - Sensitivity Correction Factor */
   cm_ccp_1?: string;
-  sensitivityCorrectionFactor?: string;
   /** CM_CCP.2 - Baseline */
   cm_ccp_2?: string;
-  baseline?: string;
   /** CM_CCP.3 - Time Skew */
   cm_ccp_3?: string;
+  sensitivityCorrectionFactor?: string;
   timeSkew?: string;
 }

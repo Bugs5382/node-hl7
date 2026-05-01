@@ -1,5 +1,6 @@
-import { Delimiters } from "@/declaration/enum";
 import { HL7Node } from "@/builder/interface/hL7Node";
+import { Delimiters } from "@/declaration/enum";
+
 import { FieldRepetition } from "./fieldRepetition";
 import { NodeBase } from "./nodeBase";
 import { ValueNode } from "./valueNode";
@@ -19,11 +20,6 @@ export class Field extends ValueNode {
     return this;
   }
 
-  /** @internal */
-  protected writeCore(path: string[], value: string): HL7Node {
-    return this._ensureChild().write(path, value);
-  }
-
   /**
    * Create a field repetition field of FieldRepetition
    * @since 1.0.0
@@ -34,6 +30,11 @@ export class Field extends ValueNode {
    */
   protected createChild(text: string, _index: number): HL7Node {
     return new FieldRepetition(this, this.key, text);
+  }
+
+  /** @internal */
+  protected writeCore(path: string[], value: string): HL7Node {
+    return this._ensureChild().write(path, value);
   }
 
   /** @internal */

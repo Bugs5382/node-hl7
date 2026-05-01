@@ -2,22 +2,6 @@
 export interface HL7_2_3_SCH {
   /** SCH.1 - Placer Appointment ID */
   sch_1?: string;
-  /** SCH.2 - Filler Appointment ID */
-  sch_2?: string;
-  /** SCH.3 - Occurrence Number */
-  sch_3?: string;
-  /** SCH.4 - Placer Group Number */
-  sch_4?: string;
-  /** SCH.5 - Schedule ID */
-  sch_5?: string;
-  /** SCH.6 - Event Reason (required) */
-  sch_6: string;
-  /** SCH.7 - Appointment Reason */
-  sch_7?: string;
-  /** SCH.8 - Appointment Type */
-  sch_8?: string;
-  /** SCH.9 - Appointment Duration */
-  sch_9?: string;
   /** SCH.10 - Appointment Duration Units */
   sch_10?: string;
   /** SCH.11 - Appointment Timing Quantity (required) */
@@ -38,6 +22,8 @@ export interface HL7_2_3_SCH {
   sch_18?: string;
   /** SCH.19 - Filler Contact Location */
   sch_19?: string;
+  /** SCH.2 - Filler Appointment ID */
+  sch_2?: string;
   /** SCH.20 - Entered By Person (required) */
   sch_20: string;
   /** SCH.21 - Entered By Phone Number */
@@ -50,4 +36,18 @@ export interface HL7_2_3_SCH {
   sch_24?: string;
   /** SCH.25 - Filler Status Code */
   sch_25?: string;
+  /** SCH.3 - Occurrence Number */
+  sch_3?: string;
+  /** SCH.4 - Placer Group Number */
+  sch_4?: string;
+  /** SCH.5 - Schedule ID */
+  sch_5?: string;
+  /** SCH.6 - Event Reason (required) */
+  sch_6: string;
+  /** SCH.7 - Appointment Reason */
+  sch_7?: string;
+  /** SCH.8 - Appointment Type */
+  sch_8?: string;
+  /** SCH.9 - Appointment Duration */
+  sch_9?: string;
 }

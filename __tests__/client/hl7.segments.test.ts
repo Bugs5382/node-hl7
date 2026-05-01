@@ -27,10 +27,10 @@ function v21(): HL7_2_1 {
     /* swallow validator emissions — tests assert on resulting wire format */
   });
   b.buildMSH({
-    msh_7: DATE,
-    msh_9: "ACK",
     msh_10: "CONTROL_ID",
     msh_11: "T",
+    msh_7: DATE,
+    msh_9: "ACK",
   });
   return b;
 }
@@ -137,12 +137,12 @@ describe("HL7 2.1 segment builders", () => {
     // so the v2.1 builder serializes successfully.
     b.buildOBR({
       obr_1: "1",
+      obr_14: "20240115093000",
+      obr_22: "20240115110500",
       obr_4: "GLU^Glucose^L",
       obr_7: "20240115102030",
       obr_8: "20240115110000",
       obr_9: "10^mL",
-      obr_14: "20240115093000",
-      obr_22: "20240115110500",
     });
     expect(b.toString()).toContain("\rOBR|1");
   });
@@ -150,10 +150,10 @@ describe("HL7 2.1 segment builders", () => {
   test("buildOBX — required value type / observation id", () => {
     b.buildOBX({
       obx_1: "1",
+      obx_11: "F", // observation result status (required)
       obx_2: "NM",
       obx_3: "GLU^Glucose^L",
       obx_5: "98",
-      obx_11: "F", // observation result status (required)
     });
     expect(b.toString()).toContain("\rOBX|1|NM|GLU^Glucose^L||98");
   });
@@ -279,19 +279,19 @@ describe("HL7 2.4 PID extension", () => {
     const b = new HL7_2_4();
     b.on("error", () => {});
     b.buildMSH({
+      msh_10: "X",
+      msh_11_1: "P",
       msh_7: DATE,
       msh_9_1: "ADT",
       msh_9_2: "A01",
-      msh_10: "X",
-      msh_11_1: "P",
     });
     b.buildPID({
       pid_3: "MRN1",
-      pid_5: "DOE^JANE",
       pid_31: "Y",
       pid_32: "ID_REL",
       pid_33: DATE,
       pid_37: "MRN2",
+      pid_5: "DOE^JANE",
     });
     const out = b.toString();
     expect(out).toContain("|Y|ID_REL|");
@@ -301,25 +301,25 @@ describe("HL7 2.4 PID extension", () => {
 describe("HL7 2.5 / 2.5.1 / 2.6 / 2.7 / 2.7.1 / 2.8 MSH", () => {
   // Each version's _buildMSH path is a separate code branch — exercising
   // it is the cheapest way to lift coverage across the version files.
-  const cases: Array<{ name: string; ctor: any; expect: string }> = [
-    { name: "2.5",   ctor: HL7_2_5,   expect: "|2.5"   },
-    { name: "2.5.1", ctor: HL7_2_5_1, expect: "|2.5.1" },
-    { name: "2.6",   ctor: HL7_2_6,   expect: "|2.6"   },
-    { name: "2.7",   ctor: HL7_2_7,   expect: "|2.7"   },
-    { name: "2.7.1", ctor: HL7_2_7_1, expect: "|2.7.1" },
-    { name: "2.8",   ctor: HL7_2_8,   expect: "|2.8"   },
+  const cases: Array<{ ctor: any; expect: string; name: string }> = [
+    { ctor: HL7_2_5, expect: "|2.5", name: "2.5" },
+    { ctor: HL7_2_5_1, expect: "|2.5.1", name: "2.5.1" },
+    { ctor: HL7_2_6, expect: "|2.6", name: "2.6" },
+    { ctor: HL7_2_7, expect: "|2.7", name: "2.7" },
+    { ctor: HL7_2_7_1, expect: "|2.7.1", name: "2.7.1" },
+    { ctor: HL7_2_8, expect: "|2.8", name: "2.8" },
   ];
 
-  cases.forEach(({ name, ctor, expect: versionFragment }) => {
+  for (const { ctor, expect: versionFragment, name } of cases) {
     test(`${name} — MSH builds with version stamp`, () => {
       const b = new ctor();
       b.on("error", () => {});
       b.buildMSH({
+        msh_10: "CONTROL_ID",
+        msh_11_1: "P",
         msh_7: DATE,
         msh_9_1: "ADT",
         msh_9_2: "A01",
-        msh_10: "CONTROL_ID",
-        msh_11_1: "P",
       });
       expect(b.toString()).toContain(versionFragment);
     });
@@ -328,16 +328,16 @@ describe("HL7 2.5 / 2.5.1 / 2.6 / 2.7 / 2.7.1 / 2.8 MSH", () => {
       const b = new ctor();
       b.on("error", () => {});
       b.buildMSH({
-        msh_7: DATE,
-        msh_9_1: "ADT",
-        msh_9_2: "A01",
         msh_10: "CONTROL_ID",
         msh_11_1: "P",
         msh_11_2: "A",
+        msh_7: DATE,
+        msh_9_1: "ADT",
+        msh_9_2: "A01",
       });
       expect(b.toString()).toContain("|P^A|");
     });
-  });
+  }
 });
 
 describe("HL7 2.7 IPC/ISD segments", () => {
@@ -346,11 +346,11 @@ describe("HL7 2.7 IPC/ISD segments", () => {
     b = new HL7_2_7();
     b.on("error", () => {});
     b.buildMSH({
+      msh_10: "CONTROL_ID",
+      msh_11_1: "P",
       msh_7: DATE,
       msh_9_1: "ADT",
       msh_9_2: "A01",
-      msh_10: "CONTROL_ID",
-      msh_11_1: "P",
     });
   });
 
@@ -375,11 +375,11 @@ describe("HL7 2.8 STZ segment", () => {
     const b = new HL7_2_8();
     b.on("error", () => {});
     b.buildMSH({
+      msh_10: "CONTROL_ID",
+      msh_11_1: "P",
       msh_7: DATE,
       msh_9_1: "ADT",
       msh_9_2: "A01",
-      msh_10: "CONTROL_ID",
-      msh_11_1: "P",
     });
     b.buildSTZ({ stz_1: "TEMP", stz_2: "121C", stz_3: "30MIN" });
     expect(b.toString()).toContain("\rSTZ|TEMP|121C|30MIN");
@@ -387,9 +387,9 @@ describe("HL7 2.8 STZ segment", () => {
 
   test("checkMSH delegates to base 2.7 checks", () => {
     const b = new HL7_2_8();
-    expect(
-      b.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "P" }),
-    ).toBe(true);
+    expect(b.checkMSH({ msh_11_1: "P", msh_9_1: "ADT", msh_9_2: "A01" })).toBe(
+      true,
+    );
   });
 });
 
@@ -407,8 +407,8 @@ describe("HL7_BASE — common helpers", () => {
 
   test("toMessage returns the underlying Message instance", () => {
     const b = v21();
-    const msg = b.toMessage();
-    expect(msg.toString()).toBe(b.toString());
+    const message = b.toMessage();
+    expect(message.toString()).toBe(b.toString());
   });
 
   test("hasValidationErrors is false on the public API", () => {
@@ -424,9 +424,9 @@ describe("HL7_BASE — common helpers", () => {
     b.on("error", () => {});
     expect(() =>
       b.checkMSH({
+        msh_10: "A".repeat(21),
         msh_9_1: "ADT",
         msh_9_2: "A01",
-        msh_10: "A".repeat(21),
       }),
     ).toThrow(/MSH\.10 must be greater than 0/);
   });

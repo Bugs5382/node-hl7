@@ -1,6 +1,18 @@
 export interface HL7_NST {
   /** Statistics Available: "Y" or "N" */
-  nst_1?: "Y" | "N";
+  nst_1?: "N" | "Y";
+  /** Checksum Errors Received */
+  nst_10?: number | string;
+  /** Length Errors Received */
+  nst_11?: number | string;
+  /** Other Errors Received */
+  nst_12?: number | string;
+  /** Connect Timeouts */
+  nst_13?: number | string;
+  /** Receive Timeouts */
+  nst_14?: number | string;
+  /** Application Control Level Errors */
+  nst_15?: number | string;
   /** Source Identifier */
   nst_2?: string;
   /** Source Type */
@@ -17,16 +29,4 @@ export interface HL7_NST {
   nst_8?: number | string;
   /** Messages Sent */
   nst_9?: number | string;
-  /** Checksum Errors Received */
-  nst_10?: number | string;
-  /** Length Errors Received */
-  nst_11?: number | string;
-  /** Other Errors Received */
-  nst_12?: number | string;
-  /** Connect Timeouts */
-  nst_13?: number | string;
-  /** Receive Timeouts */
-  nst_14?: number | string;
-  /** Application Control Level Errors */
-  nst_15?: number | string;
 }

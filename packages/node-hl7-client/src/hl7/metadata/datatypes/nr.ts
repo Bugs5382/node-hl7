@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_NR {
+  highValue?: string;
+  lowValue?: string;
   /** NR.1 - Low Value */
   nr_1?: string;
-  lowValue?: string;
   /** NR.2 - High Value */
   nr_2?: string;
-  highValue?: string;
 }

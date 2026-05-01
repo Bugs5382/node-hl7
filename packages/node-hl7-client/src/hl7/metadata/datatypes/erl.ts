@@ -13,22 +13,22 @@
  * @since 4.0.0
  */
 export interface HL7_ERL {
+  componentNumber?: string;
   /** ERL.1 - Segment Id */
   erl_1?: string;
-  segmentId?: string;
   /** ERL.2 - Segment Sequence */
   erl_2?: string;
-  segmentSequence?: string;
   /** ERL.3 - Field Position */
   erl_3?: string;
-  fieldPosition?: string;
   /** ERL.4 - Field Repetition */
   erl_4?: string;
-  fieldRepetition?: string;
   /** ERL.5 - Component Number */
   erl_5?: string;
-  componentNumber?: string;
   /** ERL.6 - Sub-component Number */
   erl_6?: string;
+  fieldPosition?: string;
+  fieldRepetition?: string;
+  segmentId?: string;
+  segmentSequence?: string;
   subComponentNumber?: string;
 }

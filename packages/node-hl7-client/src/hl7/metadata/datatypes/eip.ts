@@ -15,8 +15,8 @@
 export interface HL7_EIP {
   /** EIP.1 - Parent s Placer Order Number */
   eip_1?: string;
-  parentSPlacerOrderNumber?: string;
   /** EIP.2 - Parent s Filler Order Number */
   eip_2?: string;
   parentSFillerOrderNumber?: string;
+  parentSPlacerOrderNumber?: string;
 }

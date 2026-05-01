@@ -15,8 +15,8 @@
 export interface HL7_CM_GROUP_ID {
   /** CM_GROUP_ID.1 - Unique Group Id */
   cm_group_id_1?: string;
-  uniqueGroupId?: string;
   /** CM_GROUP_ID.2 - Placer Application Id */
   cm_group_id_2?: string;
   placerApplicationId?: string;
+  uniqueGroupId?: string;
 }

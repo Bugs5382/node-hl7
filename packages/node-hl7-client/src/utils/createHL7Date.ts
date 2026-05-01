@@ -1,6 +1,6 @@
-export type HL7Date = string & { __brand: "HL7Date" };
+export type DateLength = "12" | "14" | "19" | "24" | "26" | "8" | undefined;
 
-export type DateLength = "8" | "12" | "14" | "19" | "24" | "26" | undefined;
+export type HL7Date = { __brand: "HL7Date" } & string;
 
 /**
  * Create a valid HL7 Date.
@@ -26,14 +26,15 @@ export const createHL7Date = (date: Date, length?: DateLength): HL7Date => {
 
   const result = (() => {
     switch (length) {
-      case "8":
-        return `${y}${mo}${d}`;
-      case "12":
+      case "12": {
         return `${y}${mo}${d}${h}${mi}`;
-      case "14":
+      }
+      case "14": {
         return `${y}${mo}${d}${h}${mi}${s}`;
-      case "19":
+      }
+      case "19": {
         return `${y}${mo}${d}${h}${mi}${s}.${ms}`;
+      }
       case "24": {
         const base = `${y}${mo}${d}${h}${mi}${s}.${ms}`;
         const offset = -date.getTimezoneOffset(); // minutes offset from UTC
@@ -54,8 +55,12 @@ export const createHL7Date = (date: Date, length?: DateLength): HL7Date => {
         const tz = `${sign}${offsetHours}${offsetMinutes}`;
         return `${base}.${micros}${tz}` as HL7Date;
       }
-      default:
+      case "8": {
+        return `${y}${mo}${d}`;
+      }
+      default: {
         return `${y}${mo}${d}${h}${mi}${s}`;
+      }
     }
   })();
 
@@ -72,5 +77,7 @@ export const padHL7Date = (
   z: string = "0",
 ): string => {
   const s = n.toString();
-  return s.length >= width ? s : new Array(width - s.length + 1).join(z) + s;
+  return s.length >= width
+    ? s
+    : Array.from({ length: width - s.length + 1 }).join(z) + s;
 };

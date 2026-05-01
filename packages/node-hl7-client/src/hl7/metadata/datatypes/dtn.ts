@@ -13,9 +13,9 @@
  * @since 4.0.0
  */
 export interface HL7_DTN {
+  dayType?: string;
   /** DTN.1 - Day Type */
   dtn_1?: string;
-  dayType?: string;
   /** DTN.2 - Number Of Days */
   dtn_2?: string;
   numberOfDays?: string;

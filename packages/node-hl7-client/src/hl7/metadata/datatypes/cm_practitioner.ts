@@ -15,8 +15,8 @@
 export interface HL7_CM_PRACTITIONER {
   /** CM_PRACTITIONER.1 - Procedure Practitioner  Id */
   cm_practitioner_1?: string;
-  procedurePractitionerId?: string;
   /** CM_PRACTITIONER.2 - Procedure Practitioner Type */
   cm_practitioner_2?: string;
+  procedurePractitionerId?: string;
   procedurePractitionerType?: string;
 }

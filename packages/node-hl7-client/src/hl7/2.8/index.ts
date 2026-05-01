@@ -1,12 +1,13 @@
 import { HL7_2_7_1 } from "@/hl7/2.7.1";
-import { ClientBuilderOptions_Hl7_2_8 } from "./types";
-import { HL7_2_8_MSH } from "./msh";
-import { HL7_2_8_STZ } from "./stz";
-import { HL7_2_8_ECD } from "./ecd";
 import { STZ_SPEC } from "@/hl7/metadata/segments/stz";
 
-export type { HL7_2_8_MSH } from "./msh";
+import { HL7_2_8_ECD } from "./ecd";
+import { HL7_2_8_MSH } from "./msh";
+import { HL7_2_8_STZ } from "./stz";
+import { ClientBuilderOptions_Hl7_2_8 } from "./types";
+
 export type { HL7_2_8_ECD } from "./ecd";
+export type { HL7_2_8_MSH } from "./msh";
 export type { ClientBuilderOptions_Hl7_2_8 } from "./types";
 
 /**
@@ -14,13 +15,9 @@ export type { ClientBuilderOptions_Hl7_2_8 } from "./types";
  * @since 1.0.0
  */
 export class HL7_2_8 extends HL7_2_7_1 {
-  constructor(props?: ClientBuilderOptions_Hl7_2_8) {
-    super(props);
+  constructor(properties?: ClientBuilderOptions_Hl7_2_8) {
+    super(properties);
     this.version = "2.8";
-  }
-
-  checkMSH(msh: HL7_2_8_MSH): boolean {
-    return super.checkMSH(msh);
   }
 
   /**
@@ -33,25 +30,30 @@ export class HL7_2_8 extends HL7_2_7_1 {
     return super.buildECD(props as Partial<HL7_2_8_ECD>);
   }
 
-  protected _buildSTZ(props: Partial<HL7_2_8_STZ>): void {
+  checkMSH(msh: HL7_2_8_MSH): boolean {
+    return super.checkMSH(msh);
+  }
+
+  protected _buildSTZ(properties: Partial<HL7_2_8_STZ>): void {
     this._assertSegmentInVersion(STZ_SPEC);
     this._segment = this._message.addSegment("STZ");
     this._validatorSetField(STZ_SPEC,
     1,
-    props.stz_1,
+    properties.stz_1,
     { length: { min: 1, max: 250 } });
     this._validatorSetField(STZ_SPEC,
     2,
-    props.stz_2,
+    properties.stz_2,
     { length: { min: 1, max: 250 } });
     this._validatorSetField(STZ_SPEC,
     3,
-    props.stz_3,
+    properties.stz_3,
     { length: { min: 1, max: 250 } });
     this._validatorSetField(STZ_SPEC,
     4,
-    props.stz_4,
-    { length: { min: 1, max: 250 } });
+    properties.stz_4,
+      length: { min: 1, max: 250 },
+    });
     // STZ.5 was present in early-draft tooling but Caristix v2.8 publishes
     // only 4 fields for STZ; the spec is authoritative, so don't emit a 5th.
   }

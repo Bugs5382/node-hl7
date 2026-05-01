@@ -7,9 +7,9 @@ import { expect } from "vitest";
  * @param err
  * @param message
  */
-export function expectHL7FatalError(err: unknown, message: string) {
-  expect(err).toBeInstanceOf(HL7FatalError);
-  if (err instanceof HL7FatalError) {
-    expect(err.message).toBe(message);
+export function expectHL7FatalError(error: unknown, message: string) {
+  expect(error).toBeInstanceOf(HL7FatalError);
+  if (error instanceof HL7FatalError) {
+    expect(error.message).toBe(message);
   }
 }

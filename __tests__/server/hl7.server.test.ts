@@ -8,8 +8,8 @@ describe("node hl7 server", () => {
       const empty = new InboundRequest(undefined, { type: "file" });
       try {
         empty.getMessage();
-      } catch (e) {
-        expect(e).toStrictEqual(
+      } catch (error) {
+        expect(error).toStrictEqual(
           new HL7ListenerError("Message is not defined."),
         );
       }
@@ -17,8 +17,8 @@ describe("node hl7 server", () => {
 
     test("getType returns the configured request type", async () => {
       // @ts-expect-error type check
-      const req = new InboundRequest("", { type: "file" });
-      expect(req.getType()).toBe("file");
+      const request = new InboundRequest("", { type: "file" });
+      expect(request.getType()).toBe("file");
     });
   });
 
@@ -26,22 +26,22 @@ describe("node hl7 server", () => {
     test("rejects bindAddress with non-string type", async () => {
       try {
         // @ts-expect-error this is not a string
-        new Server({ bindAddress: 351123 });
-      } catch (err: any) {
-        expect(err.message).toBe("bindAddress is not valid string.");
+        new Server({ bindAddress: 351_123 });
+      } catch (error: any) {
+        expect(error.message).toBe("bindAddress is not valid string.");
       }
     });
 
     test("accepts ipv4 and ipv6 both true (dual-stack)", async () => {
-      expect(() => new Server({ ipv6: true, ipv4: true })).not.toThrow();
+      expect(() => new Server({ ipv4: true, ipv6: true })).not.toThrow();
     });
 
     test("rejects ipv4 and ipv6 both false", async () => {
       expect.assertions(1);
       try {
         new Server({ ipv4: false, ipv6: false });
-      } catch (err: any) {
-        expect(err.message).toBe(
+      } catch (error: any) {
+        expect(error.message).toBe(
           "ipv4 and ipv6 cannot both be disabled — at least one address family must be enabled.",
         );
       }
@@ -51,8 +51,8 @@ describe("node hl7 server", () => {
       expect.assertions(1);
       try {
         new Server({ bindAddress: "", ipv4: true });
-      } catch (err: any) {
-        expect(err.message).toBe("bindAddress is an invalid ipv4 address.");
+      } catch (error: any) {
+        expect(error.message).toBe("bindAddress is an invalid ipv4 address.");
       }
     });
 
@@ -60,8 +60,8 @@ describe("node hl7 server", () => {
       expect.assertions(1);
       try {
         new Server({ bindAddress: "123.34.52.455", ipv4: true });
-      } catch (err: any) {
-        expect(err.message).toBe("bindAddress is an invalid ipv4 address.");
+      } catch (error: any) {
+        expect(error.message).toBe("bindAddress is an invalid ipv4 address.");
       }
     });
 
@@ -70,8 +70,8 @@ describe("node hl7 server", () => {
       try {
         // dual-stack must be opted into; the message then names both families
         new Server({ bindAddress: "not-an-ip", ipv4: true, ipv6: true });
-      } catch (err: any) {
-        expect(err.message).toBe(
+      } catch (error: any) {
+        expect(error.message).toBe(
           "bindAddress is not a valid IPv4 or IPv6 address.",
         );
       }
@@ -79,9 +79,9 @@ describe("node hl7 server", () => {
 
     test("rejects empty bindAddress when ipv6 is exclusive", async () => {
       try {
-        new Server({ bindAddress: "", ipv6: true, ipv4: false });
-      } catch (err: any) {
-        expect(err.message).toBe("bindAddress is an invalid ipv6 address.");
+        new Server({ bindAddress: "", ipv4: false, ipv6: true });
+      } catch (error: any) {
+        expect(error.message).toBe("bindAddress is an invalid ipv6 address.");
       }
     });
 
@@ -89,11 +89,11 @@ describe("node hl7 server", () => {
       try {
         new Server({
           bindAddress: "2001:0db8:85a3:0000:zz00:8a2e:0370:7334",
-          ipv6: true,
           ipv4: false,
+          ipv6: true,
         });
-      } catch (err: any) {
-        expect(err.message).toBe("bindAddress is an invalid ipv6 address.");
+      } catch (error: any) {
+        expect(error.message).toBe("bindAddress is an invalid ipv6 address.");
       }
     });
 
@@ -101,11 +101,11 @@ describe("node hl7 server", () => {
       try {
         new Server({
           bindAddress: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-          ipv6: true,
           ipv4: false,
+          ipv6: true,
         });
-      } catch (err: any) {
-        expect(err.message).toBeUndefined();
+      } catch (error: any) {
+        expect(error.message).toBeUndefined();
       }
     });
 
@@ -121,8 +121,8 @@ describe("node hl7 server", () => {
         const server = new Server();
         // @ts-expect-error port is not specified
         server.createInbound();
-      } catch (err: any) {
-        expect(err.message).toBe("port is not defined.");
+      } catch (error: any) {
+        expect(error.message).toBe("port is not defined.");
       }
     });
 
@@ -131,8 +131,8 @@ describe("node hl7 server", () => {
         const server = new Server();
         // @ts-expect-error port is not a number
         server.createInbound({ port: "12345" }, async () => {});
-      } catch (err: any) {
-        expect(err.message).toBe("port is not a valid number.");
+      } catch (error: any) {
+        expect(error.message).toBe("port is not a valid number.");
       }
     });
 
@@ -140,17 +140,17 @@ describe("node hl7 server", () => {
       try {
         const server = new Server();
         server.createInbound({ port: -1 }, async () => {});
-      } catch (err: any) {
-        expect(err.message).toEqual("port must be a number (0, 65353).");
+      } catch (error: any) {
+        expect(error.message).toEqual("port must be a number (0, 65353).");
       }
     });
 
     test("rejects port above 65353", async () => {
       try {
         const server = new Server();
-        server.createInbound({ port: 65354 }, async () => {});
-      } catch (err: any) {
-        expect(err.message).toBe("port must be a number (0, 65353).");
+        server.createInbound({ port: 65_354 }, async () => {});
+      } catch (error: any) {
+        expect(error.message).toBe("port must be a number (0, 65353).");
       }
     });
 
@@ -158,11 +158,11 @@ describe("node hl7 server", () => {
       try {
         const server = new Server();
         server.createInbound(
-          { name: "$#@!sdfe-`", port: 65353 },
+          { name: "$#@!sdfe-`", port: 65_353 },
           async () => {},
         );
-      } catch (err: any) {
-        expect(err.message).toContain(
+      } catch (error: any) {
+        expect(error.message).toContain(
           "name must not contain certain characters: `!@#$%^&*()+\\-=\\[\\]{};':\"\\\\|,.<>\\/?~.",
         );
       }
@@ -173,17 +173,17 @@ describe("node hl7 server", () => {
         const server = new Server();
         server.createInbound(
           {
-            name: "mshOverride",
-            port: 4000,
             mshOverrides: {
               // @ts-expect-error value must be a string
               "9.3": true,
             },
+            name: "mshOverride",
+            port: 4000,
           },
           async () => {},
         );
-      } catch (err: any) {
-        expect(err.message).toContain(
+      } catch (error: any) {
+        expect(error.message).toContain(
           "mshOverrides override value must be a string or a function.",
         );
       }
@@ -194,17 +194,17 @@ describe("node hl7 server", () => {
         const server = new Server();
         server.createInbound(
           {
-            name: "mshOverride",
-            port: 4000,
             mshOverrides: {
               // @ts-expect-error value must be a string
               "9.3": 1,
             },
+            name: "mshOverride",
+            port: 4000,
           },
           async () => {},
         );
-      } catch (err: any) {
-        expect(err.message).toContain(
+      } catch (error: any) {
+        expect(error.message).toContain(
           "mshOverrides override value must be a string or a function.",
         );
       }
@@ -215,17 +215,17 @@ describe("node hl7 server", () => {
         const server = new Server();
         server.createInbound(
           {
-            name: "mshOverride",
-            port: 4000,
             mshOverrides: {
               // @ts-expect-error value must be a string
               "9.3": 1.1,
             },
+            name: "mshOverride",
+            port: 4000,
           },
           async () => {},
         );
-      } catch (err: any) {
-        expect(err.message).toContain(
+      } catch (error: any) {
+        expect(error.message).toContain(
           "mshOverrides override value must be a string or a function.",
         );
       }
@@ -234,11 +234,11 @@ describe("node hl7 server", () => {
     test("InboundRequest.getMessage throws when message is missing", async () => {
       try {
         // @ts-expect-error no message.
-        const inboundReq = new InboundRequest("", { type: "message" });
+        const inboundRequest = new InboundRequest("", { type: "message" });
         // this should cause an error
-        inboundReq.getMessage();
-      } catch (err: any) {
-        expect(err.message).toBe("Message is not defined.");
+        inboundRequest.getMessage();
+      } catch (error: any) {
+        expect(error.message).toBe("Message is not defined.");
       }
     });
   });

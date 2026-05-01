@@ -5,7 +5,7 @@ export interface HL7_2_4_DRG {
   /** DRG.2 - DRG Assigned Date/Time */
   drg_2?: Date | string;
   /** DRG.3 - DRG Approval Indicator */
-  drg_3?: "Y" | "N";
+  drg_3?: "N" | "Y";
   /** DRG.4 - DRG Grouper Review Code */
   drg_4?: string;
   /** DRG.5 - Outlier Type */

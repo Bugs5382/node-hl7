@@ -15,8 +15,8 @@
 export interface HL7_CM_DTN {
   /** CM_DTN.1 - Day Type */
   cm_dtn_1?: string;
-  dayType?: string;
   /** CM_DTN.2 - Number Of Days */
   cm_dtn_2?: string;
+  dayType?: string;
   numberOfDays?: string;
 }

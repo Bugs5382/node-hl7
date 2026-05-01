@@ -11,11 +11,11 @@ export const split = (data: string, segments: string[] = []): string[] => {
   const getSegIndex = [
     ...getSegIndexes(["FHS", "BHS", "MSH", "BTS", "FTS"], data),
   ];
-  getSegIndex.sort((a, b) => parseInt(a) - parseInt(b));
-  for (let i = 0; i < getSegIndex.length; i++) {
-    const start = parseInt(getSegIndex[i]);
-    let end = parseInt(getSegIndex[i + 1]);
-    if (i + 1 === getSegIndex.length) {
+  getSegIndex.sort((a, b) => Number.parseInt(a) - Number.parseInt(b));
+  for (let index = 0; index < getSegIndex.length; index++) {
+    const start = Number.parseInt(getSegIndex[index]);
+    let end = Number.parseInt(getSegIndex[index + 1]);
+    if (index + 1 === getSegIndex.length) {
       end = data.length;
     }
     segments.push(data.slice(start, end));

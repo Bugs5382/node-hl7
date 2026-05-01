@@ -11,15 +11,15 @@ import { SegmentSpec } from "@/hl7/metadata/types";
  * @since 4.0.0
  */
 export const ZL7_SPEC: SegmentSpec = {
-  name: "ZL7",
   description: "(proposed Example Only)",
-  versions: ["2.8"],
   fields: [
     {
-      num: 1,
-      name: "ZL7.1",
       hl7Type: "ST",
-      usage: {"2.8":"O"},
+      name: "ZL7.1",
+      num: 1,
+      usage: { "2.8": "O" },
     },
   ],
+  name: "ZL7",
+  versions: ["2.8"],
 };

@@ -5,23 +5,19 @@ import { HL7Node } from "@/builder/interface/hL7Node";
  * @since 1.0.0
  */
 export class EmptyNode implements HL7Node {
-  get name(): string {
-    throw new Error("Method not implemented");
-  }
-
   get length(): number {
     return 0;
   }
 
-  get(_path: string | number): HL7Node {
-    return this;
+  get name(): string {
+    throw new Error("Method not implemented");
   }
 
-  set(_path: string | number, _value?: any): HL7Node {
-    return this;
+  get path(): string[] {
+    throw new Error("Method not implemented");
   }
 
-  exists(_path: string | number): boolean {
+  exists(_path: number | string): boolean {
     return false;
   }
 
@@ -29,27 +25,39 @@ export class EmptyNode implements HL7Node {
     throw new Error("Method not implemented");
   }
 
-  toString(): string {
-    return "";
-  }
-
-  toFile(_name: string, _newLine?: boolean, _location?: string): void {
-    throw new Error("Method not implemented.");
-  }
-
-  toRaw(): string {
-    throw new Error("Method not implemented");
-  }
-
-  toArray(): HL7Node[] {
-    return [];
+  get(_path: number | string): HL7Node {
+    return this;
   }
 
   isEmpty(): boolean {
     return true;
   }
 
+  read(_path: string[]): HL7Node {
+    throw new Error("Method not implemented");
+  }
+
+  set(_path: number | string, _value?: any): HL7Node {
+    return this;
+  }
+
+  toArray(): HL7Node[] {
+    return [];
+  }
+
+  toBoolean(): boolean {
+    throw new Error("Method not implemented");
+  }
+
   toDate(): Date {
+    throw new Error("Method not implemented");
+  }
+
+  toFile(_name: string, _newLine?: boolean, _location?: string): void {
+    throw new Error("Method not implemented.");
+  }
+
+  toFloat(): number {
     throw new Error("Method not implemented");
   }
 
@@ -57,23 +65,15 @@ export class EmptyNode implements HL7Node {
     throw new Error("Method not implemented");
   }
 
-  toFloat(): number {
+  toRaw(): string {
     throw new Error("Method not implemented");
   }
 
-  toBoolean(): boolean {
-    throw new Error("Method not implemented");
-  }
-
-  read(_path: string[]): HL7Node {
-    throw new Error("Method not implemented");
+  toString(): string {
+    return "";
   }
 
   write(_path: string[], _value: string): HL7Node {
     return this;
-  }
-
-  get path(): string[] {
-    throw new Error("Method not implemented");
   }
 }

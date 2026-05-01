@@ -15,8 +15,8 @@
 export interface HL7_CQ {
   /** CQ.1 - Quantity */
   cq_1?: string;
-  quantity?: string;
   /** CQ.2 - Units */
   cq_2?: string;
+  quantity?: string;
   units?: string;
 }

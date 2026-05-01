@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_PI {
+  idNumber?: string;
+  otherQualifyingInfo?: string;
   /** PI.1 - ID Number */
   pi_1?: string;
-  idNumber?: string;
   /** PI.2 - Type Of ID Number */
   pi_2?: string;
-  typeOfIdNumber?: string;
   /** PI.3 - Other Qualifying Info */
   pi_3?: string;
-  otherQualifyingInfo?: string;
+  typeOfIdNumber?: string;
 }

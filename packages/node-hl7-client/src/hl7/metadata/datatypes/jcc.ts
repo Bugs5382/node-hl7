@@ -15,11 +15,11 @@
 export interface HL7_JCC {
   /** JCC.1 - Job Code */
   jcc_1?: string;
-  jobCode?: string;
   /** JCC.2 - Job Class */
   jcc_2?: string;
-  jobClass?: string;
   /** JCC.3 - Job Description Text */
   jcc_3?: string;
+  jobClass?: string;
+  jobCode?: string;
   jobDescriptionText?: string;
 }

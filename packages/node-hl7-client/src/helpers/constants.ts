@@ -8,4 +8,4 @@ export const PROTOCOL_MLLP_END = Buffer.from([0x1c]);
 export const PROTOCOL_MLLP_FOOTER = Buffer.from([0x0d]);
 
 /** @internal */
-export const NAME_FORMAT = /[ `!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/; //eslint-disable-line
+export const NAME_FORMAT = /[ `!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/;

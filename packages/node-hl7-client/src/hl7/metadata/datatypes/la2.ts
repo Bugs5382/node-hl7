@@ -13,52 +13,52 @@
  * @since 4.0.0
  */
 export interface HL7_LA2 {
+  addressType?: string;
+  bed?: string;
+  building?: string;
+  city?: string;
+  country?: string;
+  facility?: string;
+  floor?: string;
   /** LA2.1 - Point Of Care */
   la2_1?: string;
-  pointOfCare?: string;
-  /** LA2.2 - Room */
-  la2_2?: string;
-  room?: string;
-  /** LA2.3 - Bed */
-  la2_3?: string;
-  bed?: string;
-  /** LA2.4 - Facility */
-  la2_4?: string;
-  facility?: string;
-  /** LA2.5 - Location Status */
-  la2_5?: string;
-  locationStatus?: string;
-  /** LA2.6 - Person Location Type */
-  la2_6?: string;
-  personLocationType?: string;
-  /** LA2.7 - Building */
-  la2_7?: string;
-  building?: string;
-  /** LA2.8 - Floor */
-  la2_8?: string;
-  floor?: string;
-  /** LA2.9 - Street Address */
-  la2_9?: string;
-  streetAddress?: string;
   /** LA2.10 - Other Designation */
   la2_10?: string;
-  otherDesignation?: string;
   /** LA2.11 - City */
   la2_11?: string;
-  city?: string;
   /** LA2.12 - State Or Province */
   la2_12?: string;
-  stateOrProvince?: string;
   /** LA2.13 - Zip Or Postal Code */
   la2_13?: string;
-  zipOrPostalCode?: string;
   /** LA2.14 - Country */
   la2_14?: string;
-  country?: string;
   /** LA2.15 - Address Type */
   la2_15?: string;
-  addressType?: string;
   /** LA2.16 - Other Geographic Designation */
   la2_16?: string;
+  /** LA2.2 - Room */
+  la2_2?: string;
+  /** LA2.3 - Bed */
+  la2_3?: string;
+  /** LA2.4 - Facility */
+  la2_4?: string;
+  /** LA2.5 - Location Status */
+  la2_5?: string;
+  /** LA2.6 - Person Location Type */
+  la2_6?: string;
+  /** LA2.7 - Building */
+  la2_7?: string;
+  /** LA2.8 - Floor */
+  la2_8?: string;
+  /** LA2.9 - Street Address */
+  la2_9?: string;
+  locationStatus?: string;
+  otherDesignation?: string;
   otherGeographicDesignation?: string;
+  personLocationType?: string;
+  pointOfCare?: string;
+  room?: string;
+  stateOrProvince?: string;
+  streetAddress?: string;
+  zipOrPostalCode?: string;
 }

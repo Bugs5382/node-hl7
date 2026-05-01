@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_RCD {
+  hl7DateType?: string;
+  hl7ItemNumber?: string;
+  maximumColumnWidth?: string;
   /** RCD.1 - HL7 Item Number */
   rcd_1?: string;
-  hl7ItemNumber?: string;
   /** RCD.2 - HL7 Date Type */
   rcd_2?: string;
-  hl7DateType?: string;
   /** RCD.3 - Maximum Column Width */
   rcd_3?: string;
-  maximumColumnWidth?: string;
 }

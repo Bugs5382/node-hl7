@@ -2,14 +2,6 @@ import { HL7_2_1_NK1 } from "@/hl7/2.1/nk1";
 
 /** HL7 2.3 NK1 - extends 2.1 with fields 6-20 */
 export interface HL7_2_3_NK1 extends HL7_2_1_NK1 {
-  /** NK1.6 - Business Phone Number */
-  nk1_6?: string;
-  /** NK1.7 - Contact Role */
-  nk1_7?: string;
-  /** NK1.8 - Start Date */
-  nk1_8?: Date | string;
-  /** NK1.9 - End Date */
-  nk1_9?: Date | string;
   /** NK1.10 - Next of Kin/Associated Parties Job Title */
   nk1_10?: string;
   /** NK1.11 - Next of Kin/Associated Parties Job Code/Class */
@@ -32,4 +24,12 @@ export interface HL7_2_3_NK1 extends HL7_2_1_NK1 {
   nk1_19?: string;
   /** NK1.20 - Primary Language */
   nk1_20?: string;
+  /** NK1.6 - Business Phone Number */
+  nk1_6?: string;
+  /** NK1.7 - Contact Role */
+  nk1_7?: string;
+  /** NK1.8 - Start Date */
+  nk1_8?: Date | string;
+  /** NK1.9 - End Date */
+  nk1_9?: Date | string;
 }

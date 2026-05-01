@@ -15,8 +15,8 @@
 export interface HL7_CM_DLD {
   /** CM_DLD.1 - Code */
   cm_dld_1?: string;
-  code?: string;
   /** CM_DLD.2 - Description */
   cm_dld_2?: string;
+  code?: string;
   description?: string;
 }

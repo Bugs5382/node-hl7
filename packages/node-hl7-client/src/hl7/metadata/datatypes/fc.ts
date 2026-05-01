@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_FC {
+  effectiveDate?: string;
   /** FC.1 - Financial Class */
   fc_1?: string;
-  financialClass?: string;
   /** FC.2 - Effective Date */
   fc_2?: string;
-  effectiveDate?: string;
+  financialClass?: string;
 }

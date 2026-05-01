@@ -14,12 +14,13 @@ import path from "node:path";
 import portfinder from "portfinder";
 import { RedisMemoryServer } from "redis-memory-server";
 import { describe, expect, test, vi } from "vitest";
+
 import { expectEvent } from "./__utils__";
 
 /** Minimal valid HL7 2.7 ADT^A01 message for test use. */
 function makeTestMessage(controlId: string = "CONTROL_ID"): Message {
   return new Message({
-    text: `MSH|^~\\&|||||20240101000000||ADT^A01|${controlId}|D|2.7`,
+    text: String.raw`MSH|^~\&|||||20240101000000||ADT^A01|${controlId}|D|2.7`,
   });
 }
 
@@ -32,9 +33,9 @@ describe("node hl7 end to end - client", () => {
       const dfdConnectionChecks = createDeferred<void>();
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (req, res) => {
-        const messageReq = req.getMessage();
-        expect(messageReq.get("MSH.12").toString()).toBe("2.7");
+      const listener = server.createInbound({ port }, async (request, res) => {
+        const messageRequest = request.getMessage();
+        expect(messageRequest.get("MSH.12").toString()).toBe("2.7");
         await res.sendResponse("AA");
       });
 
@@ -49,8 +50,8 @@ describe("node hl7 end to end - client", () => {
       });
 
       // Ensure no errors on the connection
-      outbound.on("client.error", (err) => {
-        if (err.message === "Socket closed unexpectedly by server.")
+      outbound.on("client.error", (error) => {
+        if (error.message === "Socket closed unexpectedly by server.")
           dfdConnectionChecks.reject("Connection terminated incorrectly");
       });
 
@@ -93,9 +94,9 @@ describe("node hl7 end to end - client", () => {
       let totalSent = 0;
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (req, res) => {
-        const messageReq = req.getMessage();
-        expect(messageReq.get("MSH.12").toString()).toBe("2.7");
+      const listener = server.createInbound({ port }, async (request, res) => {
+        const messageRequest = request.getMessage();
+        expect(messageRequest.get("MSH.12").toString()).toBe("2.7");
         totalSent++;
         await res.sendResponse("AA");
       });
@@ -136,11 +137,11 @@ describe("node hl7 end to end - client", () => {
         const client = new Client({ host: "0.0.0.0" });
 
         const outbound = client.createConnection(
-          { port: mockPort, autoConnect: false },
+          { autoConnect: false, port: mockPort },
           async () => {},
         );
 
-        vi.spyOn(outbound as any, "_connect").mockResolvedValue(undefined);
+        vi.spyOn(outbound as any, "_connect").mockResolvedValue();
 
         await outbound.sendMessage(makeTestMessage());
 
@@ -148,15 +149,15 @@ describe("node hl7 end to end - client", () => {
       });
 
       test("... queues messages to redis", async () => {
-        let redisServer, redisPort, host;
+        let host, redisPort, redisServer;
 
-        if (typeof process.env.REDIS_REMOTE === "undefined") {
+        if (process.env.REDIS_REMOTE === undefined) {
           redisServer = new RedisMemoryServer();
           await redisServer.start();
           redisPort = await redisServer.getPort();
           host = await redisServer.getHost();
         } else {
-          redisPort = parseInt(process.env.REDIS_PORT || "6379", 10);
+          redisPort = Number.parseInt(process.env.REDIS_PORT || "6379", 10);
           host = process.env.REDIS_HOST || "localhost";
         }
 
@@ -185,8 +186,8 @@ describe("node hl7 end to end - client", () => {
             const result = await redis.blPop("hl7queue", 1);
 
             if (result && result.element) {
-              const msg = new Message({ text: result.element });
-              callback(msg);
+              const message = new Message({ text: result.element });
+              callback(message);
               await notifyPendingCount(await redis.lLen("hl7queue"));
             }
           }
@@ -196,15 +197,15 @@ describe("node hl7 end to end - client", () => {
 
         const outbound = client.createConnection(
           {
-            port: mockPort,
             autoConnect: false,
             enqueueMessage,
             flushQueue,
+            port: mockPort,
           },
           async () => {},
         );
 
-        vi.spyOn(outbound as any, "_connect").mockResolvedValue(undefined);
+        vi.spyOn(outbound as any, "_connect").mockResolvedValue();
 
         await outbound.sendMessage(makeTestMessage());
 
@@ -215,21 +216,21 @@ describe("node hl7 end to end - client", () => {
         const client = new Client({ host: "0.0.0.0" });
 
         const outbound = client.createConnection(
-          { port: mockPort, autoConnect: false },
+          { autoConnect: false, port: mockPort },
           async () => {},
         );
 
-        vi.spyOn(outbound as any, "_connect").mockResolvedValue(undefined);
+        vi.spyOn(outbound as any, "_connect").mockResolvedValue();
 
         const message = makeTestMessage();
 
-        for (let i = 0; i < 10001; i++) {
+        for (let index = 0; index < 10_001; index++) {
           await outbound.sendMessage(message);
         }
 
         console.log(client.totalPending());
 
-        expect(client.totalPending()).toEqual(10000);
+        expect(client.totalPending()).toEqual(10_000);
       });
     });
   });
@@ -239,7 +240,7 @@ describe("node hl7 end to end - client", () => {
       // Find a free port — no server will be started on it, so connection must fail.
       const port = await portfinder.getPortPromise();
 
-      const client = new Client({ host: "0.0.0.0", connectionTimeout: 1000 });
+      const client = new Client({ connectionTimeout: 1000, host: "0.0.0.0" });
       const outbound = client.createConnection({ port }, async () => {});
 
       // ECONNREFUSED fires almost immediately (before the 1s timeout), so
@@ -255,8 +256,8 @@ describe("node hl7 end to end - client", () => {
       const port = await portfinder.getPortPromise();
 
       const client = new Client({
-        host: "0.0.0.0",
         connectionTimeout: 1000,
+        host: "0.0.0.0",
         tls: { rejectUnauthorized: false },
       });
       const outbound = client.createConnection({ port }, async () => {});
@@ -276,9 +277,9 @@ describe("node hl7 end to end - client", () => {
         const dfd = createDeferred<void>();
 
         const server = new Server({ bindAddress: "0.0.0.0" });
-        const inbound = server.createInbound({ port }, async (req, res) => {
-          const messageReq = req.getMessage();
-          expect(messageReq.get("MSH.12").toString()).toBe("2.1");
+        const inbound = server.createInbound({ port }, async (request, res) => {
+          const messageRequest = request.getMessage();
+          expect(messageRequest.get("MSH.12").toString()).toBe("2.1");
           await res.sendResponse("AA");
         });
 
@@ -300,9 +301,9 @@ describe("node hl7 end to end - client", () => {
 
         const batchBuilder = new HL7_2_1();
         batchBuilder.buildMSH({
-          msh_9: "ACK",
           msh_10: "CONTROL_ID",
           msh_11: "T",
+          msh_9: "ACK",
         });
         const message = batchBuilder.toMessage();
 
@@ -335,14 +336,14 @@ describe("node hl7 end to end - client", () => {
         const server = new Server({
           bindAddress: "0.0.0.0",
           tls: {
-            key: fs.readFileSync(path.join("certs/", "server-key.pem")),
             cert: fs.readFileSync(path.join("certs/", "server-crt.pem")),
+            key: fs.readFileSync(path.join("certs/", "server-key.pem")),
             rejectUnauthorized: false,
           },
         });
-        const inbound = server.createInbound({ port }, async (req, res) => {
-          const messageReq = req.getMessage();
-          expect(messageReq.get("MSH.12").toString()).toBe("2.7");
+        const inbound = server.createInbound({ port }, async (request, res) => {
+          const messageRequest = request.getMessage();
+          expect(messageRequest.get("MSH.12").toString()).toBe("2.7");
           await res.sendResponse("AA");
         });
 
@@ -368,7 +369,7 @@ describe("node hl7 end to end - client", () => {
         await inbound.close();
 
         client.closeAll();
-      }, 70000);
+      }, 70_000);
     });
   });
 });

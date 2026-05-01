@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_VID {
+  internationalizationCode?: string;
+  internationalVersionId?: string;
+  versionId?: string;
   /** VID.1 - Version Id */
   vid_1?: string;
-  versionId?: string;
   /** VID.2 - Internationalization Code */
   vid_2?: string;
-  internationalizationCode?: string;
   /** VID.3 - International Version Id */
   vid_3?: string;
-  internationalVersionId?: string;
 }

@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_SAD {
+  dwellingNumber?: string;
   /** SAD.1 - Street Or Mailing Address */
   sad_1?: string;
-  streetOrMailingAddress?: string;
   /** SAD.2 - Street Name */
   sad_2?: string;
-  streetName?: string;
   /** SAD.3 - Dwelling Number */
   sad_3?: string;
-  dwellingNumber?: string;
+  streetName?: string;
+  streetOrMailingAddress?: string;
 }

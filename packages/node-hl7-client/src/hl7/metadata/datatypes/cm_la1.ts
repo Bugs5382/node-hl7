@@ -15,8 +15,8 @@
 export interface HL7_CM_LA1 {
   /** CM_LA1.1 - Dispense / Deliver To Location */
   cm_la1_1?: string;
-  dispenseDeliverToLocation?: string;
   /** CM_LA1.2 - Location */
   cm_la1_2?: string;
+  dispenseDeliverToLocation?: string;
   location?: string;
 }

@@ -13,25 +13,25 @@
  * @since 4.0.0
  */
 export interface HL7_RFR {
+  administrativeSex?: string;
+  ageRange?: string;
+  conditions?: string;
+  gestationalAgeRange?: string;
+  numericRange?: string;
+  raceSubspecies?: string;
   /** RFR.1 - Numeric Range */
   rfr_1?: string;
-  numericRange?: string;
   /** RFR.2 - Administrative Sex */
   rfr_2?: string;
-  administrativeSex?: string;
   /** RFR.3 - Age Range */
   rfr_3?: string;
-  ageRange?: string;
   /** RFR.4 - Gestational Age Range */
   rfr_4?: string;
-  gestationalAgeRange?: string;
   /** RFR.5 - Species */
   rfr_5?: string;
-  species?: string;
   /** RFR.6 - Race/subspecies */
   rfr_6?: string;
-  raceSubspecies?: string;
   /** RFR.7 - Conditions */
   rfr_7?: string;
-  conditions?: string;
+  species?: string;
 }

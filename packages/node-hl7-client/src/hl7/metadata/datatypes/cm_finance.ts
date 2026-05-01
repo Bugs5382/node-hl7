@@ -15,8 +15,8 @@
 export interface HL7_CM_FINANCE {
   /** CM_FINANCE.1 - Financial Class Id */
   cm_finance_1?: string;
-  financialClassId?: string;
   /** CM_FINANCE.2 - Effective Date */
   cm_finance_2?: string;
   effectiveDate?: string;
+  financialClassId?: string;
 }

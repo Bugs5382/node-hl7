@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_TS {
+  degreeOfPrecision?: string;
+  timeOfAnEvent?: string;
   /** TS.1 - Time Of An Event */
   ts_1?: string;
-  timeOfAnEvent?: string;
   /** TS.2 - Degree Of Precision */
   ts_2?: string;
-  degreeOfPrecision?: string;
 }

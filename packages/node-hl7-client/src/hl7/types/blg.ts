@@ -2,15 +2,7 @@ export interface HL7_BLG {
   /**
    * @since 4.0.0
    */
-  blg_1?: string;
-  /**
-   * @since 4.0.0
-   */
-  billingWhenToCharge?: string;
-  /**
-   * @since 4.0.0
-   */
-  blg_2?: string;
+  billingAccountId?: string;
   /**
    * @since 4.0.0
    */
@@ -18,9 +10,17 @@ export interface HL7_BLG {
   /**
    * @since 4.0.0
    */
-  blg_3?: string;
+  billingWhenToCharge?: string;
   /**
    * @since 4.0.0
    */
-  billingAccountId?: string;
+  blg_1?: string;
+  /**
+   * @since 4.0.0
+   */
+  blg_2?: string;
+  /**
+   * @since 4.0.0
+   */
+  blg_3?: string;
 }

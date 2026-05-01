@@ -15,20 +15,20 @@
 export interface HL7_CP {
   /** CP.1 - Price */
   cp_1?: string;
-  price?: string;
   /** CP.2 - Price Type */
   cp_2?: string;
-  priceType?: string;
   /** CP.3 - From Value */
   cp_3?: string;
-  fromValue?: string;
   /** CP.4 - To Value */
   cp_4?: string;
-  toValue?: string;
   /** CP.5 - Range Units */
   cp_5?: string;
-  rangeUnits?: string;
   /** CP.6 - Range Type */
   cp_6?: string;
+  fromValue?: string;
+  price?: string;
+  priceType?: string;
   rangeType?: string;
+  rangeUnits?: string;
+  toValue?: string;
 }

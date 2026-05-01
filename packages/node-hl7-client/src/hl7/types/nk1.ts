@@ -2,7 +2,6 @@
 export interface HL7_NK1 {
   /** NK1.1 - Set ID */
   nk1_1: number | string;
-  setId?: number | string;
   /** NK1.2 - Name */
   nk1_2?: string;
   /** NK1.3 - Relationship */
@@ -11,4 +10,5 @@ export interface HL7_NK1 {
   nk1_4?: string;
   /** NK1.5 - Phone Number */
   nk1_5?: string;
+  setId?: number | string;
 }

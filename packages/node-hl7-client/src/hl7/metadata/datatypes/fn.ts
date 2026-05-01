@@ -15,17 +15,17 @@
 export interface HL7_FN {
   /** FN.1 - Surname */
   fn_1?: string;
-  surname?: string;
   /** FN.2 - Own Surname Prefix */
   fn_2?: string;
-  ownSurnamePrefix?: string;
   /** FN.3 - Own Surname */
   fn_3?: string;
-  ownSurname?: string;
   /** FN.4 - Surname Prefix From Partner/Spouse */
   fn_4?: string;
-  surnamePrefixFromPartnerSpouse?: string;
   /** FN.5 - Surname From Partner/Spouse */
   fn_5?: string;
+  ownSurname?: string;
+  ownSurnamePrefix?: string;
+  surname?: string;
   surnameFromPartnerSpouse?: string;
+  surnamePrefixFromPartnerSpouse?: string;
 }

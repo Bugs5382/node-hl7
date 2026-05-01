@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_OCD {
+  occurrenceCode?: string;
+  occurrenceDate?: string;
   /** OCD.1 - Occurrence Code */
   ocd_1?: string;
-  occurrenceCode?: string;
   /** OCD.2 - Occurrence Date */
   ocd_2?: string;
-  occurrenceDate?: string;
 }

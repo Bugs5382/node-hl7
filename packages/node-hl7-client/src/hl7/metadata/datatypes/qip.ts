@@ -13,9 +13,9 @@
  * @since 4.0.0
  */
 export interface HL7_QIP {
+  fieldName?: string;
   /** QIP.1 - Field Name */
   qip_1?: string;
-  fieldName?: string;
   /** QIP.2 - Value1&value2&value3 */
   qip_2?: string;
   value1Value2Value3?: string;

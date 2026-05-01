@@ -1,7 +1,7 @@
 /** HL7 2.2 ODS - Dietary Orders, Supplements, and Preferences */
 export interface HL7_2_2_ODS {
   /** ODS.1 - Type (required): D=Diet, S=Supplement, P=Preference */
-  ods_1: "D" | "S" | "P";
+  ods_1: "D" | "P" | "S";
   /** ODS.2 - Service Period */
   ods_2?: string;
   /** ODS.3 - Diet, Supplement, or Preference Code (required) */

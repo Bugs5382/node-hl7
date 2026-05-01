@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_PTS {
+  authenticationPerson?: string;
+  authenticationTimeStamp?: string;
   /** PTS.1 - Authentication person */
   pts_1?: string;
-  authenticationPerson?: string;
   /** PTS.2 - Authentication time stamp */
   pts_2?: string;
-  authenticationTimeStamp?: string;
 }

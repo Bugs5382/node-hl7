@@ -17,9 +17,9 @@ export const expectEvent = async <T = any>(
 
 /** @internal */
 export interface Deferred<T = any> {
-  resolve: (value: T | PromiseLike<T>) => void;
-  reject: (reason?: any) => void;
   promise: Promise<T>;
+  reject: (reason?: any) => void;
+  resolve: (value: PromiseLike<T> | T) => void;
 }
 
 /** @internal */
@@ -43,7 +43,7 @@ export const generateLargeBase64String = (sizeInKb: number = 200) => {
 
   // Generate string of 'a' characters
   let largeString = "";
-  for (let i = 0; i < size; i++) {
+  for (let index = 0; index < size; index++) {
     largeString += "a";
   }
 

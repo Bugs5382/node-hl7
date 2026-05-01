@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_PLN {
+  expirationDate?: string;
+  idNumber?: string;
   /** PLN.1 - ID Number */
   pln_1?: string;
-  idNumber?: string;
   /** PLN.2 - Type Of ID Number */
   pln_2?: string;
-  typeOfIdNumber?: string;
   /** PLN.3 - State/other Qualifying Info */
   pln_3?: string;
-  stateOtherQualifyingInfo?: string;
   /** PLN.4 - Expiration Date */
   pln_4?: string;
-  expirationDate?: string;
+  stateOtherQualifyingInfo?: string;
+  typeOfIdNumber?: string;
 }

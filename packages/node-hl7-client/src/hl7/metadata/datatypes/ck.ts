@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_CK {
+  assigningFacilityId?: string;
+  checkDigit?: string;
   /** CK.1 - ID Number */
   ck_1?: string;
-  idNumber?: string;
   /** CK.2 - Check Digit */
   ck_2?: string;
-  checkDigit?: string;
   /** CK.3 - Code Identifying the Check Digit Scheme Employed  */
   ck_3?: string;
-  codeIdentifyingTheCheckDigitSchemeEmployed?: string;
   /** CK.4 - Assigning Facility ID */
   ck_4?: string;
-  assigningFacilityId?: string;
+  codeIdentifyingTheCheckDigitSchemeEmployed?: string;
+  idNumber?: string;
 }

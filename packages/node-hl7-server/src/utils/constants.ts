@@ -5,4 +5,4 @@ export const MSA_1_VALUES_v2_1 = ["AA", "AR", "AE"];
 export const MSA_1_VALUES_v2_x = ["CA", "CR", "CE"];
 
 /** @internal */
-export type validMSA1 = "AA" | "AR" | "AE" | "CA" | "CR" | "CE";
+export type validMSA1 = "AA" | "AE" | "AR" | "CA" | "CE" | "CR";

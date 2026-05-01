@@ -15,8 +15,8 @@
 export interface HL7_CM_FILLER {
   /** CM_FILLER.1 - Unique Filler Id */
   cm_filler_1?: string;
-  uniqueFillerId?: string;
   /** CM_FILLER.2 - Filler Application Id */
   cm_filler_2?: string;
   fillerApplicationId?: string;
+  uniqueFillerId?: string;
 }

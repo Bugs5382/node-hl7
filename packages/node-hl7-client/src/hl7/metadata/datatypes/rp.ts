@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_RP {
+  applicationId?: string;
+  pointer?: string;
   /** RP.1 - Pointer */
   rp_1?: string;
-  pointer?: string;
   /** RP.2 - Application ID */
   rp_2?: string;
-  applicationId?: string;
   /** RP.3 - Type Of Data */
   rp_3?: string;
-  typeOfData?: string;
   /** RP.4 - Subtype */
   rp_4?: string;
   subtype?: string;
+  typeOfData?: string;
 }

@@ -41,9 +41,7 @@ describe("client utility functions", () => {
 
     test("length '24' → includes timezone offset", () => {
       const result = createHL7Date(FIXED, "24");
-      expect(result).toMatch(
-        /^20240203040506\.0078[+-]\d{4}$/,
-      );
+      expect(result).toMatch(/^20240203040506\.0078[+-]\d{4}$/);
     });
 
     test("length '26' → microseconds + timezone", () => {
@@ -91,9 +89,9 @@ describe("client utility functions", () => {
 
   describe("isBatch / isFile", () => {
     test("isFile detects FHS prefix", () => {
-      expect(isFile("FHS|^~\\&|...")).toBe(true);
-      expect(isFile("MSH|^~\\&|...")).toBe(false);
-      expect(isFile("BHS|^~\\&|...")).toBe(false);
+      expect(isFile(String.raw`FHS|^~\&|...`)).toBe(true);
+      expect(isFile(String.raw`MSH|^~\&|...`)).toBe(false);
+      expect(isFile(String.raw`BHS|^~\&|...`)).toBe(false);
     });
 
     test("isBatch is true for multi-MSH text without BHS", () => {
@@ -103,20 +101,22 @@ describe("client utility functions", () => {
     });
 
     test("isBatch is true for explicit BHS", () => {
-      expect(isBatch("BHS|^~\\&|...")).toBe(true);
+      expect(isBatch(String.raw`BHS|^~\&|...`)).toBe(true);
     });
 
     test("isBatch is false for a single MSH", () => {
-      expect(isBatch("MSH|^~\\&|||||20240101||ADT^A01|1||2.7")).toBe(false);
+      expect(isBatch(String.raw`MSH|^~\&|||||20240101||ADT^A01|1||2.7`)).toBe(
+        false,
+      );
     });
   });
 
   describe("expBackoff", () => {
     test("delay is within [step, high]", () => {
       for (let attempts = 1; attempts <= 6; attempts++) {
-        const delay = expBackoff(1000, 30000, attempts);
+        const delay = expBackoff(1000, 30_000, attempts);
         expect(delay).toBeGreaterThanOrEqual(1000);
-        expect(delay).toBeLessThanOrEqual(30000);
+        expect(delay).toBeLessThanOrEqual(30_000);
       }
     });
 
@@ -125,7 +125,8 @@ describe("client utility functions", () => {
       // delays than small attempts. Sample many runs to avoid flakes.
       const sample = (attempts: number) => {
         let total = 0;
-        for (let i = 0; i < 200; i++) total += expBackoff(1000, 30000, attempts);
+        for (let index = 0; index < 200; index++)
+          total += expBackoff(1000, 30_000, attempts);
         return total / 200;
       };
       const lowAvg = sample(1);
@@ -143,10 +144,8 @@ describe("client utility functions", () => {
 
   describe("escapeForRegExp", () => {
     test("escapes regex metacharacters", () => {
-      expect(escapeForRegExp("a.b*c+d?")).toBe("a\\.b\\*c\\+d\\?");
-      expect(escapeForRegExp("[](){}|^$")).toBe(
-        "\\[\\]\\(\\)\\{\\}\\|\\^\\$",
-      );
+      expect(escapeForRegExp("a.b*c+d?")).toBe(String.raw`a\.b\*c\+d\?`);
+      expect(escapeForRegExp("[](){}|^$")).toBe(String.raw`\[\]\(\)\{\}\|\^\$`);
       expect(escapeForRegExp("plain")).toBe("plain");
     });
   });

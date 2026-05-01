@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_RMC {
+  amountType?: string;
+  coverageAmount?: string;
+  moneyOrPercentage?: string;
   /** RMC.1 - Room Type */
   rmc_1?: string;
-  roomType?: string;
   /** RMC.2 - Amount Type */
   rmc_2?: string;
-  amountType?: string;
   /** RMC.3 - Coverage Amount */
   rmc_3?: string;
-  coverageAmount?: string;
   /** RMC.4 - Money Or Percentage */
   rmc_4?: string;
-  moneyOrPercentage?: string;
+  roomType?: string;
 }

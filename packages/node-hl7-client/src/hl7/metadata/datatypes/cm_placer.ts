@@ -15,8 +15,8 @@
 export interface HL7_CM_PLACER {
   /** CM_PLACER.1 - Unique Placer Id */
   cm_placer_1?: string;
-  uniquePlacerId?: string;
   /** CM_PLACER.2 - Placer Application */
   cm_placer_2?: string;
   placerApplication?: string;
+  uniquePlacerId?: string;
 }

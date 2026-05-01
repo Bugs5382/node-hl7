@@ -1,3 +1,7 @@
+import { Message, MLLPCodec } from "node-hl7-client";
+import EventEmitter from "node:events";
+import { Socket } from "node:net";
+
 import { ISendRequest } from "@/declaration/ISendRequest";
 import {
   MSA_1_VALUES_v2_1,
@@ -6,9 +10,6 @@ import {
 } from "@/utils/constants";
 import { HL7ServerError } from "@/utils/exception";
 import { ListenerOptions } from "@/utils/normalize";
-import { Socket } from "net";
-import { Message, MLLPCodec } from "node-hl7-client";
-import EventEmitter from "node:events";
 
 /**
  * base Send Response
@@ -18,13 +19,13 @@ export class BaseSendResponse extends EventEmitter implements ISendRequest {
   /** @internal */
   protected _ack: Message | undefined;
   /** @internal */
-  protected readonly _socket: Socket;
+  protected readonly _codec: MLLPCodec;
   /** @internal */
   protected readonly _message: Message;
   /** @internal */
   protected readonly _mshOverrides: ListenerOptions["mshOverrides"];
   /** @internal */
-  protected readonly _codec: MLLPCodec;
+  protected readonly _socket: Socket;
 
   constructor(
     socket: Socket,
@@ -75,15 +76,6 @@ export class BaseSendResponse extends EventEmitter implements ISendRequest {
   }
 
   /**
-   *
-   * @param _type
-   * @param _encoding
-   */
-  async sendResponse(_type: validMSA1, _encoding: BufferEncoding = "utf-8") {
-    throw new Error("Method not implemented.");
-  }
-
-  /**
    * Send a fully customized acknowledgment back to the client.
    * @remarks Use this when the auto-generated ACK from {@link sendResponse} does
    * not match the format the receiving system expects (custom MSH/MSA fields,
@@ -117,23 +109,34 @@ export class BaseSendResponse extends EventEmitter implements ISendRequest {
     this.emit("response.sent");
   }
 
+  /**
+   *
+   * @param _type
+   * @param _encoding
+   */
+  async sendResponse(_type: validMSA1, _encoding: BufferEncoding = "utf-8") {
+    throw new Error("Method not implemented.");
+  }
+
   /** @internal */
   protected _validateMSA1(spec: string, type: validMSA1): void {
     switch (spec) {
-      case "2.1":
+      case "2.1": {
         if (!MSA_1_VALUES_v2_1.includes(type)) {
           throw new HL7ServerError(
             `Invalid MSA.1 value: ${type} for HL7 version 2.1`,
           );
         }
         break;
-      default:
+      }
+      default: {
         if (![...MSA_1_VALUES_v2_1, ...MSA_1_VALUES_v2_x].includes(type)) {
           throw new HL7ServerError(
             `Invalid MSA.1 value: ${type} for HL7 version ${spec}`,
           );
         }
         break;
+      }
     }
   }
 }

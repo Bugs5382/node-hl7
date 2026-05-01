@@ -15,8 +15,8 @@
 export interface HL7_CM_LICENSE_NO {
   /** CM_LICENSE_NO.1 - License Number */
   cm_license_no_1?: string;
-  licenseNumber?: string;
   /** CM_LICENSE_NO.2 - Issuing State,province,country */
   cm_license_no_2?: string;
   issuingStateProvinceCountry?: string;
+  licenseNumber?: string;
 }

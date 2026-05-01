@@ -31,9 +31,9 @@ export const validIPv6 = (ip: string): boolean => {
   if (candidate.startsWith("[") && candidate.endsWith("]")) {
     candidate = candidate.slice(1, -1);
   }
-  const zoneIdx = candidate.indexOf("%");
-  if (zoneIdx !== -1) {
-    candidate = candidate.slice(0, zoneIdx);
+  const zoneIndex = candidate.indexOf("%");
+  if (zoneIndex !== -1) {
+    candidate = candidate.slice(0, zoneIndex);
   }
   return net.isIPv6(candidate);
 };

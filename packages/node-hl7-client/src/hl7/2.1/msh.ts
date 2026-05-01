@@ -25,10 +25,6 @@ export interface HL7_2_1_MSH extends HL7_MSH {
   /** Message Code
    * @example ADT
    * @since 1.0.0 */
-  msh_9: string;
-  /** Message Code
-   * @example ADT
-   * @since 1.0.0 */
   messageCode: string;
   /** Message Control ID
    * @remarks This ID is unique to the message being sent
@@ -37,7 +33,7 @@ export interface HL7_2_1_MSH extends HL7_MSH {
    * Max 20 characters.
    * @since 1.0.0
    * @default Random 20 Character String {@link randomString} if this is set to nothing or not included. */
-  msh_10?: string;
+  messageControlId?: string;
   /** Message Control ID
    * @remarks This ID is unique to the message being sent
    * so the client can track
@@ -45,5 +41,9 @@ export interface HL7_2_1_MSH extends HL7_MSH {
    * Max 20 characters.
    * @since 1.0.0
    * @default Random 20 Character String {@link randomString} if this is set to nothing or not included. */
-  messageControlId?: string;
+  msh_10?: string;
+  /** Message Code
+   * @example ADT
+   * @since 1.0.0 */
+  msh_9: string;
 }

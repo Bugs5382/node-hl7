@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_ICD {
+  certificationPatientType?: string;
+  certificationRequired?: string;
+  dateTimeCertificationRequired?: string;
   /** ICD.1 - Certification Patient Type */
   icd_1?: string;
-  certificationPatientType?: string;
   /** ICD.2 - Certification Required */
   icd_2?: string;
-  certificationRequired?: string;
   /** ICD.3 - Date/Time Certification Required */
   icd_3?: string;
-  dateTimeCertificationRequired?: string;
 }

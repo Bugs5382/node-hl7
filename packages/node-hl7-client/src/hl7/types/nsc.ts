@@ -1,8 +1,8 @@
 /** HL7 NSC - Status Change */
 export interface HL7_NSC {
+  networkChangeType?: string;
   /** NSC.1 - Network Change Type */
   nsc_1: string;
-  networkChangeType?: string;
   /** NSC.2 - Current CPU */
   nsc_2?: string;
   /** NSC.3 - Current Fileserver */

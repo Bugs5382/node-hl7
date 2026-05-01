@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_VH {
+  endDayRange?: string;
+  endHourRange?: string;
+  startDayRange?: string;
+  startHourRange?: string;
   /** VH.1 - Start Day Range */
   vh_1?: string;
-  startDayRange?: string;
   /** VH.2 - End Day Range */
   vh_2?: string;
-  endDayRange?: string;
   /** VH.3 - Start Hour Range */
   vh_3?: string;
-  startHourRange?: string;
   /** VH.4 - End Hour Range */
   vh_4?: string;
-  endHourRange?: string;
 }

@@ -2,34 +2,18 @@
 export interface HL7_2_4_OM1 {
   /** OM1.1 - Sequence Number (required) */
   om1_1: number | string;
-  /** OM1.2 - Producer's Service/Test/Observation ID (required) */
-  om1_2: string;
-  /** OM1.3 - Permitted Data Types */
-  om1_3?: string;
-  /** OM1.4 - Specimen Required (required) */
-  om1_4: "Y" | "N";
-  /** OM1.5 - Producer ID (required) */
-  om1_5: string;
-  /** OM1.6 - Observation Description */
-  om1_6?: string;
-  /** OM1.7 - Other Service/Test/Observation IDs for the Observation */
-  om1_7?: string;
-  /** OM1.8 - Other Names */
-  om1_8?: string;
-  /** OM1.9 - Preferred Report Name for the Observation */
-  om1_9?: string;
   /** OM1.10 - Preferred Short Name or Mnemonic */
   om1_10?: string;
   /** OM1.11 - Preferred Long Name for the Observation */
   om1_11?: string;
   /** OM1.12 - Orderability */
-  om1_12?: "Y" | "N";
+  om1_12?: "N" | "Y";
   /** OM1.13 - Identity of Instrument Used to Perform this Study */
   om1_13?: string;
   /** OM1.14 - Coded Representation of Method */
   om1_14?: string;
   /** OM1.15 - Portable Device Indicator */
-  om1_15?: "Y" | "N";
+  om1_15?: "N" | "Y";
   /** OM1.16 - Observation Producing Department/Section */
   om1_16?: string;
   /** OM1.17 - Telephone Number of Section */
@@ -38,6 +22,8 @@ export interface HL7_2_4_OM1 {
   om1_18?: "A" | "C" | "E" | "F" | "P" | "S";
   /** OM1.19 - Report Subheader */
   om1_19?: string;
+  /** OM1.2 - Producer's Service/Test/Observation ID (required) */
+  om1_2: string;
   /** OM1.20 - Report Display Order */
   om1_20?: string;
   /** OM1.21 - Date/Time Stamp for Any Change in Def for Obs */
@@ -58,6 +44,8 @@ export interface HL7_2_4_OM1 {
   om1_28?: string;
   /** OM1.29 - Phone Number of Outside Site */
   om1_29?: string;
+  /** OM1.3 - Permitted Data Types */
+  om1_3?: string;
   /** OM1.30 - Confidentiality Code */
   om1_30?: string;
   /** OM1.31 - Observations Required to Interpret the Observation */
@@ -78,6 +66,8 @@ export interface HL7_2_4_OM1 {
   om1_38?: string;
   /** OM1.39 - Factors that may Affect the Observation */
   om1_39?: string;
+  /** OM1.4 - Specimen Required (required) */
+  om1_4: "N" | "Y";
   /** OM1.40 - Service/Test/Observation Performance Schedule */
   om1_40?: string;
   /** OM1.41 - Description of Test Methods */
@@ -94,4 +84,14 @@ export interface HL7_2_4_OM1 {
   om1_46?: string;
   /** OM1.47 - Modality of Imaging Measurement */
   om1_47?: string;
+  /** OM1.5 - Producer ID (required) */
+  om1_5: string;
+  /** OM1.6 - Observation Description */
+  om1_6?: string;
+  /** OM1.7 - Other Service/Test/Observation IDs for the Observation */
+  om1_7?: string;
+  /** OM1.8 - Other Names */
+  om1_8?: string;
+  /** OM1.9 - Preferred Report Name for the Observation */
+  om1_9?: string;
 }

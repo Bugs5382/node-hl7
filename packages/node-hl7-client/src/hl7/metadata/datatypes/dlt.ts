@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_DLT {
+  changeComputation?: string;
   /** DLT.1 - Range */
   dlt_1?: string;
-  range?: string;
   /** DLT.2 - Numeric Threshold */
   dlt_2?: string;
-  numericThreshold?: string;
   /** DLT.3 - Change Computation */
   dlt_3?: string;
-  changeComputation?: string;
   /** DLT.4 - Length Of Time-days */
   dlt_4?: string;
   lengthOfTimeDays?: string;
+  numericThreshold?: string;
+  range?: string;
 }

@@ -15,8 +15,8 @@
 export interface HL7_CCD {
   /** CCD.1 - When To Charge Code */
   ccd_1?: string;
-  whenToChargeCode?: string;
   /** CCD.2 - Date/time */
   ccd_2?: string;
   dateTime?: string;
+  whenToChargeCode?: string;
 }

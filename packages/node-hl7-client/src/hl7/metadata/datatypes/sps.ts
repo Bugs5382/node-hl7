@@ -13,25 +13,25 @@
  * @since 4.0.0
  */
 export interface HL7_SPS {
+  additives?: string;
+  bodySite?: string;
+  collectionModifierMethodCode?: string;
+  freetext?: string;
+  siteModifier?: string;
+  specimenRole?: string;
+  specimenSourceNameOrCode?: string;
   /** SPS.1 - Specimen Source Name Or Code */
   sps_1?: string;
-  specimenSourceNameOrCode?: string;
   /** SPS.2 - Additives */
   sps_2?: string;
-  additives?: string;
   /** SPS.3 - Freetext */
   sps_3?: string;
-  freetext?: string;
   /** SPS.4 - Body Site */
   sps_4?: string;
-  bodySite?: string;
   /** SPS.5 - Site Modifier */
   sps_5?: string;
-  siteModifier?: string;
   /** SPS.6 - Collection Modifier Method Code */
   sps_6?: string;
-  collectionModifierMethodCode?: string;
   /** SPS.7 - Specimen Role */
   sps_7?: string;
-  specimenRole?: string;
 }

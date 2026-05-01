@@ -13,19 +13,19 @@
  * @since 4.0.0
  */
 export interface HL7_ED {
+  data?: string;
+  dataSubtype?: string;
   /** ED.1 - Source Application */
   ed_1?: string;
-  sourceApplication?: string;
   /** ED.2 - Type Of Data */
   ed_2?: string;
-  typeOfData?: string;
   /** ED.3 - Data Subtype */
   ed_3?: string;
-  dataSubtype?: string;
   /** ED.4 - Encoding */
   ed_4?: string;
-  encoding?: string;
   /** ED.5 - Data */
   ed_5?: string;
-  data?: string;
+  encoding?: string;
+  sourceApplication?: string;
+  typeOfData?: string;
 }

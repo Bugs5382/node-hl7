@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_QSC {
+  nameOfField?: string;
   /** QSC.1 - Name Of Field */
   qsc_1?: string;
-  nameOfField?: string;
   /** QSC.2 - Relational Operator */
   qsc_2?: string;
-  relationalOperator?: string;
   /** QSC.3 - Value */
   qsc_3?: string;
-  value?: string;
   /** QSC.4 - Relational Conjunction */
   qsc_4?: string;
   relationalConjunction?: string;
+  relationalOperator?: string;
+  value?: string;
 }

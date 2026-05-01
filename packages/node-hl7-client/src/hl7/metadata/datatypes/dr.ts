@@ -15,8 +15,8 @@
 export interface HL7_DR {
   /** DR.1 - Range Start Date/time */
   dr_1?: string;
-  rangeStartDateTime?: string;
   /** DR.2 - Range End Date/time */
   dr_2?: string;
   rangeEndDateTime?: string;
+  rangeStartDateTime?: string;
 }

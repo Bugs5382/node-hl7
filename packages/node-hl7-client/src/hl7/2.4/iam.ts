@@ -2,6 +2,10 @@
 export interface HL7_2_4_IAM {
   /** IAM.1 - Set ID (required) */
   iam_1: number | string;
+  /** IAM.10 - Allergen Group Code/Mnemonic/Description */
+  iam_10?: string;
+  /** IAM.11 - Onset Date */
+  iam_11?: Date | string;
   /** IAM.2 - Allergen Type Code */
   iam_2?: string;
   /** IAM.3 - Allergen Code/Mnemonic/Description (required) */
@@ -18,8 +22,4 @@ export interface HL7_2_4_IAM {
   iam_8?: string;
   /** IAM.9 - Sensitivity to Causative Agent Code */
   iam_9?: string;
-  /** IAM.10 - Allergen Group Code/Mnemonic/Description */
-  iam_10?: string;
-  /** IAM.11 - Onset Date */
-  iam_11?: Date | string;
 }

@@ -13,22 +13,22 @@
  * @since 4.0.0
  */
 export interface HL7_CE {
+  alternateIdentifier?: string;
+  alternateText?: string;
   /** CE.1 - Identifier */
   ce_1?: string;
-  identifier?: string;
   /** CE.2 - Text */
   ce_2?: string;
-  text?: string;
   /** CE.3 - Name Of Coding System */
   ce_3?: string;
-  nameOfCodingSystem?: string;
   /** CE.4 - Alternate Identifier */
   ce_4?: string;
-  alternateIdentifier?: string;
   /** CE.5 - Alternate Text */
   ce_5?: string;
-  alternateText?: string;
   /** CE.6 - Name Of Alternate Coding System */
   ce_6?: string;
+  identifier?: string;
   nameOfAlternateCodingSystem?: string;
+  nameOfCodingSystem?: string;
+  text?: string;
 }

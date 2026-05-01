@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_ELD {
+  codeIdentifyingError?: string;
   /** ELD.1 - Segment ID */
   eld_1?: string;
-  segmentId?: string;
   /** ELD.2 - Sequence */
   eld_2?: string;
-  sequence?: string;
   /** ELD.3 - Field Position */
   eld_3?: string;
-  fieldPosition?: string;
   /** ELD.4 - Code Identifying Error */
   eld_4?: string;
-  codeIdentifyingError?: string;
+  fieldPosition?: string;
+  segmentId?: string;
+  sequence?: string;
 }

@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_MSG {
+  messageStructure?: string;
+  messageType?: string;
   /** MSG.1 - Message Type */
   msg_1?: string;
-  messageType?: string;
   /** MSG.2 - Trigger Event */
   msg_2?: string;
-  triggerEvent?: string;
   /** MSG.3 - Message Structure */
   msg_3?: string;
-  messageStructure?: string;
+  triggerEvent?: string;
 }

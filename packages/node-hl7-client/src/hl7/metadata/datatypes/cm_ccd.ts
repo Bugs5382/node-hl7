@@ -15,8 +15,8 @@
 export interface HL7_CM_CCD {
   /** CM_CCD.1 - When To Charge */
   cm_ccd_1?: string;
-  whenToCharge?: string;
   /** CM_CCD.2 - Date/Time */
   cm_ccd_2?: string;
   dateTime?: string;
+  whenToCharge?: string;
 }

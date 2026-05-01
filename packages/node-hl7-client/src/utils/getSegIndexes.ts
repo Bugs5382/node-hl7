@@ -11,10 +11,10 @@ export const getSegIndexes = (
   data: string,
   list: string[] = [],
 ): string[] => {
-  for (let i = 0; i < names.length; i++) {
-    const regex = new RegExp(`^(${names[i]})\\|`, "gm");
+  for (const name of names) {
+    const regex = new RegExp(String.raw`^(${name})\|`, "gm");
     let m;
-    while ((m = regex.exec(data)) != null) {
+    while ((m = regex.exec(data)) != undefined) {
       list.push(m.index.toString());
     }
   }

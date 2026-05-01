@@ -13,19 +13,19 @@
  * @since 4.0.0
  */
 export interface HL7_CM_INTERNAL_LOCATION {
+  bed?: string;
+  bedStatus?: string;
   /** CM_INTERNAL_LOCATION.1 - Nurse Unit (station) */
   cm_internal_location_1?: string;
-  nurseUnit?: string;
   /** CM_INTERNAL_LOCATION.2 - Room */
   cm_internal_location_2?: string;
-  room?: string;
   /** CM_INTERNAL_LOCATION.3 - Bed */
   cm_internal_location_3?: string;
-  bed?: string;
   /** CM_INTERNAL_LOCATION.4 - Facility Id */
   cm_internal_location_4?: string;
-  facilityId?: string;
   /** CM_INTERNAL_LOCATION.5 - Bed Status */
   cm_internal_location_5?: string;
-  bedStatus?: string;
+  facilityId?: string;
+  nurseUnit?: string;
+  room?: string;
 }

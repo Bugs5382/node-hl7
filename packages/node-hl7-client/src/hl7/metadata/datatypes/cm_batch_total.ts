@@ -13,12 +13,12 @@
  * @since 4.0.0
  */
 export interface HL7_CM_BATCH_TOTAL {
+  batchTotal1?: string;
+  batchTotal2?: string;
   /** CM_BATCH_TOTAL.1 - Batch Total 1 */
   cm_batch_total_1?: string;
-  batchTotal1?: string;
   /** CM_BATCH_TOTAL.2 - Batch Total 2 */
   cm_batch_total_2?: string;
-  batchTotal2?: string;
   /** CM_BATCH_TOTAL.3 - ... */
   cm_batch_total_3?: string;
   field3?: string;

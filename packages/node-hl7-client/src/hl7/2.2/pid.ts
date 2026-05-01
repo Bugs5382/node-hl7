@@ -1,8 +1,6 @@
 import { HL7_2_1_PID } from "@/hl7/2.1/pid";
 import { TABLE_0136 } from "@/hl7/tables/0136";
 
-export type Table0136Value = (typeof TABLE_0136)[number];
-
 /** HL7 2.2 PID - extends 2.1 with fields 20-26 */
 export interface HL7_2_2_PID extends HL7_2_1_PID {
   /** PID.20 - Driver's License Number - Patient */
@@ -20,3 +18,5 @@ export interface HL7_2_2_PID extends HL7_2_1_PID {
   /** PID.26 - Citizenship */
   pid_26?: string;
 }
+
+export type Table0136Value = (typeof TABLE_0136)[number];

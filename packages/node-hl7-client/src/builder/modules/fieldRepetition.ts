@@ -1,6 +1,7 @@
+import { HL7Node } from "@/builder/interface/hL7Node";
 import { Delimiters } from "@/declaration/enum";
 import { HL7FatalError } from "@/helpers/exception";
-import { HL7Node } from "@/builder/interface/hL7Node";
+
 import { Component } from "./component";
 import { NodeBase } from "./nodeBase";
 import { ValueNode } from "./valueNode";
@@ -14,25 +15,30 @@ export class FieldRepetition extends ValueNode {
 
   /** @internal */
   read(path: string[]): HL7Node {
-    const component = this.children[parseInt(path.shift() as string) - 1];
+    const component =
+      this.children[Number.parseInt(path.shift() as string) - 1];
     return path.length > 0 ? component.read(path) : component;
   }
 
   /** @internal */
-  protected writeCore(path: string[], value: string): HL7Node {
-    return this.writeAtIndex(path, value, parseInt(path.shift() as string) - 1);
+  protected createChild(text: string, index: number): HL7Node {
+    return new Component(this, (index + 1).toString(), text);
   }
 
   /** @internal */
   protected pathCore(): string[] {
-    if (this.parent == null) {
+    if (this.parent == undefined) {
       throw new HL7FatalError("this.parent must not be null.");
     }
     return this.parent.path;
   }
 
   /** @internal */
-  protected createChild(text: string, index: number): HL7Node {
-    return new Component(this, (index + 1).toString(), text);
+  protected writeCore(path: string[], value: string): HL7Node {
+    return this.writeAtIndex(
+      path,
+      value,
+      Number.parseInt(path.shift() as string) - 1,
+    );
   }
 }

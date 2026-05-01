@@ -4,15 +4,15 @@ export default [
   {
     extends: "./vitest.config.ts",
     test: {
-      name: "node-hl7-client",
       include: ["__tests__/client/**/*.test.ts"],
+      name: "node-hl7-client",
     },
   },
   {
     extends: "./vitest.config.ts",
     test: {
-      name: "node-hl7-server",
       include: ["__tests__/server/**/*.test.ts"],
+      name: "node-hl7-server",
     },
   },
 ] satisfies TestProjectInlineConfiguration[];

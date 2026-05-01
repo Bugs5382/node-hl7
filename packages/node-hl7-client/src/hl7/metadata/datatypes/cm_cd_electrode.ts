@@ -15,8 +15,8 @@
 export interface HL7_CM_CD_ELECTRODE {
   /** CM_CD_ELECTRODE.1 - Source Name 1 */
   cm_cd_electrode_1?: string;
-  sourceName1?: string;
   /** CM_CD_ELECTRODE.2 - Source Name 2 */
   cm_cd_electrode_2?: string;
+  sourceName1?: string;
   sourceName2?: string;
 }

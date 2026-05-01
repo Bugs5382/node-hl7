@@ -13,9 +13,9 @@
  * @since 4.0.0
  */
 export interface HL7_DIN {
+  date?: string;
   /** DIN.1 - Date */
   din_1?: string;
-  date?: string;
   /** DIN.2 - Institution Name */
   din_2?: string;
   institutionName?: string;

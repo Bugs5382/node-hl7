@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_CM_WVI {
+  channelName?: string;
+  channelNumber?: string;
   /** CM_WVI.1 - Channel Number */
   cm_wvi_1?: string;
-  channelNumber?: string;
   /** CM_WVI.2 - Channel Name */
   cm_wvi_2?: string;
-  channelName?: string;
 }

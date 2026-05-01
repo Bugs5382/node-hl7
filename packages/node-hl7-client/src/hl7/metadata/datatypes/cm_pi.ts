@@ -15,11 +15,11 @@
 export interface HL7_CM_PI {
   /** CM_PI.1 - ID Number */
   cm_pi_1?: string;
-  idNumber?: string;
   /** CM_PI.2 - Type Of ID Number */
   cm_pi_2?: string;
-  typeOfIdNumber?: string;
   /** CM_PI.3 - Other Qualifying Info */
   cm_pi_3?: string;
+  idNumber?: string;
   otherQualifyingInfo?: string;
+  typeOfIdNumber?: string;
 }

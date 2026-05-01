@@ -15,14 +15,14 @@
 export interface HL7_EI {
   /** EI.1 - Entity Identifier */
   ei_1?: string;
-  entityIdentifier?: string;
   /** EI.2 - Namespace ID */
   ei_2?: string;
-  namespaceId?: string;
   /** EI.3 - Universal ID */
   ei_3?: string;
-  universalId?: string;
   /** EI.4 - Universal ID Type */
   ei_4?: string;
+  entityIdentifier?: string;
+  namespaceId?: string;
+  universalId?: string;
   universalIdType?: string;
 }

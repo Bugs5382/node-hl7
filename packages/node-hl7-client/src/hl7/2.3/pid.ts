@@ -9,5 +9,5 @@ export interface HL7_2_3_PID extends HL7_2_2_PID {
   /** PID.29 - Patient Death Date and Time */
   pid_29?: Date | string;
   /** PID.30 - Patient Death Indicator */
-  pid_30?: "Y" | "N";
+  pid_30?: "N" | "Y";
 }

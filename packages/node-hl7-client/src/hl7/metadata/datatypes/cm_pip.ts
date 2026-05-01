@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_CM_PIP {
+  activationDate?: string;
   /** CM_PIP.1 - Privilege */
   cm_pip_1?: string;
-  privilege?: string;
   /** CM_PIP.2 - Privilege Class */
   cm_pip_2?: string;
-  privilegeClass?: string;
   /** CM_PIP.3 - Expiration Date */
   cm_pip_3?: string;
-  expirationDate?: string;
   /** CM_PIP.4 - Activation Date */
   cm_pip_4?: string;
-  activationDate?: string;
+  expirationDate?: string;
+  privilege?: string;
+  privilegeClass?: string;
 }

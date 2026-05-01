@@ -13,22 +13,22 @@
  * @since 4.0.0
  */
 export interface HL7_PN {
+  degree?: string;
+  familiyName?: string;
+  givenName?: string;
+  middleInitialOrName?: string;
   /** PN.1 - Familiy Name */
   pn_1?: string;
-  familiyName?: string;
   /** PN.2 - Given Name */
   pn_2?: string;
-  givenName?: string;
   /** PN.3 - Middle Initial Or Name */
   pn_3?: string;
-  middleInitialOrName?: string;
   /** PN.4 - Suffix (e.g. Jr Or Iii) */
   pn_4?: string;
-  suffix?: string;
   /** PN.5 - Prefix (e.g. Dr) */
   pn_5?: string;
-  prefix?: string;
   /** PN.6 - Degree (e.g. Md) */
   pn_6?: string;
-  degree?: string;
+  prefix?: string;
+  suffix?: string;
 }

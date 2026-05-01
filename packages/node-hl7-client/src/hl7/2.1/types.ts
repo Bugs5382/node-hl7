@@ -32,16 +32,16 @@ export type { HL7_2_1_URS } from "@/hl7/2.1/urs";
 export interface ClientBuilderOptions_Hl7_2_1 extends ClientBuilderOptions {
   table_0001?: string[];
   table_0002?: string[];
+  table_0003?: string[];
   table_0004?: string[];
   table_0007?: string[];
   table_0008?: string[];
-  table_0003?: string[];
   table_0062?: string[];
   table_0074?: string[];
+  table_0076?: string[];
   table_0078?: string[];
   table_0085?: string[];
   table_0100?: string[];
-  table_0076?: string[];
   table_0116?: string[];
   table_0119?: string[];
   table_0121?: string[];

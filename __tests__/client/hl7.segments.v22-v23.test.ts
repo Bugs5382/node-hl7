@@ -8,11 +8,11 @@ function v22(): HL7_2_2 {
   const b = new HL7_2_2();
   b.on("error", () => {});
   b.buildMSH({
+    msh_10: "CONTROL_ID",
+    msh_11: "P",
     msh_7: DATE,
     msh_9_1: "ADT",
     msh_9_2: "A01",
-    msh_10: "CONTROL_ID",
-    msh_11: "P",
   });
   return b;
 }
@@ -21,11 +21,11 @@ function v23(): HL7_2_3 {
   const b = new HL7_2_3();
   b.on("error", () => {});
   b.buildMSH({
+    msh_10: "CONTROL_ID",
+    msh_11_1: "P",
     msh_7: DATE,
     msh_9_1: "ADT",
     msh_9_2: "A01",
-    msh_10: "CONTROL_ID",
-    msh_11_1: "P",
   });
   return b;
 }
@@ -42,8 +42,6 @@ describe("HL7 2.2 segment builders", () => {
 
   test("buildPID — extends with 2.2 fields (pid_20..26)", () => {
     b.buildPID({
-      pid_3: "MRN1",
-      pid_5: "DOE^JANE",
       pid_20: "DL12345",
       pid_21: "MOTHER_ID",
       pid_22: "ABC",
@@ -51,6 +49,8 @@ describe("HL7 2.2 segment builders", () => {
       pid_24: "Y",
       pid_25: "1",
       pid_26: "USA",
+      pid_3: "MRN1",
+      pid_5: "DOE^JANE",
     });
     expect(b.toString()).toContain("\rPID|||MRN1||DOE^JANE");
   });
@@ -73,14 +73,14 @@ describe("HL7 2.2 segment builders", () => {
   test("buildOBX — extends with 2.2 fields (obx_12..15)", () => {
     b.buildOBX({
       obx_1: "1",
-      obx_2: "NM",
-      obx_3: "GLU^Glucose^L",
-      obx_5: "98",
       obx_11: "F",
       obx_12: DATE,
       obx_13: "USER_DEFINED",
       obx_14: DATE,
       obx_15: "PROD_ID",
+      obx_2: "NM",
+      obx_3: "GLU^Glucose^L",
+      obx_5: "98",
     });
     expect(b.toString()).toContain("\rOBX|1|NM|GLU^Glucose^L||98");
   });
@@ -88,19 +88,19 @@ describe("HL7 2.2 segment builders", () => {
   test("buildOBR — extends with 2.2 fields (obr_26..35)", () => {
     b.buildOBR({
       obr_1: "1",
-      // OBR.3 (Filler Order Number) is R in v2.2.
-      obr_3: "FILLER1",
-      obr_4: "GLU^Glucose^L",
       obr_26: "PARENT",
       obr_27: "1^^^^^R",
       obr_28: "DR_NAME",
       obr_29: "PARENT_NUM",
+      // OBR.3 (Filler Order Number) is R in v2.2.
+      obr_3: "FILLER1",
       obr_30: "L",
       obr_31: "REASON",
       obr_32: "PRINCIPAL",
       obr_33: "ASSISTANT",
       obr_34: "TECH",
       obr_35: "TRANSCRIBER",
+      obr_4: "GLU^Glucose^L",
     });
     expect(b.toString()).toContain("\rOBR|1");
   });
@@ -109,12 +109,12 @@ describe("HL7 2.2 segment builders", () => {
     // ORC.20 is introduced in v2.3.1; omitted in this v2.2 surface test.
     b.buildORC({
       orc_1: "NW",
-      orc_2: "ORDER123",
       orc_15: DATE,
       orc_16: "REASON_CODE",
       orc_17: "ENT_BY_LOC",
       orc_18: "CALL_BACK",
       orc_19: "ORDER_CTRL_REASON",
+      orc_2: "ORDER123",
     });
     expect(b.toString()).toContain("\rORC|NW|ORDER123");
   });
@@ -132,10 +132,6 @@ describe("HL7 2.2 segment builders", () => {
   test("buildUB2 — billing fields", () => {
     b.buildUB2({
       ub2_1: "1",
-      ub2_2: "USA",
-      ub2_3: "01",
-      ub2_5: "1",
-      ub2_9: "1",
       ub2_10: "100.00",
       ub2_11: "1",
       ub2_12: "REV",
@@ -143,6 +139,10 @@ describe("HL7 2.2 segment builders", () => {
       ub2_14: "VAL",
       ub2_15: "DIAG",
       ub2_16: "DG",
+      ub2_2: "USA",
+      ub2_3: "01",
+      ub2_5: "1",
+      ub2_9: "1",
       // UB2.17 is introduced in v2.3; omitted here for the v2.2 surface test.
     });
     expect(b.toString()).toContain("\rUB2|1");
@@ -151,6 +151,9 @@ describe("HL7 2.2 segment builders", () => {
   test("buildRXA — administration", () => {
     b.buildRXA({
       rxa_1: "1",
+      rxa_10: "WHO_GAVE",
+      rxa_11: "LOC1",
+      rxa_12: "ADMIN_ROUTE",
       rxa_2: "1",
       rxa_3: DATE,
       rxa_4: DATE,
@@ -159,9 +162,6 @@ describe("HL7 2.2 segment builders", () => {
       rxa_7: "PO",
       rxa_8: "ADMIN_NOTE",
       rxa_9: "ADMIN_BY",
-      rxa_10: "WHO_GAVE",
-      rxa_11: "LOC1",
-      rxa_12: "ADMIN_ROUTE",
     });
     expect(b.toString()).toContain("\rRXA|1|1");
   });
@@ -201,6 +201,11 @@ describe("HL7 2.2 segment builders", () => {
   test("buildSTF — staff identification", () => {
     b.buildSTF({
       stf_1: "STF1",
+      stf_10: "OFFICE_ADDR",
+      stf_11: "INST_ACTIV",
+      stf_12: DATE,
+      stf_13: DATE,
+      stf_14: "LICENSE_NO",
       stf_2: "ID1",
       stf_3: "DOE^JOHN",
       stf_4: "MD",
@@ -209,11 +214,6 @@ describe("HL7 2.2 segment builders", () => {
       stf_7: "A",
       stf_8: "DEPT1",
       stf_9: "OFFICE_PHONE",
-      stf_10: "OFFICE_ADDR",
-      stf_11: "INST_ACTIV",
-      stf_12: DATE,
-      stf_13: DATE,
-      stf_14: "LICENSE_NO",
     });
     expect(b.toString()).toContain("\rSTF|STF1");
   });
@@ -222,14 +222,6 @@ describe("HL7 2.2 segment builders", () => {
     try {
       b.buildRXO({
         rxo_1: "ASA^Aspirin^L",
-        rxo_2: "325",
-        rxo_3: "650",
-        rxo_4: "MG",
-        rxo_5: "TAB",
-        rxo_6: "PRN",
-        rxo_7: "1 PO Q4H",
-        rxo_8: "10",
-        rxo_9: "G",
         rxo_10: "PHARM_INSTR",
         rxo_11: "PO",
         rxo_12: "PHARM_ROUTE",
@@ -238,6 +230,14 @@ describe("HL7 2.2 segment builders", () => {
         rxo_15: "GENERIC",
         rxo_16: "Y",
         rxo_17: "PROVIDER",
+        rxo_2: "325",
+        rxo_3: "650",
+        rxo_4: "MG",
+        rxo_5: "TAB",
+        rxo_6: "PRN",
+        rxo_7: "1 PO Q4H",
+        rxo_8: "10",
+        rxo_9: "G",
       });
     } catch {
       /* validator may complain */
@@ -249,14 +249,6 @@ describe("HL7 2.2 segment builders", () => {
     try {
       b.buildRXE({
         rxe_1: "Q4H",
-        rxe_2: "ASA^Aspirin^L",
-        rxe_3: "325",
-        rxe_4: "650",
-        rxe_5: "MG",
-        rxe_6: "TAB",
-        rxe_7: "PRN",
-        rxe_8: "10",
-        rxe_9: "G",
         rxe_10: "PHARM_INSTR",
         rxe_11: "PO",
         rxe_12: "100",
@@ -267,11 +259,19 @@ describe("HL7 2.2 segment builders", () => {
         rxe_17: "PR3",
         rxe_18: DATE,
         rxe_19: "REFILLS",
+        rxe_2: "ASA^Aspirin^L",
         rxe_20: "Y",
         rxe_21: "DAYS",
         rxe_22: "10",
         rxe_23: "1",
         rxe_24: "PROVIDER_ID",
+        rxe_3: "325",
+        rxe_4: "650",
+        rxe_5: "MG",
+        rxe_6: "TAB",
+        rxe_7: "PRN",
+        rxe_8: "10",
+        rxe_9: "G",
       });
     } catch {
       /* validator may complain */
@@ -283,6 +283,12 @@ describe("HL7 2.2 segment builders", () => {
     try {
       b.buildRXD({
         rxd_1: "1",
+        rxd_10: "DISP_BY",
+        rxd_11: "P",
+        rxd_12: "RX_NUM",
+        rxd_13: "10",
+        rxd_14: "Y",
+        rxd_15: "PROD_INFO",
         rxd_2: "ASA^Aspirin^L",
         rxd_3: DATE,
         rxd_4: "10",
@@ -291,12 +297,6 @@ describe("HL7 2.2 segment builders", () => {
         rxd_7: "1 PO Q4H",
         rxd_8: "PRN",
         rxd_9: "DISP_NOTES",
-        rxd_10: "DISP_BY",
-        rxd_11: "P",
-        rxd_12: "RX_NUM",
-        rxd_13: "10",
-        rxd_14: "Y",
-        rxd_15: "PROD_INFO",
       });
     } catch {
       /* validator may complain */
@@ -308,6 +308,13 @@ describe("HL7 2.2 segment builders", () => {
     try {
       b.buildRXG({
         rxg_1: "1",
+        rxg_10: "P",
+        rxg_11: "ADMIN",
+        rxg_12: "Y",
+        rxg_13: "PROD_INFO",
+        rxg_14: "ADMIN_NOTES",
+        rxg_15: "1",
+        rxg_16: "PROVIDER",
         rxg_2: "1",
         rxg_3: "QUAN",
         rxg_4: "ASA^Aspirin^L",
@@ -316,13 +323,6 @@ describe("HL7 2.2 segment builders", () => {
         rxg_7: "MG",
         rxg_8: "TAB",
         rxg_9: "GIVE_INSTR",
-        rxg_10: "P",
-        rxg_11: "ADMIN",
-        rxg_12: "Y",
-        rxg_13: "PROD_INFO",
-        rxg_14: "ADMIN_NOTES",
-        rxg_15: "1",
-        rxg_16: "PROVIDER",
       });
     } catch {
       /* validator may complain */
@@ -364,24 +364,24 @@ describe("HL7 2.3 segment builders", () => {
     const c = new HL7_2_3();
     c.on("error", () => {});
     c.buildMSH({
-      msh_7: DATE,
-      msh_9_1: "ADT",
-      msh_9_2: "A01",
       msh_10: "CONTROL_ID",
       msh_11_1: "P",
       msh_11_2: "A",
+      msh_7: DATE,
+      msh_9_1: "ADT",
+      msh_9_2: "A01",
     });
     expect(c.toString()).toContain("|P^A|");
   });
 
   test("buildPID — extends with 2.3 fields (pid_27..30)", () => {
     b.buildPID({
-      pid_3: "MRN1",
-      pid_5: "DOE^JANE",
       pid_27: "VET_STATUS",
       pid_28: "NAT",
       pid_29: DATE,
+      pid_3: "MRN1",
       pid_30: "Y",
+      pid_5: "DOE^JANE",
     });
     expect(b.toString()).toContain("\rPID|||MRN1||DOE^JANE");
   });
@@ -389,12 +389,12 @@ describe("HL7 2.3 segment builders", () => {
   test("buildOBX — extends with 2.3 fields (obx_16..17)", () => {
     b.buildOBX({
       obx_1: "1",
-      obx_2: "NM",
-      obx_3: "GLU^Glucose^L",
-      obx_5: "98",
       obx_11: "F",
       obx_16: "RESPONSIBLE",
       obx_17: "METHOD",
+      obx_2: "NM",
+      obx_3: "GLU^Glucose^L",
+      obx_5: "98",
     });
     expect(b.toString()).toContain("\rOBX|1|NM|GLU^Glucose^L||98");
   });
@@ -402,11 +402,11 @@ describe("HL7 2.3 segment builders", () => {
   test("buildOBR — extends with 2.3 fields (obr_36..43)", () => {
     b.buildOBR({
       obr_1: "1",
-      obr_4: "GLU^Glucose^L",
       obr_36: DATE,
       obr_37: "1",
       obr_38: "TRANSPORT",
       obr_39: "TRANS_ARRG",
+      obr_4: "GLU^Glucose^L",
       obr_40: "ESCORT",
       obr_41: "A",
       obr_42: "R",
@@ -429,14 +429,6 @@ describe("HL7 2.3 segment builders", () => {
     try {
       b.buildSCH({
         sch_1: "PLACER1",
-        sch_2: "FILLER1",
-        sch_3: "1",
-        sch_4: "PARENT",
-        sch_5: "NOTIFY",
-        sch_6: "REASON^TXT",
-        sch_7: "TYPE",
-        sch_8: "DURATION",
-        sch_9: "30",
         sch_10: "TIMING",
         sch_11: "ALLOC^RES^SPEC",
         sch_12: "GROUP",
@@ -447,12 +439,20 @@ describe("HL7 2.3 segment builders", () => {
         sch_17: "ENT_PHONE",
         sch_18: "ENT_ADDR",
         sch_19: "ENT_LOC",
+        sch_2: "FILLER1",
         sch_20: "PLACER_PERSON",
         sch_21: "PLACER_PHONE",
         sch_22: "PLACER_ADDR",
         sch_23: "FILLER_LOCATION",
         sch_24: "ENT_LOC_2",
         sch_25: "EVENT_REASON",
+        sch_3: "1",
+        sch_4: "PARENT",
+        sch_5: "NOTIFY",
+        sch_6: "REASON^TXT",
+        sch_7: "TYPE",
+        sch_8: "DURATION",
+        sch_9: "30",
       });
     } catch {
       /* validator may complain */
@@ -468,6 +468,7 @@ describe("HL7 2.3 segment builders", () => {
   test("buildAIS — appointment information service", () => {
     b.buildAIS({
       ais_1: "1",
+      ais_10: "FILLER_SUP",
       ais_2: "A",
       ais_3: "PROC^Procedure^L",
       ais_4: DATE,
@@ -476,7 +477,6 @@ describe("HL7 2.3 segment builders", () => {
       ais_7: "60",
       ais_8: "BLOCKED",
       ais_9: "PLACER_SUP",
-      ais_10: "FILLER_SUP",
     });
     expect(b.toString()).toContain("\rAIS|1");
   });
@@ -484,6 +484,11 @@ describe("HL7 2.3 segment builders", () => {
   test("buildAIG — appointment information general", () => {
     b.buildAIG({
       aig_1: "1",
+      aig_10: "MIN",
+      aig_11: "60",
+      aig_12: "BLOCKED",
+      aig_13: "PLACER",
+      aig_14: "FILLER",
       aig_2: "A",
       aig_3: "RES^Resource^L",
       aig_4: "MD",
@@ -492,11 +497,6 @@ describe("HL7 2.3 segment builders", () => {
       aig_7: "ALLOC",
       aig_8: DATE,
       aig_9: "30",
-      aig_10: "MIN",
-      aig_11: "60",
-      aig_12: "BLOCKED",
-      aig_13: "PLACER",
-      aig_14: "FILLER",
     });
     expect(b.toString()).toContain("\rAIG|1");
   });
@@ -504,6 +504,9 @@ describe("HL7 2.3 segment builders", () => {
   test("buildAIL — appointment information location", () => {
     b.buildAIL({
       ail_1: "1",
+      ail_10: "BLOCKED",
+      ail_11: "PLACER",
+      ail_12: "FILLER",
       ail_2: "A",
       ail_3: "ROOM1",
       ail_4: "TYPE",
@@ -512,9 +515,6 @@ describe("HL7 2.3 segment builders", () => {
       ail_7: "30",
       ail_8: "MIN",
       ail_9: "60",
-      ail_10: "BLOCKED",
-      ail_11: "PLACER",
-      ail_12: "FILLER",
     });
     expect(b.toString()).toContain("\rAIL|1");
   });
@@ -522,6 +522,9 @@ describe("HL7 2.3 segment builders", () => {
   test("buildAIP — appointment information personnel", () => {
     b.buildAIP({
       aip_1: "1",
+      aip_10: "BLOCKED",
+      aip_11: "PLACER",
+      aip_12: "FILLER",
       aip_2: "A",
       aip_3: "DOC1",
       aip_4: "MD",
@@ -530,9 +533,6 @@ describe("HL7 2.3 segment builders", () => {
       aip_7: "30",
       aip_8: "MIN",
       aip_9: "60",
-      aip_10: "BLOCKED",
-      aip_11: "PLACER",
-      aip_12: "FILLER",
     });
     expect(b.toString()).toContain("\rAIP|1");
   });
@@ -565,6 +565,9 @@ describe("HL7 2.3 segment builders", () => {
   test("buildPD1 — patient additional demographic", () => {
     b.buildPD1({
       pd1_1: "S",
+      pd1_10: "PROTECT_IND",
+      pd1_11: "1",
+      pd1_12: "Y",
       pd1_2: "M",
       pd1_3: "CLINIC^Name",
       pd1_4: "DOC^Name",
@@ -573,9 +576,6 @@ describe("HL7 2.3 segment builders", () => {
       pd1_7: "1",
       pd1_8: "N",
       pd1_9: "Y",
-      pd1_10: "PROTECT_IND",
-      pd1_11: "1",
-      pd1_12: "Y",
     });
     expect(b.toString()).toContain("\rPD1|");
   });
@@ -609,6 +609,11 @@ describe("HL7 2.3 segment builders", () => {
   test("buildPSH — product summary header", () => {
     b.buildPSH({
       psh_1: "REPORT_TYPE",
+      psh_10: "100",
+      psh_11: "E",
+      psh_12: "QTY_INTERP",
+      psh_13: "1",
+      psh_14: "1",
       psh_2: "REPORT_FORM",
       psh_3: DATE,
       psh_4: DATE,
@@ -617,11 +622,6 @@ describe("HL7 2.3 segment builders", () => {
       psh_7: "5",
       psh_8: "A",
       psh_9: "QTY_INTERP",
-      psh_10: "100",
-      psh_11: "E",
-      psh_12: "QTY_INTERP",
-      psh_13: "1",
-      psh_14: "1",
     });
     expect(b.toString()).toContain("\rPSH|REPORT_TYPE");
   });
@@ -629,14 +629,6 @@ describe("HL7 2.3 segment builders", () => {
   test("buildPCR — possible causal relationship", () => {
     b.buildPCR({
       pcr_1: "PROD",
-      pcr_2: "Y",
-      pcr_3: "PROD_CLASS",
-      pcr_4: "QTY",
-      pcr_5: DATE,
-      pcr_6: DATE,
-      pcr_7: DATE,
-      pcr_8: DATE,
-      pcr_9: "DURATION",
       pcr_10: "PROB_REC",
       pcr_11: "5",
       pcr_12: "PRIOR_HIST",
@@ -647,10 +639,18 @@ describe("HL7 2.3 segment builders", () => {
       pcr_17: "REINTRO",
       pcr_18: DATE,
       pcr_19: "Y",
+      pcr_2: "Y",
       pcr_20: "1",
       pcr_21: "1",
       pcr_22: "1",
       pcr_23: "Y",
+      pcr_3: "PROD_CLASS",
+      pcr_4: "QTY",
+      pcr_5: DATE,
+      pcr_6: DATE,
+      pcr_7: DATE,
+      pcr_8: DATE,
+      pcr_9: "DURATION",
     });
     expect(b.toString()).toContain("\rPCR|PROD");
   });
@@ -696,6 +696,13 @@ describe("HL7 2.3 segment builders", () => {
   test("buildCSR — clinical study registration", () => {
     b.buildCSR({
       csr_1: "SPONSOR1",
+      csr_10: "TREATMENT",
+      csr_11: DATE,
+      csr_12: "EVAL_CODE",
+      csr_13: "RANDOMIZED",
+      csr_14: "RAND_DATE",
+      csr_15: DATE,
+      csr_16: "INITIATOR",
       csr_2: "ALT_SPONSOR",
       csr_3: "STUDY1",
       csr_4: "PT_ID",
@@ -704,13 +711,6 @@ describe("HL7 2.3 segment builders", () => {
       csr_7: "ALT_REG",
       csr_8: "PHASE1",
       csr_9: DATE,
-      csr_10: "TREATMENT",
-      csr_11: DATE,
-      csr_12: "EVAL_CODE",
-      csr_13: "RANDOMIZED",
-      csr_14: "RAND_DATE",
-      csr_15: DATE,
-      csr_16: "INITIATOR",
     });
     expect(b.toString()).toContain("\rCSR|SPONSOR1");
   });

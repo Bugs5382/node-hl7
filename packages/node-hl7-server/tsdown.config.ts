@@ -4,31 +4,31 @@ const sourcemap = process.env.NODE_ENV === "development";
 
 export default defineConfig([
   {
+    clean: true,
+    dts: false,
     entry: ["src/index.ts"],
     format: ["cjs"],
-    outDir: "lib/cjs",
-    dts: false,
-    clean: true,
-    splitting: false,
     minify: !sourcemap,
+    outDir: "lib/cjs",
     sourcemap: sourcemap,
+    splitting: false,
     target: "esnext",
   },
   {
+    dts: false,
     entry: ["src/index.ts"],
     format: ["esm"],
-    outDir: "lib/esm",
-    dts: false,
-    splitting: false,
     minify: !sourcemap,
+    outDir: "lib/esm",
     sourcemap: sourcemap,
+    splitting: false,
     target: "esnext",
   },
   {
-    entry: ["src/index.ts"],
-    outDir: "lib/types",
     dts: {
       only: true,
     },
+    entry: ["src/index.ts"],
+    outDir: "lib/types",
   },
 ]);

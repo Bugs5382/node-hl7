@@ -15,14 +15,14 @@
 export interface HL7_CM_PLN {
   /** CM_PLN.1 - ID Number */
   cm_pln_1?: string;
-  idNumber?: string;
   /** CM_PLN.2 - Type Of ID Number */
   cm_pln_2?: string;
-  typeOfIdNumber?: string;
   /** CM_PLN.3 - State/other Qualifying Info */
   cm_pln_3?: string;
-  stateOtherQualifyingInfo?: string;
   /** CM_PLN.4 - Expiration Date */
   cm_pln_4?: string;
   expirationDate?: string;
+  idNumber?: string;
+  stateOtherQualifyingInfo?: string;
+  typeOfIdNumber?: string;
 }

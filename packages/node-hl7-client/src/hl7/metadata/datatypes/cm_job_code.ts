@@ -15,8 +15,8 @@
 export interface HL7_CM_JOB_CODE {
   /** CM_JOB_CODE.1 - Job Code */
   cm_job_code_1?: string;
-  jobCode?: string;
   /** CM_JOB_CODE.2 - Employee Classification */
   cm_job_code_2?: string;
   employeeClassification?: string;
+  jobCode?: string;
 }

@@ -15,11 +15,11 @@
 export interface HL7_CCP {
   /** CCP.1 - Channel Calibration Sensitivity Correction Factor */
   ccp_1?: string;
-  channelCalibrationSensitivityCorrectionFactor?: string;
   /** CCP.2 - Channel Calibration Baseline */
   ccp_2?: string;
-  channelCalibrationBaseline?: string;
   /** CCP.3 - Channel Calibration Time Skew */
   ccp_3?: string;
+  channelCalibrationBaseline?: string;
+  channelCalibrationSensitivityCorrectionFactor?: string;
   channelCalibrationTimeSkew?: string;
 }

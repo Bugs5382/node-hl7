@@ -13,16 +13,16 @@
  * @since 4.0.0
  */
 export interface HL7_PTA {
+  amountClass?: string;
+  moneyOrPercentage?: string;
+  moneyOrPercentageQuantity?: string;
+  policyType?: string;
   /** PTA.1 - Policy Type */
   pta_1?: string;
-  policyType?: string;
   /** PTA.2 - Amount Class */
   pta_2?: string;
-  amountClass?: string;
   /** PTA.3 - Money Or Percentage Quantity */
   pta_3?: string;
-  moneyOrPercentageQuantity?: string;
   /** PTA.4 - Money Or Percentage */
   pta_4?: string;
-  moneyOrPercentage?: string;
 }

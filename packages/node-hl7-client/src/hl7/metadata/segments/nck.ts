@@ -11,16 +11,40 @@ import { SegmentSpec } from "@/hl7/metadata/types";
  * @since 4.0.0
  */
 export const NCK_SPEC: SegmentSpec = {
-  name: "NCK",
   description: "System Clock",
-  versions: ["2.1","2.2","2.3","2.3.1","2.4","2.5","2.5.1","2.6","2.7","2.7.1","2.8"],
   fields: [
     {
-      num: 1,
-      name: "System Date/Time",
       hl7Type: "DTM",
       length: { max: 24 },
-      usage: {"2.1":"R","2.2":"R","2.3":"R","2.3.1":"R","2.4":"R","2.5":"R","2.5.1":"R","2.6":"R","2.7":"R","2.7.1":"R","2.8":"R"},
+      name: "System Date/Time",
+      num: 1,
+      usage: {
+        "2.1": "R",
+        "2.2": "R",
+        "2.3": "R",
+        "2.3.1": "R",
+        "2.4": "R",
+        "2.5": "R",
+        "2.5.1": "R",
+        "2.6": "R",
+        "2.7": "R",
+        "2.7.1": "R",
+        "2.8": "R",
+      },
     },
+  ],
+  name: "NCK",
+  versions: [
+    "2.1",
+    "2.2",
+    "2.3",
+    "2.3.1",
+    "2.4",
+    "2.5",
+    "2.5.1",
+    "2.6",
+    "2.7",
+    "2.7.1",
+    "2.8",
   ],
 };

@@ -1,6 +1,7 @@
-import { HL7ListenerError } from "@/utils/exception";
-import { Socket } from "net";
 import { Message } from "node-hl7-client";
+import { Socket } from "node:net";
+
+import { HL7ListenerError } from "@/utils/exception";
 
 /**
  * Inbound Request Props
@@ -21,9 +22,9 @@ export interface InboundRequestProps {
  */
 export class InboundRequest {
   /** @internal */
-  private readonly _message?: Message;
-  /** @internal */
   private readonly _fromType: string;
+  /** @internal */
+  private readonly _message?: Message;
   /** @internal */
   private readonly _socket?: Socket;
 
@@ -32,10 +33,10 @@ export class InboundRequest {
    * @param message
    * @param props
    */
-  constructor(message: Message, props: InboundRequestProps) {
-    this._fromType = props.type;
+  constructor(message: Message, properties: InboundRequestProps) {
+    this._fromType = properties.type;
     this._message = message;
-    this._socket = props.socket;
+    this._socket = properties.socket;
   }
 
   /** '
@@ -43,7 +44,7 @@ export class InboundRequest {
    * @since 1.0.0
    */
   getMessage(): Message {
-    if (typeof this._message !== "undefined") {
+    if (this._message !== undefined) {
       return this._message;
     }
     throw new HL7ListenerError("Message is not defined.");
@@ -57,7 +58,7 @@ export class InboundRequest {
    * @since 4.0.0
    */
   getSocket(): Socket {
-    if (typeof this._socket === "undefined") {
+    if (this._socket === undefined) {
       throw new HL7ListenerError("Socket is not defined.");
     }
     return this._socket;

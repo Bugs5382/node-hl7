@@ -15,11 +15,11 @@
 export interface HL7_HD {
   /** HD.1 - Namespace ID */
   hd_1?: string;
-  namespaceId?: string;
   /** HD.2 - Universal ID */
   hd_2?: string;
-  universalId?: string;
   /** HD.3 - Universal ID Type */
   hd_3?: string;
+  namespaceId?: string;
+  universalId?: string;
   universalIdType?: string;
 }

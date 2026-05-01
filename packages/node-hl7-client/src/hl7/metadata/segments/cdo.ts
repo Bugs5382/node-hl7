@@ -11,43 +11,43 @@ import { SegmentSpec } from "@/hl7/metadata/types";
  * @since 4.0.0
  */
 export const CDO_SPEC: SegmentSpec = {
-  name: "CDO",
   description: "Cumulative Dosage",
-  versions: ["2.8"],
   fields: [
     {
-      num: 1,
-      name: "Set ID – CDO",
       hl7Type: "SI",
-      usage: {"2.8":"O"},
+      name: "Set ID – CDO",
+      num: 1,
+      usage: { "2.8": "O" },
     },
     {
-      num: 2,
-      name: "Action Code",
       hl7Type: "ID",
+      name: "Action Code",
+      num: 2,
       table: 206,
-      usage: {"2.8":"O"},
+      usage: { "2.8": "O" },
     },
     {
-      num: 3,
+      components: [
+        { hl7Type: "NM", name: "Quantity", num: 1, rpt: "1", usage: "O" },
+        { hl7Type: "CWE", name: "Units", num: 2, rpt: "1", usage: "O" },
+      ],
+      hl7Type: "CQ",
       name: "Cumulative Dosage Limit",
-      hl7Type: "CQ",
-      usage: {"2.8":"O"},
-      components: [
-        { num: 1, name: "Quantity", hl7Type: "NM", usage: "O", rpt: "1" },
-        { num: 2, name: "Units", hl7Type: "CWE", usage: "O", rpt: "1" },
-      ],
+      num: 3,
+      usage: { "2.8": "O" },
     },
     {
-      num: 4,
-      name: "Cumulative Dosage Limit Time Interval",
-      hl7Type: "CQ",
-      table: 924,
-      usage: {"2.8":"O"},
       components: [
-        { num: 1, name: "Quantity", hl7Type: "NM", usage: "O", rpt: "1" },
-        { num: 2, name: "Units", hl7Type: "CWE", usage: "O", rpt: "1" },
+        { hl7Type: "NM", name: "Quantity", num: 1, rpt: "1", usage: "O" },
+        { hl7Type: "CWE", name: "Units", num: 2, rpt: "1", usage: "O" },
       ],
+      hl7Type: "CQ",
+      name: "Cumulative Dosage Limit Time Interval",
+      num: 4,
+      table: 924,
+      usage: { "2.8": "O" },
     },
   ],
+  name: "CDO",
+  versions: ["2.8"],
 };

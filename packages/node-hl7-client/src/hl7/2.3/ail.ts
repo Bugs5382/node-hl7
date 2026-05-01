@@ -2,6 +2,12 @@
 export interface HL7_2_3_AIL {
   /** AIL.1 - Set ID (required) */
   ail_1: number | string;
+  /** AIL.10 - Duration Units */
+  ail_10?: string;
+  /** AIL.11 - Allow Substitution Code */
+  ail_11?: string;
+  /** AIL.12 - Filler Status Code */
+  ail_12?: string;
   /** AIL.2 - Segment Action Code */
   ail_2?: "A" | "D" | "U";
   /** AIL.3 - Location Resource ID */
@@ -18,10 +24,4 @@ export interface HL7_2_3_AIL {
   ail_8?: string;
   /** AIL.9 - Duration */
   ail_9?: string;
-  /** AIL.10 - Duration Units */
-  ail_10?: string;
-  /** AIL.11 - Allow Substitution Code */
-  ail_11?: string;
-  /** AIL.12 - Filler Status Code */
-  ail_12?: string;
 }

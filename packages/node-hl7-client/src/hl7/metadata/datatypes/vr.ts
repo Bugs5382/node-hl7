@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_VR {
+  firstDataCodeValue?: string;
+  lastDataCodeValue?: string;
   /** VR.1 - First Data Code Value */
   vr_1?: string;
-  firstDataCodeValue?: string;
   /** VR.2 - Last Data Code Value */
   vr_2?: string;
-  lastDataCodeValue?: string;
 }

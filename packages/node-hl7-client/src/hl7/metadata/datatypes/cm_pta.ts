@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_CM_PTA {
+  amount?: string;
+  amountClass?: string;
   /** CM_PTA.1 - Policy Type */
   cm_pta_1?: string;
-  policyType?: string;
   /** CM_PTA.2 - Amount Class */
   cm_pta_2?: string;
-  amountClass?: string;
   /** CM_PTA.3 - Amount */
   cm_pta_3?: string;
-  amount?: string;
+  policyType?: string;
 }

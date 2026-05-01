@@ -15,26 +15,26 @@
 export interface HL7_CN_PERSON {
   /** CN_PERSON.1 - Id Number */
   cn_person_1?: string;
-  idNumber?: string;
   /** CN_PERSON.2 - Familiy Name */
   cn_person_2?: string;
-  familiyName?: string;
   /** CN_PERSON.3 - Given Name */
   cn_person_3?: string;
-  givenName?: string;
   /** CN_PERSON.4 - Middle Initial Or Name */
   cn_person_4?: string;
-  middleInitialOrName?: string;
   /** CN_PERSON.5 - Suffix (e.g. Jr Or Iii) */
   cn_person_5?: string;
-  suffix?: string;
   /** CN_PERSON.6 - Prefix (e.g. Dr) */
   cn_person_6?: string;
-  prefix?: string;
   /** CN_PERSON.7 - Degree (e.g. Md) */
   cn_person_7?: string;
-  degree?: string;
   /** CN_PERSON.8 - Source Table Id */
   cn_person_8?: string;
+  degree?: string;
+  familiyName?: string;
+  givenName?: string;
+  idNumber?: string;
+  middleInitialOrName?: string;
+  prefix?: string;
   sourceTableId?: string;
+  suffix?: string;
 }

@@ -13,10 +13,10 @@
  * @since 4.0.0
  */
 export interface HL7_MO {
+  denomenation?: string;
   /** MO.1 - Quantity */
   mo_1?: string;
-  quantity?: string;
   /** MO.2 - Denomenation */
   mo_2?: string;
-  denomenation?: string;
+  quantity?: string;
 }

@@ -2,6 +2,12 @@
 export interface HL7_2_3_AIP {
   /** AIP.1 - Set ID (required) */
   aip_1: number | string;
+  /** AIP.10 - Duration Units */
+  aip_10?: string;
+  /** AIP.11 - Allow Substitution Code */
+  aip_11?: string;
+  /** AIP.12 - Filler Status Code */
+  aip_12?: string;
   /** AIP.2 - Segment Action Code */
   aip_2?: "A" | "D" | "U";
   /** AIP.3 - Personnel Resource ID */
@@ -18,10 +24,4 @@ export interface HL7_2_3_AIP {
   aip_8?: string;
   /** AIP.9 - Duration */
   aip_9?: string;
-  /** AIP.10 - Duration Units */
-  aip_10?: string;
-  /** AIP.11 - Allow Substitution Code */
-  aip_11?: string;
-  /** AIP.12 - Filler Status Code */
-  aip_12?: string;
 }

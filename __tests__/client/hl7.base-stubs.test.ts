@@ -13,7 +13,7 @@ const DATE = new Date("2024-01-15T10:20:30Z");
 function v21(): HL7_2_1 {
   const b = new HL7_2_1();
   b.on("error", () => {});
-  b.buildMSH({ msh_7: DATE, msh_9: "ACK", msh_10: "X", msh_11: "T" });
+  b.buildMSH({ msh_10: "X", msh_11: "T", msh_7: DATE, msh_9: "ACK" });
   return b;
 }
 
@@ -90,9 +90,12 @@ describe("HL7_BASE — unimplemented segment stubs throw on 2.1", () => {
     ["STZ", () => b.buildSTZ({} as any)],
   ];
 
-  test.each(stubs)("build%s on 2.1 throws Not Implemented", (_name, fn) => {
-    expect(fn).toThrow(HL7FatalError);
-  });
+  test.each(stubs)(
+    "build%s on 2.1 throws Not Implemented",
+    (_name, function_) => {
+      expect(function_).toThrow(HL7FatalError);
+    },
+  );
 });
 
 /**
@@ -119,7 +122,7 @@ describe("HL7_2_1 — invalid construction options", () => {
     // Two-char separator survives the RootBase regex setup but trips
     // the explicit length check inside _buildMSH.
     const b = new HL7_2_1({ separatorComponent: "^^" } as any);
-    expect(() => b.buildMSH({ msh_9: "ACK", msh_10: "X" })).toThrow(
+    expect(() => b.buildMSH({ msh_10: "X", msh_9: "ACK" })).toThrow(
       HL7ValidationError,
     );
   });
@@ -139,11 +142,11 @@ describe("HL7_BASE — implemented but rarely-called helpers", () => {
     const b = new HL7_2_5();
     b.on("error", () => {});
     b.buildMSH({
+      msh_10: "X",
+      msh_11_1: "P",
       msh_7: DATE,
       msh_9_1: "ADT",
       msh_9_2: "A01",
-      msh_10: "X",
-      msh_11_1: "P",
     });
     b.buildNCK();
     expect(b.toString()).toContain("\rNCK|");
@@ -153,11 +156,11 @@ describe("HL7_BASE — implemented but rarely-called helpers", () => {
     const b = new HL7_2_7();
     b.on("error", () => {});
     b.buildMSH({
+      msh_10: "X",
+      msh_11_1: "P",
       msh_7: DATE,
       msh_9_1: "ADT",
       msh_9_2: "A01",
-      msh_10: "X",
-      msh_11_1: "P",
     });
     b.buildNCK();
     expect(b.toString()).toContain("\rNCK|");
@@ -184,11 +187,11 @@ describe("HL7_BASE — implemented but rarely-called helpers", () => {
     const b = new HL7_2_7();
     b.on("error", () => {});
     b.buildMSH({
+      msh_10: "X",
+      msh_11_1: "P",
       msh_7: DATE,
       msh_9_1: "ADT",
       msh_9_2: "A01",
-      msh_10: "X",
-      msh_11_1: "P",
     });
     b.buildDSP({ dsp_1: "1", dsp_2: "1", dsp_3: "TEXT" });
     expect(b.toString()).toContain("\rDSP|");
@@ -200,7 +203,7 @@ describe("HL7_BASE — validator branch coverage via builders", () => {
     // hardError flips _validatorThrowError into "always throw" mode. Trigger
     // a too-long string against an exact-length rule.
     const b = new HL7_2_1({ hardError: true });
-    b.buildMSH({ msh_7: DATE, msh_9: "ACK", msh_10: "X", msh_11: "T" });
+    b.buildMSH({ msh_10: "X", msh_11: "T", msh_7: DATE, msh_9: "ACK" });
     expect(() => b.buildMSA({ msa_1: "INVALID_TOO_LONG" })).toThrow(
       HL7ValidationError,
     );
@@ -248,10 +251,10 @@ describe("HL7_BASE — checkMSH per version", () => {
     const b = new HL7_2_2();
     expect(
       b.checkMSH({
-        msh_9_1: "ADT",
-        msh_9_2: "A01",
         msh_10: "X",
         msh_11_1: "P",
+        msh_9_1: "ADT",
+        msh_9_2: "A01",
       } as any),
     ).toBe(true);
   });
@@ -260,10 +263,10 @@ describe("HL7_BASE — checkMSH per version", () => {
     const b = new HL7_2_3();
     expect(
       b.checkMSH({
-        msh_9_1: "ADT",
-        msh_9_2: "A01",
         msh_10: "X",
         msh_11_1: "P",
+        msh_9_1: "ADT",
+        msh_9_2: "A01",
       } as any),
     ).toBe(true);
   });
@@ -272,10 +275,10 @@ describe("HL7_BASE — checkMSH per version", () => {
     const b = new HL7_2_4();
     expect(
       b.checkMSH({
-        msh_9_1: "ADT",
-        msh_9_2: "A01",
         msh_10: "X",
         msh_11_1: "P",
+        msh_9_1: "ADT",
+        msh_9_2: "A01",
       } as any),
     ).toBe(true);
   });
@@ -284,10 +287,10 @@ describe("HL7_BASE — checkMSH per version", () => {
     const b = new HL7_2_5();
     expect(
       b.checkMSH({
-        msh_9_1: "ADT",
-        msh_9_2: "A01",
         msh_10: "X",
         msh_11_1: "P",
+        msh_9_1: "ADT",
+        msh_9_2: "A01",
       } as any),
     ).toBe(true);
   });
@@ -296,10 +299,10 @@ describe("HL7_BASE — checkMSH per version", () => {
     const b = new HL7_2_6();
     expect(
       b.checkMSH({
-        msh_9_1: "ADT",
-        msh_9_2: "A01",
         msh_10: "X",
         msh_11_1: "P",
+        msh_9_1: "ADT",
+        msh_9_2: "A01",
       } as any),
     ).toBe(true);
   });
@@ -308,10 +311,10 @@ describe("HL7_BASE — checkMSH per version", () => {
     const b = new HL7_2_7();
     expect(
       b.checkMSH({
-        msh_9_1: "ADT",
-        msh_9_2: "A01",
         msh_10: "X",
         msh_11_1: "P",
+        msh_9_1: "ADT",
+        msh_9_2: "A01",
       } as any),
     ).toBe(true);
   });

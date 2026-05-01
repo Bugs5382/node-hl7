@@ -10,11 +10,11 @@ function v24(): HL7_2_4 {
   const b = new HL7_2_4();
   b.on("error", () => {});
   b.buildMSH({
+    msh_10: "CONTROL_ID",
+    msh_11_1: "P",
     msh_7: DATE,
     msh_9_1: "ADT",
     msh_9_2: "A01",
-    msh_10: "CONTROL_ID",
-    msh_11_1: "P",
   });
   return b;
 }
@@ -23,11 +23,11 @@ function v25(): HL7_2_5 {
   const b = new HL7_2_5();
   b.on("error", () => {});
   b.buildMSH({
+    msh_10: "CONTROL_ID",
+    msh_11_1: "P",
     msh_7: DATE,
     msh_9_1: "ADT",
     msh_9_2: "A01",
-    msh_10: "CONTROL_ID",
-    msh_11_1: "P",
   });
   return b;
 }
@@ -36,11 +36,11 @@ function v251(): HL7_2_5_1 {
   const b = new HL7_2_5_1();
   b.on("error", () => {});
   b.buildMSH({
+    msh_10: "CONTROL_ID",
+    msh_11_1: "P",
     msh_7: DATE,
     msh_9_1: "ADT",
     msh_9_2: "A01",
-    msh_10: "CONTROL_ID",
-    msh_11_1: "P",
   });
   return b;
 }
@@ -49,11 +49,11 @@ function v26(): HL7_2_6 {
   const b = new HL7_2_6();
   b.on("error", () => {});
   b.buildMSH({
+    msh_10: "CONTROL_ID",
+    msh_11_1: "P",
     msh_7: DATE,
     msh_9_1: "ADT",
     msh_9_2: "A01",
-    msh_10: "CONTROL_ID",
-    msh_11_1: "P",
   });
   return b;
 }
@@ -71,11 +71,11 @@ describe("HL7 2.4 segment builders", () => {
   test("checkMSH accepts msh_9_3 within 3..10 chars", () => {
     expect(
       b.checkMSH({
+        msh_10: "X",
+        msh_11_1: "P",
         msh_9_1: "ADT",
         msh_9_2: "A01",
         msh_9_3: "ADT_A01",
-        msh_10: "X",
-        msh_11_1: "P",
       } as any),
     ).toBe(true);
   });
@@ -83,11 +83,11 @@ describe("HL7 2.4 segment builders", () => {
   test("checkMSH rejects msh_9_3 longer than 10 chars", () => {
     expect(() =>
       b.checkMSH({
+        msh_10: "X",
+        msh_11_1: "P",
         msh_9_1: "ADT",
         msh_9_2: "A01",
         msh_9_3: "A".repeat(11),
-        msh_10: "X",
-        msh_11_1: "P",
       } as any),
     ).toThrow(/MSH\.9\.3/);
   });
@@ -96,7 +96,6 @@ describe("HL7 2.4 segment builders", () => {
     // PID.39 is introduced in v2.5 per the published spec, not v2.4.
     b.buildPID({
       pid_3: "MRN1",
-      pid_5: "DOE^JANE",
       pid_31: "Y",
       pid_32: "ID_REL",
       pid_33: DATE,
@@ -105,6 +104,7 @@ describe("HL7 2.4 segment builders", () => {
       pid_36: "ETH",
       pid_37: "MRN2",
       pid_38: "PRD",
+      pid_5: "DOE^JANE",
     });
     expect(b.toString()).toContain("\rPID|||MRN1||DOE^JANE");
   });
@@ -136,17 +136,17 @@ describe("HL7 2.4 segment builders", () => {
     try {
       b.buildGOL({
         gol_1: "AD",
+        gol_12: DATE,
+        gol_13: DATE,
+        gol_14: DATE,
+        gol_15: DATE,
+        gol_19: DATE,
         gol_2: DATE,
         gol_3: "GOAL_ID",
         gol_4: "INSTANCE",
         gol_7: DATE,
         gol_8: DATE,
         gol_9: DATE,
-        gol_12: DATE,
-        gol_13: DATE,
-        gol_14: DATE,
-        gol_15: DATE,
-        gol_19: DATE,
       });
     } catch {
       /* coverage already recorded */
@@ -158,14 +158,14 @@ describe("HL7 2.4 segment builders", () => {
     try {
       b.buildPRB({
         prb_1: "AD",
+        prb_15: DATE,
+        prb_16: DATE,
         prb_2: DATE,
         prb_3: "PROBLEM_ID",
         prb_4: "INSTANCE",
         prb_7: DATE,
         prb_8: DATE,
         prb_9: DATE,
-        prb_15: DATE,
-        prb_16: DATE,
       });
     } catch {
       /* coverage already recorded */
@@ -192,13 +192,13 @@ describe("HL7 2.4 segment builders", () => {
     try {
       b.buildTXA({
         txa_1: "1",
+        txa_12: "DOC_NO",
+        txa_17: "AU",
         txa_2: "DOC_TYPE",
         txa_4: DATE,
         txa_6: DATE,
         txa_7: DATE,
         txa_8: DATE,
-        txa_12: "DOC_NO",
-        txa_17: "AU",
       });
     } catch {
       /* coverage already recorded */
@@ -210,9 +210,9 @@ describe("HL7 2.4 segment builders", () => {
     try {
       b.buildIAM({
         iam_1: "1",
+        iam_11: DATE,
         iam_3: "ALLERGY_CODE",
         iam_6: "A",
-        iam_11: DATE,
       });
     } catch {
       /* coverage already recorded */
@@ -225,10 +225,10 @@ describe("HL7 2.4 segment builders", () => {
       b.buildOM1({
         om1_1: "1",
         om1_2: "OBS_ID",
-        om1_4: "Y",
-        om1_5: "OTHER_ID",
         om1_21: DATE,
         om1_22: DATE,
+        om1_4: "Y",
+        om1_5: "OTHER_ID",
       });
     } catch {
       /* coverage already recorded */
@@ -303,13 +303,13 @@ describe("HL7 2.5 segment builders", () => {
     try {
       b.buildSPM({
         spm_1: "1",
-        spm_2: "SPEC_ID",
-        spm_3: "PARENT_ID",
-        spm_4: "SPECIMEN_TYPE",
         spm_17: DATE,
         spm_18: DATE,
         spm_19: DATE,
+        spm_2: "SPEC_ID",
         spm_20: "Y",
+        spm_3: "PARENT_ID",
+        spm_4: "SPECIMEN_TYPE",
       });
     } catch {
       /* coverage already recorded */
@@ -333,10 +333,10 @@ describe("HL7 2.5.1 minimal coverage", () => {
     const b = new HL7_2_5_1();
     expect(
       b.checkMSH({
-        msh_9_1: "ADT",
-        msh_9_2: "A01",
         msh_10: "X",
         msh_11_1: "P",
+        msh_9_1: "ADT",
+        msh_9_2: "A01",
       } as any),
     ).toBe(true);
   });
@@ -368,10 +368,10 @@ describe("HL7 2.6 segment builders", () => {
   test("checkMSH delegates through the chain", () => {
     expect(
       b.checkMSH({
-        msh_9_1: "ADT",
-        msh_9_2: "A01",
         msh_10: "X",
         msh_11_1: "P",
+        msh_9_1: "ADT",
+        msh_9_2: "A01",
       } as any),
     ).toBe(true);
   });
@@ -380,6 +380,7 @@ describe("HL7 2.6 segment builders", () => {
     try {
       b.buildREL({
         rel_1: "1",
+        rel_13: DATE,
         rel_2: "REL_TYPE",
         rel_3: "INSTANCE_A",
         rel_4: "INSTANCE_B",
@@ -387,7 +388,6 @@ describe("HL7 2.6 segment builders", () => {
         rel_6: DATE,
         rel_7: DATE,
         rel_8: "Y",
-        rel_13: DATE,
       });
     } catch {
       /* coverage already recorded */
@@ -399,8 +399,6 @@ describe("HL7 2.6 segment builders", () => {
     try {
       b.buildITM({
         itm_1: "ITEM_ID",
-        itm_3: "A",
-        itm_6: "Y",
         itm_11: "Y",
         itm_14: "Y",
         itm_17: "Y",
@@ -408,6 +406,8 @@ describe("HL7 2.6 segment builders", () => {
         itm_23: "Y",
         itm_24: "Y",
         itm_26: "Y",
+        itm_3: "A",
+        itm_6: "Y",
       });
     } catch {
       /* coverage already recorded */
@@ -419,15 +419,15 @@ describe("HL7 2.6 segment builders", () => {
     try {
       b.buildIVT({
         ivt_1: "1",
-        ivt_2: "ITEM_ID",
-        ivt_6: "A",
         ivt_10: "Y",
         ivt_12: "Y",
         ivt_19: "Y",
+        ivt_2: "ITEM_ID",
         ivt_21: "Y",
         ivt_22: "Y",
         ivt_23: "Y",
         ivt_25: "Y",
+        ivt_6: "A",
       });
     } catch {
       /* coverage already recorded */
@@ -455,11 +455,11 @@ describe("HL7 2.6 segment builders", () => {
     try {
       b.buildBPX({
         bpx_1: "1",
+        bpx_13: DATE,
+        bpx_14: "1",
         bpx_2: "DISP_STATUS",
         bpx_3: "X",
         bpx_4: DATE,
-        bpx_13: DATE,
-        bpx_14: "1",
       });
     } catch {
       /* coverage already recorded */

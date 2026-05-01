@@ -86,184 +86,184 @@ import {
  * @since 1.0.0
  */
 export interface HL7_SPEC {
-  /** Name of the HL7 Spec */
-  version: string;
   /** Build ACC (Accident) Segment */
-  buildACC: (props: ACC) => this;
+  buildACC: (properties: ACC) => this;
   /** Build ADD (Addendum) Segment */
-  buildADD: (props: ADD) => this;
+  buildADD: (properties: ADD) => this;
   /** Build AIG (Appointment Information - General) Segment */
-  buildAIG: (props: Partial<AIG>) => this;
+  buildAIG: (properties: Partial<AIG>) => this;
   /** Build AIL (Appointment Information - Location) Segment */
-  buildAIL: (props: Partial<AIL>) => this;
+  buildAIL: (properties: Partial<AIL>) => this;
   /** Build AIP (Appointment Information - Personnel) Segment */
-  buildAIP: (props: Partial<AIP>) => this;
+  buildAIP: (properties: Partial<AIP>) => this;
   /** Build AIS (Appointment Information - Service) Segment */
-  buildAIS: (props: Partial<AIS>) => this;
+  buildAIS: (properties: Partial<AIS>) => this;
   /** Build AL1 (Allergy Information) Segment */
-  buildAL1: (props: Partial<AL1>) => this;
+  buildAL1: (properties: Partial<AL1>) => this;
   /** Build APR (Appointment Preferences) Segment */
-  buildAPR: (props: Partial<APR>) => this;
+  buildAPR: (properties: Partial<APR>) => this;
   /** Build BLG (Billing) Segment */
-  buildBLG: (props: BLG) => this;
+  buildBLG: (properties: BLG) => this;
   /** Build BPX (Blood Product Dispense Status) Segment */
-  buildBPX: (props: Partial<BPX>) => this;
+  buildBPX: (properties: Partial<BPX>) => this;
   /** Build BTX (Blood Product Transfusion/Disposition) Segment */
-  buildBTX: (props: Partial<BTX>) => this;
+  buildBTX: (properties: Partial<BTX>) => this;
   /** Build CSP (Clinical Study Phase) Segment */
-  buildCSP: (props: Partial<CSP>) => this;
+  buildCSP: (properties: Partial<CSP>) => this;
   /** Build CSR (Clinical Study Registration) Segment */
-  buildCSR: (props: Partial<CSR>) => this;
+  buildCSR: (properties: Partial<CSR>) => this;
   /** Build CSS (Clinical Study Data Schedule) Segment */
-  buildCSS: (props: Partial<CSS>) => this;
+  buildCSS: (properties: Partial<CSS>) => this;
   /** Build CTD (Contact Data) Segment */
-  buildCTD: (props: Partial<CTD>) => this;
+  buildCTD: (properties: Partial<CTD>) => this;
   /** Build DG1 (Diagnosis) Segment */
-  buildDG1: (props: DG1) => this;
+  buildDG1: (properties: DG1) => this;
   /** Build DRG (Diagnosis Related Group) Segment */
-  buildDRG: (props: Partial<DRG>) => this;
+  buildDRG: (properties: Partial<DRG>) => this;
   /** Build DSC (Continuation Pointer) Segment */
-  buildDSC: (props: DSC) => this;
+  buildDSC: (properties: DSC) => this;
   /** Build DSP (Display Data) Segment */
-  buildDSP: (props: DSP) => this;
+  buildDSP: (properties: DSP) => this;
   /** Build ERR (Error) Segment */
-  buildERR: (props: ERR) => this;
+  buildERR: (properties: ERR) => this;
   /** Build EVN (Event Type) Segment */
-  buildEVN: (props: EVN) => this;
+  buildEVN: (properties: EVN) => this;
   /** Build FT1 (Financial Transaction) Segment */
-  buildFT1: (props: any) => this;
+  buildFT1: (properties: any) => this;
   /** Build GOL (Goal Detail) Segment */
-  buildGOL: (props: Partial<GOL>) => this;
+  buildGOL: (properties: Partial<GOL>) => this;
   /** Build GT1 (Guarantor) Segment */
-  buildGT1: (props: any) => this;
+  buildGT1: (properties: any) => this;
   /** Build IAM (Patient Adverse Reaction Information) Segment */
-  buildIAM: (props: Partial<IAM>) => this;
+  buildIAM: (properties: Partial<IAM>) => this;
   /** Build IN1 (Insurance) Segment */
-  buildIN1: (props: any) => this;
+  buildIN1: (properties: any) => this;
   /** Build IPC (Imaging Procedure Control) Segment */
-  buildIPC: (props: Partial<IPC>) => this;
+  buildIPC: (properties: Partial<IPC>) => this;
   /** Build ISD (Interaction Status Detail) Segment */
-  buildISD: (props: Partial<ISD>) => this;
+  buildISD: (properties: Partial<ISD>) => this;
   /** Build ITM (Material Item Master) Segment */
-  buildITM: (props: Partial<ITM>) => this;
+  buildITM: (properties: Partial<ITM>) => this;
   /** Build IVT (Material Location) Segment */
-  buildIVT: (props: Partial<IVT>) => this;
+  buildIVT: (properties: Partial<IVT>) => this;
   /** Build MFE (Master File Entry) Segment */
-  buildMFE: (props: Partial<MFE>) => this;
+  buildMFE: (properties: Partial<MFE>) => this;
   /** Build MFI (Master File Identification) Segment */
-  buildMFI: (props: Partial<MFI>) => this;
+  buildMFI: (properties: Partial<MFI>) => this;
   /** Build MRG (Merge Patient Info) Segment */
-  buildMRG: (props: any) => this;
+  buildMRG: (properties: any) => this;
   /** Build MSA (Acknowledgment) Segment */
-  buildMSA: (props: any) => this;
+  buildMSA: (properties: any) => this;
   /** Build MSH (Message Header) Segment */
-  buildMSH: (props: MSH) => this;
+  buildMSH: (properties: MSH) => this;
   /** Build NCK (System Clock) Segment */
   buildNCK: () => this;
   /** Build NK1 (Next of Kin) Segment */
-  buildNK1: (props: NK1) => this;
+  buildNK1: (properties: NK1) => this;
   /** Build NPU (Bed Status Update) Segment */
-  buildNPU: (props: NPU) => this;
+  buildNPU: (properties: NPU) => this;
   /** Build NSC (Network Change) Segment */
-  buildNSC: (props: NSC) => this;
+  buildNSC: (properties: NSC) => this;
   /** Build NST (Statistics) Segment */
-  buildNST: (props: any) => this;
+  buildNST: (properties: any) => this;
   /** Build NTE (Notes and Comments) Segment */
-  buildNTE: (props: NTE) => this;
+  buildNTE: (properties: NTE) => this;
   /** Build OBR (Observation Request) Segment */
-  buildOBR: (props: OBR) => this;
+  buildOBR: (properties: OBR) => this;
   /** Build OBX (Observation/Result) Segment */
-  buildOBX: (props: OBX) => this;
+  buildOBX: (properties: OBX) => this;
   /** Build ODS (Dietary Orders) Segment */
-  buildODS: (props: Partial<ODS>) => this;
+  buildODS: (properties: Partial<ODS>) => this;
   /** Build ODT (Diet Tray Instructions) Segment */
-  buildODT: (props: Partial<ODT>) => this;
+  buildODT: (properties: Partial<ODT>) => this;
   /** Build OM1 (General Attributes of an Observation) Segment */
-  buildOM1: (props: Partial<OM1>) => this;
+  buildOM1: (properties: Partial<OM1>) => this;
   /** Build OM2 (Numeric Observations) Segment */
-  buildOM2: (props: Partial<OM2>) => this;
+  buildOM2: (properties: Partial<OM2>) => this;
   /** Build OM3 (Categorical Test/Observation) Segment */
-  buildOM3: (props: Partial<OM3>) => this;
+  buildOM3: (properties: Partial<OM3>) => this;
   /** Build OM4 (Observations Requiring Specimens) Segment */
-  buildOM4: (props: Partial<OM4>) => this;
+  buildOM4: (properties: Partial<OM4>) => this;
   /** Build OM5 (Observation Batteries) Segment */
-  buildOM5: (props: Partial<OM5>) => this;
+  buildOM5: (properties: Partial<OM5>) => this;
   /** Build OM6 (Observations Copied from Other Observations) Segment */
-  buildOM6: (props: Partial<OM6>) => this;
+  buildOM6: (properties: Partial<OM6>) => this;
   /** Build ORC (Common Order) Segment */
-  buildORC: (props: ORC) => this;
+  buildORC: (properties: ORC) => this;
   /** Build PCR (Possible Causal Relationship) Segment */
-  buildPCR: (props: Partial<PCR>) => this;
+  buildPCR: (properties: Partial<PCR>) => this;
   /** Build PD1 (Patient Additional Demographic) Segment */
-  buildPD1: (props: PD1) => this;
+  buildPD1: (properties: PD1) => this;
   /** Build PID (Patient Identification) Segment */
-  buildPID: (props: PID) => this;
+  buildPID: (properties: PID) => this;
   /** Build PR1 (Procedures) Segment */
-  buildPR1: (props: PR1) => this;
+  buildPR1: (properties: PR1) => this;
   /** Build PRA (Practitioner Detail) Segment */
-  buildPRA: (props: Partial<PRA>) => this;
+  buildPRA: (properties: Partial<PRA>) => this;
   /** Build PRB (Problem Detail) Segment */
-  buildPRB: (props: Partial<PRB>) => this;
+  buildPRB: (properties: Partial<PRB>) => this;
   /** Build PRD (Provider Data) Segment */
-  buildPRD: (props: Partial<PRD>) => this;
+  buildPRD: (properties: Partial<PRD>) => this;
   /** Build PSH (Product Summary Header) Segment */
-  buildPSH: (props: Partial<PSH>) => this;
+  buildPSH: (properties: Partial<PSH>) => this;
   /** Build PTH (Pathway) Segment */
-  buildPTH: (props: Partial<PTH>) => this;
+  buildPTH: (properties: Partial<PTH>) => this;
   /** Build PV1 (Patient Visit) Segment */
-  buildPV1: (props: PV1) => this;
+  buildPV1: (properties: PV1) => this;
   /** Build QRD (Query Definition) Segment */
-  buildQRD: (props: QRD) => this;
+  buildQRD: (properties: QRD) => this;
   /** Build QRF (Query Filter) Segment */
-  buildQRF: (props: QRF) => this;
+  buildQRF: (properties: QRF) => this;
   /** Build RDF (Table Row Definition) Segment */
-  buildRDF: (props: Partial<RDF>) => this;
+  buildRDF: (properties: Partial<RDF>) => this;
   /** Build RDT (Table Row Data) Segment */
-  buildRDT: (props: Partial<RDT>) => this;
+  buildRDT: (properties: Partial<RDT>) => this;
   /** Build REL (Clinical Relationship) Segment */
-  buildREL: (props: Partial<REL>) => this;
+  buildREL: (properties: Partial<REL>) => this;
   /** Build RGS (Resource Group) Segment */
-  buildRGS: (props: Partial<RGS>) => this;
+  buildRGS: (properties: Partial<RGS>) => this;
   /** Build ROL (Role) Segment */
-  buildROL: (props: Partial<ROL>) => this;
+  buildROL: (properties: Partial<ROL>) => this;
   /** Build RX1 (Pharmacy/Treatment Order) Segment */
-  buildRX1: (props: RX1) => this;
+  buildRX1: (properties: RX1) => this;
   /** Build RXA (Pharmacy/Treatment Administration) Segment */
-  buildRXA: (props: Partial<RXA>) => this;
+  buildRXA: (properties: Partial<RXA>) => this;
   /** Build RXD (Pharmacy/Treatment Dispense) Segment */
-  buildRXD: (props: Partial<RXD>) => this;
+  buildRXD: (properties: Partial<RXD>) => this;
   /** Build RXE (Pharmacy/Treatment Encoded Order) Segment */
-  buildRXE: (props: Partial<RXE>) => this;
+  buildRXE: (properties: Partial<RXE>) => this;
   /** Build RXG (Pharmacy/Treatment Give) Segment */
-  buildRXG: (props: Partial<RXG>) => this;
+  buildRXG: (properties: Partial<RXG>) => this;
   /** Build RXO (Pharmacy/Treatment Order) Segment */
-  buildRXO: (props: Partial<RXO>) => this;
+  buildRXO: (properties: Partial<RXO>) => this;
   /** Build RXR (Pharmacy/Treatment Route) Segment */
-  buildRXR: (props: Partial<RXR>) => this;
+  buildRXR: (properties: Partial<RXR>) => this;
   /** Build SCH (Scheduling Activity Information) Segment */
-  buildSCH: (props: Partial<SCH>) => this;
+  buildSCH: (properties: Partial<SCH>) => this;
   /** Build SFT (Software Segment) */
-  buildSFT: (props: Partial<SFT>) => this;
+  buildSFT: (properties: Partial<SFT>) => this;
   /** Build SPM (Specimen) Segment */
-  buildSPM: (props: Partial<SPM>) => this;
+  buildSPM: (properties: Partial<SPM>) => this;
   /** Build STF (Staff Identification) Segment */
-  buildSTF: (props: Partial<STF>) => this;
+  buildSTF: (properties: Partial<STF>) => this;
   /** Build STZ (Sterilization Parameter) Segment */
-  buildSTZ: (props: Partial<STZ>) => this;
+  buildSTZ: (properties: Partial<STZ>) => this;
   /** Build TXA (Transcription Document Header) Segment */
-  buildTXA: (props: Partial<TXA>) => this;
+  buildTXA: (properties: Partial<TXA>) => this;
   /** Build UB1 (UB82 Data) Segment */
-  buildUB1: (props: UB1) => this;
+  buildUB1: (properties: UB1) => this;
   /** Build UB2 (UB92 Data) Segment */
-  buildUB2: (props: Partial<UB2>) => this;
+  buildUB2: (properties: Partial<UB2>) => this;
   /** Build URD (Results/Update Definition) Segment */
-  buildURD: (props: URD) => this;
+  buildURD: (properties: URD) => this;
   /** Build URS (Unsolicited Selection) Segment */
-  buildURS: (props: URS) => this;
+  buildURS: (properties: URS) => this;
   /** Build VAR (Variance) Segment */
-  buildVAR: (props: Partial<VAR>) => this;
+  buildVAR: (properties: Partial<VAR>) => this;
   /** Check the MSH Header for this Specification validation. */
-  checkMSH: (props: MSH) => boolean;
+  checkMSH: (properties: MSH) => boolean;
   /** Export compiled HL7 String */
   toString: () => string;
+  /** Name of the HL7 Spec */
+  version: string;
 }

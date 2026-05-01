@@ -13,13 +13,13 @@
  * @since 4.0.0
  */
 export interface HL7_PRL {
+  obx3ObservationIdentifierOfParentResult?: string;
+  obx4SubIdOfParentResult?: string;
+  partOfObx5ObservationResultFromParent?: string;
   /** PRL.1 - OBX-3 Observation Identifier Of Parent Result */
   prl_1?: string;
-  obx3ObservationIdentifierOfParentResult?: string;
   /** PRL.2 - OBX-4 Sub-ID Of Parent Result */
   prl_2?: string;
-  obx4SubIdOfParentResult?: string;
   /** PRL.3 - Part Of OBX-5 Observation Result From Parent */
   prl_3?: string;
-  partOfObx5ObservationResultFromParent?: string;
 }

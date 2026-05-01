@@ -2,22 +2,6 @@
 export interface HL7_2_5_SPM {
   /** SPM.1 - Set ID */
   spm_1?: number | string;
-  /** SPM.2 - Specimen ID */
-  spm_2?: string;
-  /** SPM.3 - Specimen Parent IDs */
-  spm_3?: string;
-  /** SPM.4 - Specimen Type (required) */
-  spm_4: string;
-  /** SPM.5 - Specimen Type Modifier */
-  spm_5?: string;
-  /** SPM.6 - Specimen Additives */
-  spm_6?: string;
-  /** SPM.7 - Specimen Collection Method */
-  spm_7?: string;
-  /** SPM.8 - Specimen Source Site */
-  spm_8?: string;
-  /** SPM.9 - Specimen Source Site Modifier */
-  spm_9?: string;
   /** SPM.10 - Specimen Collection Site */
   spm_10?: string;
   /** SPM.11 - Specimen Role */
@@ -38,8 +22,10 @@ export interface HL7_2_5_SPM {
   spm_18?: Date | string;
   /** SPM.19 - Specimen Expiration Date/Time */
   spm_19?: Date | string;
+  /** SPM.2 - Specimen ID */
+  spm_2?: string;
   /** SPM.20 - Specimen Availability */
-  spm_20?: "Y" | "N";
+  spm_20?: "N" | "Y";
   /** SPM.21 - Specimen Reject Reason */
   spm_21?: string;
   /** SPM.22 - Specimen Quality */
@@ -54,4 +40,18 @@ export interface HL7_2_5_SPM {
   spm_26?: number | string;
   /** SPM.27 - Container Type */
   spm_27?: string;
+  /** SPM.3 - Specimen Parent IDs */
+  spm_3?: string;
+  /** SPM.4 - Specimen Type (required) */
+  spm_4: string;
+  /** SPM.5 - Specimen Type Modifier */
+  spm_5?: string;
+  /** SPM.6 - Specimen Additives */
+  spm_6?: string;
+  /** SPM.7 - Specimen Collection Method */
+  spm_7?: string;
+  /** SPM.8 - Specimen Source Site */
+  spm_8?: string;
+  /** SPM.9 - Specimen Source Site Modifier */
+  spm_9?: string;
 }

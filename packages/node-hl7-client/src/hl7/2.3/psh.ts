@@ -2,6 +2,16 @@
 export interface HL7_2_3_PSH {
   /** PSH.1 - Report Type (required) */
   psh_1: string;
+  /** PSH.10 - Quantity in Use */
+  psh_10?: string;
+  /** PSH.11 - Quantity in Use Method */
+  psh_11?: "A" | "E";
+  /** PSH.12 - Quantity in Use Comment */
+  psh_12?: string;
+  /** PSH.13 - Number of Product Experience Reports Filed by Facility */
+  psh_13?: string;
+  /** PSH.14 - Number of Product Experience Reports Filed by Distributor */
+  psh_14?: string;
   /** PSH.2 - Report Form Identifier */
   psh_2?: string;
   /** PSH.3 - Report Date (required) */
@@ -18,14 +28,4 @@ export interface HL7_2_3_PSH {
   psh_8?: "A" | "E";
   /** PSH.9 - Quantity Distributed Comment */
   psh_9?: string;
-  /** PSH.10 - Quantity in Use */
-  psh_10?: string;
-  /** PSH.11 - Quantity in Use Method */
-  psh_11?: "A" | "E";
-  /** PSH.12 - Quantity in Use Comment */
-  psh_12?: string;
-  /** PSH.13 - Number of Product Experience Reports Filed by Facility */
-  psh_13?: string;
-  /** PSH.14 - Number of Product Experience Reports Filed by Distributor */
-  psh_14?: string;
 }

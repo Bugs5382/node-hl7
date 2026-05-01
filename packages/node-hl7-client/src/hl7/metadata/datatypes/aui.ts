@@ -15,11 +15,11 @@
 export interface HL7_AUI {
   /** AUI.1 - Authorization Number */
   aui_1?: string;
-  authorizationNumber?: string;
   /** AUI.2 - Date */
   aui_2?: string;
-  date?: string;
   /** AUI.3 - Source */
   aui_3?: string;
+  authorizationNumber?: string;
+  date?: string;
   source?: string;
 }

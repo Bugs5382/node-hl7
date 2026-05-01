@@ -1,5 +1,6 @@
-import { Delimiters } from "@/declaration/enum";
 import { HL7Node } from "@/builder/interface/hL7Node";
+import { Delimiters } from "@/declaration/enum";
+
 import { NodeBase } from "./nodeBase";
 import { SubComponent } from "./subComponent";
 import { ValueNode } from "./valueNode";
@@ -13,16 +14,20 @@ export class Component extends ValueNode {
 
   /** @internal */
   read(path: string[]): HL7Node {
-    return this.children[parseInt(path.shift() as string) - 1];
-  }
-
-  /** @internal */
-  protected writeCore(path: string[], value: string): HL7Node {
-    return this.writeAtIndex(path, value, parseInt(path.shift() as string) - 1);
+    return this.children[Number.parseInt(path.shift() as string) - 1];
   }
 
   /** @internal */
   protected createChild(text: string, index: number): HL7Node {
     return new SubComponent(this, (index + 1).toString(), text);
+  }
+
+  /** @internal */
+  protected writeCore(path: string[], value: string): HL7Node {
+    return this.writeAtIndex(
+      path,
+      value,
+      Number.parseInt(path.shift() as string) - 1,
+    );
   }
 }
