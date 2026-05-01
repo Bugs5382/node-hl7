@@ -10,15 +10,13 @@ export { Batch } from "./builder/batch";
 export { FileBatch } from "./builder/fileBatch";
 export { type HL7Node } from "./builder/interface/hL7Node";
 
-export type { NotifyPendingCount,  };
-
 export { Message } from "./builder/message";
 export { EmptyNode } from "./builder/modules/emptyNode";
 export { NodeBase } from "./builder/modules/nodeBase";
 export { Segment } from "./builder/modules/segment";
 export { SegmentList } from "./builder/modules/segmentList";
 export { Client, Client as default } from "./client/client";
-export {Connection, type IConnection} from "./client/connection";
+export { Connection, type IConnection } from "./client/connection";
 export { InboundResponse } from "./client/inboundResponse";
 
 export { Delimiters, ReadyState } from "./declaration/enum";
@@ -38,7 +36,10 @@ export type {
   ClientBuilderOptions,
   ClientListenerOptions,
   ClientOptions,
-  FallBackHandler, MessageItem, OutboundHandler,
+  FallBackHandler,
+  MessageItem,
+  NotifyPendingCount,
+  OutboundHandler,
 } from "./modules/types";
 export { assertNumber } from "@/utils/assertNumber";
 export { createHL7Date, padHL7Date } from "@/utils/createHL7Date";
