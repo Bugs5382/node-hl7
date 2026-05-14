@@ -28,9 +28,8 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //   client.crt — client cert signed by that same CA (so server trusts us)
 //   client.key — client private key
 
-import fs from "node:fs";
-
 import Client, { Message } from "node-hl7-client";
+import fs from "node:fs";
 
 const HOST = process.env.SMOKE_HOST || "127.0.0.1";
 const PORT = Number(process.env.SMOKE_PORT || 3000);
