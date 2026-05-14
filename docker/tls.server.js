@@ -81,7 +81,7 @@ if (tlsCaPath) {
 const server = new Server({ bindAddress: BIND, tls });
 
 const inbound = server.createInbound(
-  { name: "hl7-listener-tls", port: PORT },
+  { name: "HL7_LISTENER_TLS", port: PORT },
   async (request, res) => {
     const message = request.getMessage();
     const sock = request.getSocket();
