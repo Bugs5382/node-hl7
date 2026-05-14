@@ -70,55 +70,44 @@ export class HL7_2_7 extends HL7_2_6 {
   protected _buildIPC(properties: Partial<HL7_2_7_IPC>): void {
     this._assertSegmentInVersion(IPC_SPEC);
     this._segment = this._message.addSegment("IPC");
-    this._validatorSetField(IPC_SPEC,
-    1,
-    properties.ipc_1,
-    { length: { min: 1, max: 427 } });
-    this._validatorSetField(IPC_SPEC,
-    2,
-    properties.ipc_2,
-    { length: { min: 1, max: 22 } });
-    this._validatorSetField(IPC_SPEC,
-    3,
-    properties.ipc_3,
-    { length: { min: 1, max: 70 } });
-    this._validatorSetField(IPC_SPEC,
-    4,
-    properties.ipc_4,
-    { length: { min: 1, max: 22 } });
-    this._validatorSetField(IPC_SPEC,
-    5,
-    properties.ipc_5,
-    { length: { min: 1, max: 16 } });
-    this._validatorSetField(IPC_SPEC,
-    6,
-    properties.ipc_6,
-    { length: { min: 1, max: 250 } });
-    this._validatorSetField(IPC_SPEC,
-    7,
-    properties.ipc_7,
-    { length: { min: 1, max: 22 } });
-    this._validatorSetField(IPC_SPEC,
-    8,
-    properties.ipc_8,
-    { length: { min: 1, max: 250 } });
+    this._validatorSetField(IPC_SPEC, 1, properties.ipc_1, {
+      length: { max: 427, min: 1 },
+    });
+    this._validatorSetField(IPC_SPEC, 2, properties.ipc_2, {
+      length: { max: 22, min: 1 },
+    });
+    this._validatorSetField(IPC_SPEC, 3, properties.ipc_3, {
+      length: { max: 70, min: 1 },
+    });
+    this._validatorSetField(IPC_SPEC, 4, properties.ipc_4, {
+      length: { max: 22, min: 1 },
+    });
+    this._validatorSetField(IPC_SPEC, 5, properties.ipc_5, {
+      length: { max: 16, min: 1 },
+    });
+    this._validatorSetField(IPC_SPEC, 6, properties.ipc_6, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(IPC_SPEC, 7, properties.ipc_7, {
+      length: { max: 22, min: 1 },
+    });
+    this._validatorSetField(IPC_SPEC, 8, properties.ipc_8, {
+      length: { max: 250, min: 1 },
+    });
   }
 
   protected _buildISD(properties: Partial<HL7_2_7_ISD>): void {
     this._assertSegmentInVersion(ISD_SPEC);
     this._segment = this._message.addSegment("ISD");
-    this._validatorSetField(ISD_SPEC,
-    1,
-    String(properties.isd_1 ?? ""),
-    { length: { min: 1, max: 10 } });
-    this._validatorSetField(ISD_SPEC,
-    2,
-    properties.isd_2,
-    { length: { min: 1, max: 250 } });
-    this._validatorSetField(ISD_SPEC,
-    3,
-    properties.isd_3,
-    { length: { min: 1, max: 250 } });
+    this._validatorSetField(ISD_SPEC, 1, String(properties.isd_1 ?? ""), {
+      length: { max: 10, min: 1 },
+    });
+    this._validatorSetField(ISD_SPEC, 2, properties.isd_2, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(ISD_SPEC, 3, properties.isd_3, {
+      length: { max: 250, min: 1 },
+    });
   }
 
   protected _buildMSH(properties: Partial<HL7_2_1_MSH>): void {
@@ -151,18 +140,16 @@ export class HL7_2_7 extends HL7_2_6 {
     );
     this._validatorSetValue("8", msh.msh_8, { length: { max: 40, min: 1 } });
     this._validatorSetValue("9.1", msh.msh_9_1, {
-      length: { min: 1, max: 3 },
+      length: { max: 3, min: 1 },
       required: true,
     });
     this._validatorSetValue("9.2", msh.msh_9_2, {
-      length: { min: 1, max: 3 },
+      length: { max: 3, min: 1 },
       required: true,
     });
     this._validatorSetValue(
       "9.3",
-      msh.msh_9_3 === undefined
-        ? `${msh.msh_9_1}_${msh.msh_9_2}`
-        : msh.msh_9_3,
+      msh.msh_9_3 === undefined ? `${msh.msh_9_1}_${msh.msh_9_2}` : msh.msh_9_3,
       { length: { max: 15, min: 3 } },
     );
     this._validatorSetValue("10", msh.msh_10 || randomString(), {

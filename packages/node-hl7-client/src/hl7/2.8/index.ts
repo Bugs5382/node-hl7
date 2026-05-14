@@ -48,8 +48,8 @@ export class HL7_2_8 extends HL7_2_7_1 {
    *
    * @since 4.0.0
    */
-  buildECD(props: Partial<HL7_2_8_ECD>): this {
-    return super.buildECD(props as Partial<HL7_2_8_ECD>);
+  buildECD(properties: Partial<HL7_2_8_ECD>): this {
+    return super.buildECD(properties as Partial<HL7_2_8_ECD>);
   }
 
   checkMSH(msh: HL7_2_8_MSH): boolean {
@@ -59,22 +59,18 @@ export class HL7_2_8 extends HL7_2_7_1 {
   protected _buildSTZ(properties: Partial<HL7_2_8_STZ>): void {
     this._assertSegmentInVersion(STZ_SPEC);
     this._segment = this._message.addSegment("STZ");
-    this._validatorSetField(STZ_SPEC,
-    1,
-    properties.stz_1,
-    { length: { min: 1, max: 250 } });
-    this._validatorSetField(STZ_SPEC,
-    2,
-    properties.stz_2,
-    { length: { min: 1, max: 250 } });
-    this._validatorSetField(STZ_SPEC,
-    3,
-    properties.stz_3,
-    { length: { min: 1, max: 250 } });
-    this._validatorSetField(STZ_SPEC,
-    4,
-    properties.stz_4,
-    { length: { min: 1, max: 250 } });
+    this._validatorSetField(STZ_SPEC, 1, properties.stz_1, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(STZ_SPEC, 2, properties.stz_2, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(STZ_SPEC, 3, properties.stz_3, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(STZ_SPEC, 4, properties.stz_4, {
+      length: { max: 250, min: 1 },
+    });
     // STZ.5 was present in early-draft tooling but Caristix v2.8 publishes
     // only 4 fields for STZ; the spec is authoritative, so don't emit a 5th.
   }
