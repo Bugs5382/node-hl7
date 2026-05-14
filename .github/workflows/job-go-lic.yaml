@@ -42,4 +42,4 @@ jobs:
         run: |
           export PATH=${PATH}:`go env GOPATH`/bin
           go install github.com/Bugs5382/golic/cmd/golic@v0.2.0
-          golic inject --dry -x -t mit -c "2026 Shane & Contributors"
+          golic inject -t mit -c "2026 Shane" --dry -x
