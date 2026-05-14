@@ -61,6 +61,8 @@ export class RootBase extends NodeBase {
   private readonly _matchUnescape: RegExp;
 
   constructor(opt: ClientBuilderMessageOptions) {
+    // RootBase has no parent — NodeBase models the absent parent as `null`.
+    // eslint-disable-next-line unicorn/no-null
     super(null, opt.text, Delimiters.Segment);
 
     this._delimiters = `${opt.newLine as string}${opt.separatorField as string}${opt.separatorComponent as string}${opt.separatorRepetition as string}${opt.separatorEscape as string}${opt.separatorSubComponent as string}`;

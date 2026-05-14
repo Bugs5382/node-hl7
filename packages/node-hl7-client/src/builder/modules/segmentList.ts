@@ -54,6 +54,16 @@ export class SegmentList extends NodeBase {
     return this._segments[0].read(path);
   }
 
+  /**
+   * Iterate over each segment in the list. Lets callers do
+   * `for (const seg of message.get("EVN")) { ... }` even when there is
+   * just one matching segment.
+   * @since 4.0.0
+   */
+  [Symbol.iterator](): Iterator<Segment> {
+    return this._segments[Symbol.iterator]();
+  }
+
   /** @internal */
   toString(): string {
     return this._segments[0].toString();

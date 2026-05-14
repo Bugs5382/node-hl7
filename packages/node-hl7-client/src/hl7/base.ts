@@ -1545,7 +1545,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
           `Component ${fieldPath}.${c.num} (${c.name}) is required`,
         );
       }
-      if (hasValue && c.length > 0) {
+      if (hasValue && c.length !== undefined) {
         const s = String(v);
         const max = typeof c.length === "number" ? c.length : c.length.max;
         const min = typeof c.length === "object" ? c.length.min : undefined;
@@ -1809,7 +1809,7 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
 
     if (rules.type === "number") {
       const number_ = Number(value);
-      if (isNaN(number_)) {
+      if (Number.isNaN(number_)) {
         this._validatorThrowError(
           errors,
           `Field ${fieldPath} must be a number`,

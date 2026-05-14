@@ -36,7 +36,7 @@ export const assertNumber = (
 ): void => {
   const value = properties[name];
   if (
-    isNaN(value) ||
+    Number.isNaN(value) ||
     !Number.isFinite(value) ||
     value < min ||
     (max != undefined && value > max)

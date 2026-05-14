@@ -112,7 +112,7 @@ export interface ClientListenerOptions extends ClientOptions {
    */
   autoConnect?: boolean;
   /** Encoding of the messages we expect from the HL7 message.
-   * @default "utf-8"
+   * @default "utf8"
    */
   encoding?: BufferEncoding;
   /**

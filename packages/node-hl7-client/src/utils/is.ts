@@ -54,7 +54,7 @@ export const isFile = (message: string): boolean => {
  */
 export const isHL7Number = (value: number | string): boolean => {
   value = typeof value === "string" ? Number.parseInt(value) : value;
-  return !isNaN(value) || !Number.isFinite(value);
+  return !Number.isNaN(value) || !Number.isFinite(value);
 };
 
 /**

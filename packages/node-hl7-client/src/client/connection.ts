@@ -347,7 +347,6 @@ export class Connection extends EventEmitter implements IConnection {
 
   /** @internal */
   protected _connect(): Socket {
-    let socket: Socket;
     const host = this._main._opt.host;
     const port = this._opt.port;
     const family = this._main._opt.family;
@@ -371,7 +370,7 @@ export class Connection extends EventEmitter implements IConnection {
 
     this._retryTimer = undefined;
 
-    socket =
+    const socket: Socket =
       this._main._opt.tls === undefined
         ? net.connect({
             host: dialHost,
@@ -482,10 +481,12 @@ export class Connection extends EventEmitter implements IConnection {
         try {
           const loadedMessage = this._codec?.getLastMessage();
 
+          if (loadedMessage == null) {
+            return;
+          }
+
           // copy the completed message to continue processing and clear the buffer
-          const completedMessageCopy = JSON.parse(
-            JSON.stringify(loadedMessage),
-          );
+          const completedMessageCopy = structuredClone(loadedMessage);
 
           // parser either is batch or a message
           let parser: Batch | FileBatch | Message;
@@ -500,7 +501,7 @@ export class Connection extends EventEmitter implements IConnection {
               // load the messages
               const allMessage = parser.messages();
               // loop messages
-              allMessage.forEach((message: Message) => {
+              for (const message of allMessage) {
                 // parse this message
                 const messageParsed = new Message({ text: message.toString() });
                 // increase the total message
@@ -511,7 +512,7 @@ export class Connection extends EventEmitter implements IConnection {
                 this.emit("client.acknowledged", this.stats.acknowledged);
                 // send it back
                 void this._handler(response);
-              });
+              }
             } else {
               // parse this message
               const messageParsed = new Message({ text: completedMessageCopy });

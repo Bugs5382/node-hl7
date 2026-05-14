@@ -25,6 +25,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  * @since 1.0.0
  */
 export interface HL7Node {
+  [Symbol.iterator]: () => Iterator<HL7Node>;
   exists: (path: number | string) => boolean;
   forEach: (callback: (value: HL7Node, index: number) => void) => void;
 

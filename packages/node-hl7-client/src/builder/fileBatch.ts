@@ -137,16 +137,19 @@ export class FileBatch extends RootBase {
     }
 
     if (this._opt.location !== undefined) {
+      // Use synchronous fs APIs so callers can read the file immediately
+      // after createFile() returns. The async + fire-and-forget pattern that
+      // lived here previously had a race where the file did not exist yet
+      // when downstream code (e.g. FileBatch(fullFilePath)) tried to read it.
       if (!fs.existsSync(this._opt.location)) {
-        fs.mkdir(this._opt.location, { recursive: true }, () => {});
+        fs.mkdirSync(this._opt.location, { recursive: true });
       }
 
       this._fileName = `hl7.${name}.${getFSHDate}.${this._opt.extension as string}`;
 
-      fs.appendFile(
+      fs.appendFileSync(
         path.join(this._opt.location, this._fileName),
         this.toString(),
-        () => {},
       );
     }
   }

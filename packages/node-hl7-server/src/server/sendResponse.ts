@@ -79,7 +79,7 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
    */
   async sendResponse(
     type: validMSA1,
-    encoding: BufferEncoding = "utf-8",
+    encoding: BufferEncoding = "utf8",
   ): Promise<void> {
     try {
       this._ack = this._createAckMessage(type, this._message);

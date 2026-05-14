@@ -168,7 +168,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       AIG_SPEC,
       8,
-      properties.aig_8 instanceof Date && !isNaN(properties.aig_8.getTime())
+      properties.aig_8 instanceof Date &&
+        !Number.isNaN(properties.aig_8.getTime())
         ? this.setDate(properties.aig_8, this._opt.date)
         : (properties.aig_8 ?? ""),
       { type: "date" },
@@ -215,7 +216,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       AIL_SPEC,
       6,
-      properties.ail_6 instanceof Date && !isNaN(properties.ail_6.getTime())
+      properties.ail_6 instanceof Date &&
+        !Number.isNaN(properties.ail_6.getTime())
         ? this.setDate(properties.ail_6, this._opt.date)
         : (properties.ail_6 ?? ""),
       { type: "date" },
@@ -262,7 +264,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       AIP_SPEC,
       6,
-      properties.aip_6 instanceof Date && !isNaN(properties.aip_6.getTime())
+      properties.aip_6 instanceof Date &&
+        !Number.isNaN(properties.aip_6.getTime())
         ? this.setDate(properties.aip_6, this._opt.date)
         : (properties.aip_6 ?? ""),
       { type: "date" },
@@ -303,7 +306,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       AIS_SPEC,
       4,
-      properties.ais_4 instanceof Date && !isNaN(properties.ais_4.getTime())
+      properties.ais_4 instanceof Date &&
+        !Number.isNaN(properties.ais_4.getTime())
         ? this.setDate(properties.ais_4, this._opt.date)
         : (properties.ais_4 ?? ""),
       { type: "date" },
@@ -357,7 +361,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       CSP_SPEC,
       2,
-      properties.csp_2 instanceof Date && !isNaN(properties.csp_2.getTime())
+      properties.csp_2 instanceof Date &&
+        !Number.isNaN(properties.csp_2.getTime())
         ? this.setDate(properties.csp_2, this._opt.date)
         : (properties.csp_2 ?? ""),
       { type: "date" },
@@ -365,7 +370,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       CSP_SPEC,
       3,
-      properties.csp_3 instanceof Date && !isNaN(properties.csp_3.getTime())
+      properties.csp_3 instanceof Date &&
+        !Number.isNaN(properties.csp_3.getTime())
         ? this.setDate(properties.csp_3, this._opt.date)
         : (properties.csp_3 ?? ""),
       { type: "date" },
@@ -396,7 +402,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       CSR_SPEC,
       6,
-      properties.csr_6 instanceof Date && !isNaN(properties.csr_6.getTime())
+      properties.csr_6 instanceof Date &&
+        !Number.isNaN(properties.csr_6.getTime())
         ? this.setDate(properties.csr_6, this._opt.date)
         : (properties.csr_6 ?? ""),
       { type: "date" },
@@ -410,7 +417,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       CSR_SPEC,
       9,
-      properties.csr_9 instanceof Date && !isNaN(properties.csr_9.getTime())
+      properties.csr_9 instanceof Date &&
+        !Number.isNaN(properties.csr_9.getTime())
         ? this.setDate(properties.csr_9, this._opt.date)
         : (properties.csr_9 ?? ""),
       { type: "date" },
@@ -421,7 +429,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       CSR_SPEC,
       11,
-      properties.csr_11 instanceof Date && !isNaN(properties.csr_11.getTime())
+      properties.csr_11 instanceof Date &&
+        !Number.isNaN(properties.csr_11.getTime())
         ? this.setDate(properties.csr_11, this._opt.date)
         : (properties.csr_11 ?? ""),
       { type: "date" },
@@ -438,7 +447,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       CSR_SPEC,
       15,
-      properties.csr_15 instanceof Date && !isNaN(properties.csr_15.getTime())
+      properties.csr_15 instanceof Date &&
+        !Number.isNaN(properties.csr_15.getTime())
         ? this.setDate(properties.csr_15, this._opt.date)
         : (properties.csr_15 ?? ""),
       { type: "date" },
@@ -457,7 +467,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       CSS_SPEC,
       2,
-      properties.css_2 instanceof Date && !isNaN(properties.css_2.getTime())
+      properties.css_2 instanceof Date &&
+        !Number.isNaN(properties.css_2.getTime())
         ? this.setDate(properties.css_2, this._opt.date)
         : (properties.css_2 ?? ""),
       { type: "date" },
@@ -516,7 +527,7 @@ export class HL7_2_3 extends HL7_2_2 {
     });
     this._validatorSetValue(
       "7",
-      msh.msh_7 instanceof Date && !isNaN(msh.msh_7.getTime())
+      msh.msh_7 instanceof Date && !Number.isNaN(msh.msh_7.getTime())
         ? this.setDate(msh.msh_7, this._opt.date)
         : this.setDate(new Date(), this._opt.date),
       { required: true, type: "date" },
@@ -570,7 +581,7 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       NK1_SPEC,
       8,
-      nk1.nk1_8 instanceof Date && !isNaN(nk1.nk1_8.getTime())
+      nk1.nk1_8 instanceof Date && !Number.isNaN(nk1.nk1_8.getTime())
         ? this.setDate(nk1.nk1_8, this._opt.date)
         : (nk1.nk1_8 ?? ""),
       { type: "date" },
@@ -578,7 +589,7 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       NK1_SPEC,
       9,
-      nk1.nk1_9 instanceof Date && !isNaN(nk1.nk1_9.getTime())
+      nk1.nk1_9 instanceof Date && !Number.isNaN(nk1.nk1_9.getTime())
         ? this.setDate(nk1.nk1_9, this._opt.date)
         : (nk1.nk1_9 ?? ""),
       { type: "date" },
@@ -602,7 +613,7 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       NK1_SPEC,
       16,
-      nk1.nk1_16 instanceof Date && !isNaN(nk1.nk1_16.getTime())
+      nk1.nk1_16 instanceof Date && !Number.isNaN(nk1.nk1_16.getTime())
         ? this.setDate(nk1.nk1_16, this._opt.date)
         : (nk1.nk1_16 ?? ""),
       { type: "date" },
@@ -628,7 +639,7 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       OBR_SPEC,
       36,
-      obr.obr_36 instanceof Date && !isNaN(obr.obr_36.getTime())
+      obr.obr_36 instanceof Date && !Number.isNaN(obr.obr_36.getTime())
         ? this.setDate(obr.obr_36, this._opt.date)
         : (obr.obr_36 ?? ""),
       { type: "date" },
@@ -704,7 +715,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       PCR_SPEC,
       5,
-      properties.pcr_5 instanceof Date && !isNaN(properties.pcr_5.getTime())
+      properties.pcr_5 instanceof Date &&
+        !Number.isNaN(properties.pcr_5.getTime())
         ? this.setDate(properties.pcr_5, this._opt.date)
         : (properties.pcr_5 ?? ""),
       { type: "date" },
@@ -712,7 +724,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       PCR_SPEC,
       6,
-      properties.pcr_6 instanceof Date && !isNaN(properties.pcr_6.getTime())
+      properties.pcr_6 instanceof Date &&
+        !Number.isNaN(properties.pcr_6.getTime())
         ? this.setDate(properties.pcr_6, this._opt.date)
         : (properties.pcr_6 ?? ""),
       { type: "date" },
@@ -720,7 +733,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       PCR_SPEC,
       7,
-      properties.pcr_7 instanceof Date && !isNaN(properties.pcr_7.getTime())
+      properties.pcr_7 instanceof Date &&
+        !Number.isNaN(properties.pcr_7.getTime())
         ? this.setDate(properties.pcr_7, this._opt.date)
         : (properties.pcr_7 ?? ""),
       { type: "date" },
@@ -728,7 +742,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       PCR_SPEC,
       8,
-      properties.pcr_8 instanceof Date && !isNaN(properties.pcr_8.getTime())
+      properties.pcr_8 instanceof Date &&
+        !Number.isNaN(properties.pcr_8.getTime())
         ? this.setDate(properties.pcr_8, this._opt.date)
         : (properties.pcr_8 ?? ""),
       { type: "date" },
@@ -763,7 +778,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       PCR_SPEC,
       18,
-      properties.pcr_18 instanceof Date && !isNaN(properties.pcr_18.getTime())
+      properties.pcr_18 instanceof Date &&
+        !Number.isNaN(properties.pcr_18.getTime())
         ? this.setDate(properties.pcr_18, this._opt.date)
         : (properties.pcr_18 ?? ""),
       { type: "date" },
@@ -841,7 +857,7 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       PID_SPEC,
       29,
-      pid.pid_29 instanceof Date && !isNaN(pid.pid_29.getTime())
+      pid.pid_29 instanceof Date && !Number.isNaN(pid.pid_29.getTime())
         ? this.setDate(pid.pid_29, this._opt.date)
         : (pid.pid_29 ?? ""),
       { type: "date" },
@@ -880,7 +896,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       PRA_SPEC,
       8,
-      properties.pra_8 instanceof Date && !isNaN(properties.pra_8.getTime())
+      properties.pra_8 instanceof Date &&
+        !Number.isNaN(properties.pra_8.getTime())
         ? this.setDate(properties.pra_8, this._opt.date)
         : (properties.pra_8 ?? ""),
       { type: "date" },
@@ -914,7 +931,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       PRD_SPEC,
       8,
-      properties.prd_8 instanceof Date && !isNaN(properties.prd_8.getTime())
+      properties.prd_8 instanceof Date &&
+        !Number.isNaN(properties.prd_8.getTime())
         ? this.setDate(properties.prd_8, this._opt.date)
         : (properties.prd_8 ?? ""),
       { type: "date" },
@@ -922,7 +940,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       PRD_SPEC,
       9,
-      properties.prd_9 instanceof Date && !isNaN(properties.prd_9.getTime())
+      properties.prd_9 instanceof Date &&
+        !Number.isNaN(properties.prd_9.getTime())
         ? this.setDate(properties.prd_9, this._opt.date)
         : (properties.prd_9 ?? ""),
       { type: "date" },
@@ -941,7 +960,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       PSH_SPEC,
       3,
-      properties.psh_3 instanceof Date && !isNaN(properties.psh_3.getTime())
+      properties.psh_3 instanceof Date &&
+        !Number.isNaN(properties.psh_3.getTime())
         ? this.setDate(properties.psh_3, this._opt.date)
         : (properties.psh_3 ?? ""),
       { type: "date" },
@@ -949,7 +969,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       PSH_SPEC,
       4,
-      properties.psh_4 instanceof Date && !isNaN(properties.psh_4.getTime())
+      properties.psh_4 instanceof Date &&
+        !Number.isNaN(properties.psh_4.getTime())
         ? this.setDate(properties.psh_4, this._opt.date)
         : (properties.psh_4 ?? ""),
       { type: "date" },
@@ -957,7 +978,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       PSH_SPEC,
       5,
-      properties.psh_5 instanceof Date && !isNaN(properties.psh_5.getTime())
+      properties.psh_5 instanceof Date &&
+        !Number.isNaN(properties.psh_5.getTime())
         ? this.setDate(properties.psh_5, this._opt.date)
         : (properties.psh_5 ?? ""),
       { type: "date" },
@@ -1045,7 +1067,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       ROL_SPEC,
       5,
-      properties.rol_5 instanceof Date && !isNaN(properties.rol_5.getTime())
+      properties.rol_5 instanceof Date &&
+        !Number.isNaN(properties.rol_5.getTime())
         ? this.setDate(properties.rol_5, this._opt.date)
         : (properties.rol_5 ?? ""),
       { type: "date" },
@@ -1053,7 +1076,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       ROL_SPEC,
       6,
-      properties.rol_6 instanceof Date && !isNaN(properties.rol_6.getTime())
+      properties.rol_6 instanceof Date &&
+        !Number.isNaN(properties.rol_6.getTime())
         ? this.setDate(properties.rol_6, this._opt.date)
         : (properties.rol_6 ?? ""),
       { type: "date" },
@@ -1155,7 +1179,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       VAR_SPEC,
       2,
-      properties.var_2 instanceof Date && !isNaN(properties.var_2.getTime())
+      properties.var_2 instanceof Date &&
+        !Number.isNaN(properties.var_2.getTime())
         ? this.setDate(properties.var_2, this._opt.date)
         : (properties.var_2 ?? ""),
       { type: "date" },
@@ -1163,7 +1188,8 @@ export class HL7_2_3 extends HL7_2_2 {
     this._validatorSetField(
       VAR_SPEC,
       3,
-      properties.var_3 instanceof Date && !isNaN(properties.var_3.getTime())
+      properties.var_3 instanceof Date &&
+        !Number.isNaN(properties.var_3.getTime())
         ? this.setDate(properties.var_3, this._opt.date)
         : (properties.var_3 ?? ""),
       { type: "date" },

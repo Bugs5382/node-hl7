@@ -328,7 +328,7 @@ describe("node hl7 server - issue coverage", () => {
       const CR = 0x0d;
       const framed = Buffer.concat([
         Buffer.from([VT]),
-        Buffer.from(text, "utf-8"),
+        Buffer.from(text, "utf8"),
         Buffer.from([FS, CR]),
       ]);
 
@@ -339,7 +339,7 @@ describe("node hl7 server - issue coverage", () => {
       });
 
       raw.on("data", (buf) => {
-        ackReceived.resolve(buf.toString("utf-8"));
+        ackReceived.resolve(buf.toString("utf8"));
       });
 
       // Write in 64-byte chunks with a microtask gap so the receiver sees

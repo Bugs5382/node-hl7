@@ -42,11 +42,14 @@ const die = (message) => {
   process.exit(1);
 };
 
-const overallTimer = setTimeout(
+// Keep the timer ref'd. Without this, if no connect/error/ack event ever
+// fires (e.g. the server starts but doesn't respond), the event loop drains
+// and Node aborts the top-level await with exit code 13 — masking the real
+// "no ACK in time" failure with a cryptic "unsettled top-level await" warning.
+setTimeout(
   () => die(`overall ${OVERALL_TIMEOUT_MS}ms timeout`),
   OVERALL_TIMEOUT_MS,
 );
-overallTimer.unref();
 
 const client = new Client({
   host: HOST,

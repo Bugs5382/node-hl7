@@ -62,7 +62,7 @@ export class NodeBase extends EventEmitter implements HL7Node {
   protected get children(): HL7Node[] {
     if (this._text !== "" && this._children.length === 0) {
       const parts = this._text.split(this.delimiter);
-      const children = Array.from({ length: parts.length });
+      const children: HL7Node[] = Array.from({ length: parts.length });
       for (let index = 0, l = parts.length; index < l; index++) {
         children[index] = this.createChild(parts[index], index);
       }
@@ -129,6 +129,10 @@ export class NodeBase extends EventEmitter implements HL7Node {
     return !value.isEmpty();
   }
 
+  [Symbol.iterator](): Iterator<HL7Node> {
+    return this.children[Symbol.iterator]();
+  }
+
   forEach(callback: (value: HL7Node, index: number) => void): void {
     const children = this.children;
     for (let index = 0, l = children.length; index < l; index++) {
@@ -168,8 +172,8 @@ export class NodeBase extends EventEmitter implements HL7Node {
 
     if (typeof path === "string") {
       if (Array.isArray(value)) {
-        for (let index = 0; index < value.length; index++) {
-          this.set(`${path}.${index + 1}`, value[index]);
+        for (const [index, item] of value.entries()) {
+          this.set(`${path}.${index + 1}`, item);
         }
       } else {
         const _path = this.preparePath(path);
@@ -273,7 +277,7 @@ export class NodeBase extends EventEmitter implements HL7Node {
     let parts = path.split(".");
     if (parts[0] === "") {
       parts.shift();
-      parts = this.path.concat(parts);
+      parts = [...this.path, ...parts];
     }
 
     if (!this._isSubPath(parts)) {

@@ -162,7 +162,7 @@ export class Inbound extends EventEmitter implements IInbound {
     messages: Message[],
     type: "batch" | "file",
   ) => {
-    messages.forEach((message: Message) => {
+    for (const message of messages) {
       const parsed = new Message({ text: message.toString() });
       ++this.stats.totalMessage;
 
@@ -175,7 +175,7 @@ export class Inbound extends EventEmitter implements IInbound {
 
       res.on("response.sent", () => this.emit("response.sent"));
       void this._handler(request, res);
-    });
+    }
   };
 
   /** @internal */
@@ -278,10 +278,12 @@ export class Inbound extends EventEmitter implements IInbound {
         const loadedMessage = codec.getLastMessage();
 
         try {
+          if (loadedMessage === null) {
+            return;
+          }
+
           // copy the completed message to continue processing and clear the buffer
-          const completedMessageCopy = JSON.parse(
-            JSON.stringify(loadedMessage),
-          ) as string;
+          const completedMessageCopy = structuredClone(loadedMessage);
 
           // send raw information to the emitting
           this.emit("data.raw", completedMessageCopy);

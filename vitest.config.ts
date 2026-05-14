@@ -34,15 +34,15 @@ export default defineConfig({
     {
       name: "monorepo-at-alias",
       resolveId(source, importer) {
-        if (!source.startsWith("@/") || !importer) return null;
+        if (!source.startsWith("@/") || !importer) return;
         const clientMatch = importer.match(
           /^(.+\/packages\/node-hl7-client\/src)\b/,
         );
         const serverMatch = importer.match(
           /^(.+\/packages\/node-hl7-server\/src)\b/,
         );
-        const srcDir = clientMatch?.[1] ?? serverMatch?.[1] ?? null;
-        if (!srcDir) return null;
+        const srcDir = clientMatch?.[1] ?? serverMatch?.[1];
+        if (!srcDir) return;
         const resolved = path.join(srcDir, source.slice(2));
         if (resolved.endsWith(".ts") || resolved.endsWith(".tsx"))
           return resolved;

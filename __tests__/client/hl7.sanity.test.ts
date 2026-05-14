@@ -36,7 +36,7 @@ describe("node hl7 client - sanity tests", () => {
   describe("Message", () => {
     test("rejects construction with no arguments", async () => {
       try {
-        const message = new Message();
+        new Message();
       } catch (error) {
         expect(error).toEqual(
           new HL7FatalError(
@@ -228,7 +228,7 @@ describe("node hl7 client - sanity tests", () => {
   describe("Batch", () => {
     test("rejects a single MSH payload as batch input", async () => {
       try {
-        const batch = new Batch({
+        new Batch({
           text: "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345||2.7\rEVN||20081231",
         });
       } catch (error) {
@@ -374,7 +374,7 @@ describe("node hl7 client - sanity tests", () => {
 
     test("Message rejects multi-MSH input and points to Batch", async () => {
       try {
-        const message = new Message({ text: hl7_batch_msh_string });
+        new Message({ text: hl7_batch_msh_string });
       } catch (error) {
         expect(error).toEqual(
           new HL7FatalError("Multiple MSH segments found. Use Batch."),

@@ -24,10 +24,7 @@ import { HL7Node } from "@/builder/interface/hL7Node";
 import { SegmentList } from "@/builder/modules/segmentList";
 import { normalizedClientMessageParserOptions } from "@/builder/normalizedParser";
 import { HL7FatalError, HL7ParserError } from "@/helpers/exception";
-import {
-  ClientBuilderMessageOptions,
-  ClientBuilderOptions,
-} from "@/modules/types";
+import { ClientBuilderMessageOptions } from "@/modules/types";
 import { createHL7Date } from "@/utils/createHL7Date";
 import { isHL7Number } from "@/utils/is";
 import { randomString } from "@/utils/randomString";
@@ -235,8 +232,8 @@ export class Message extends RootBase {
 
     if (typeof path === "string") {
       if (Array.isArray(value)) {
-        for (let index = 0; index < value.length; index++) {
-          this.set(`${path}.${index + 1}`, value[index]);
+        for (const [index, item] of value.entries()) {
+          this.set(`${path}.${index + 1}`, item);
         }
       } else {
         const _path = this.preparePath(path);

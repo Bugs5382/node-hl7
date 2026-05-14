@@ -43,7 +43,7 @@ export class ParserPlan {
    * @param data
    */
   constructor(data: string) {
-    const seps = data.split("");
+    const seps = [...data];
 
     this.separatorField = seps[0];
     this.separatorRepetition = seps.length > 2 ? seps[2] : "~";

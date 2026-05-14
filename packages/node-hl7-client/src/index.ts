@@ -20,14 +20,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
-import { HL7Node } from "./builder/interface/hL7Node";
-import { IConnection } from "./client/connection";
-import {
-  FallBackHandler,
-  NotifyPendingCount,
-  OutboundHandler,
-} from "./modules/types";
-
 export { Batch } from "./builder/batch";
 export { FileBatch } from "./builder/fileBatch";
 export { type HL7Node } from "./builder/interface/hL7Node";
@@ -64,6 +56,7 @@ export type {
   OutboundHandler,
 } from "./modules/types";
 export { assertNumber } from "@/utils/assertNumber";
+export { createDeferred } from "@/utils/createDeferred";
 export { createHL7Date, padHL7Date } from "@/utils/createHL7Date";
 export { decodeHexString } from "@/utils/decodeHexString";
 export { escapeForRegExp } from "@/utils/escapeForRegExp";

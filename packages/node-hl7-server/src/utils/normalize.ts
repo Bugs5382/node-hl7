@@ -36,13 +36,13 @@ import { BaseSendResponse } from "@/declaration/baseSendRequest";
 import { HL7ListenerError, HL7ServerError } from "./exception";
 
 const DEFAULT_SERVER_OPTS: Partial<ServerOptions> = {
-  encoding: "utf-8",
+  encoding: "utf8",
   ipv4: true,
   ipv6: false,
 };
 
 const DEFAULT_LISTENER_OPTS: Partial<ListenerOptions> = {
-  encoding: "utf-8",
+  encoding: "utf8",
 };
 
 /**
@@ -50,7 +50,7 @@ const DEFAULT_LISTENER_OPTS: Partial<ListenerOptions> = {
  */
 export interface ListenerOptions {
   /** Encoding of the messages we expect from the HL7 message.
-   * @default "utf-8"
+   * @default "utf8"
    */
   encoding?: BufferEncoding;
   /** Optional MSH segment overrides. See the readme for examples.
@@ -101,7 +101,7 @@ export interface ServerOptions {
    */
   bindAddress?: string;
   /** Encoding of the messages we expect from the HL7 message.
-   * @default "utf-8"
+   * @default "utf8"
    */
   encoding?: BufferEncoding;
   /** Accept IPv4 connections.
@@ -180,7 +180,7 @@ export function normalizeListenerOptions(
   }
 
   // this might seem not needed, but it is. don't change no matter what! :)
-  if (typeof merged.port !== "number" || isNaN(merged.port)) {
+  if (typeof merged.port !== "number" || Number.isNaN(merged.port)) {
     throw new HL7ListenerError("port is not a valid number.");
   }
 
@@ -258,7 +258,7 @@ export function normalizeServerOptions(
   return {
     ...merged,
     bindAddress: merged.bindAddress,
-    encoding: merged.encoding ?? "utf-8",
+    encoding: merged.encoding ?? "utf8",
     ipv4: merged.ipv4 ?? true,
     ipv6: merged.ipv6 ?? true,
     ipv6Only,

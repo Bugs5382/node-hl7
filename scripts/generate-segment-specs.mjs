@@ -200,7 +200,7 @@ const allSegmentNames = new Set();
 for (const v of VERSIONS) {
   for (const s of segmentsByVersion[v]) allSegmentNames.add(s.id);
 }
-const sortedNames = [...allSegmentNames].sort();
+const sortedNames = [...allSegmentNames].toSorted();
 console.log(
   `\nTotal unique segments across all versions: ${sortedNames.length}\n`,
 );
@@ -230,11 +230,11 @@ console.log(`  fetched ${fetchTasks.length} segment-version detail records\n`);
  */
 function buildSpec(name) {
   const presence = VERSIONS.filter((v) => detailsByVersionAndName[v][name]);
-  if (presence.length === 0) return null;
+  if (presence.length === 0) return;
 
   // Pick a description — use the latest version that has one.
   let description = name;
-  for (const v of [...presence].reverse()) {
+  for (const v of [...presence].toReversed()) {
     const d = detailsByVersionAndName[v][name];
     if (d?.longName) {
       description = d.longName;
@@ -252,8 +252,8 @@ function buildSpec(name) {
   const fields = [];
   for (let pos = 1; pos <= maxFields; pos++) {
     // Find canonical field metadata from the latest version that has this position.
-    let canonical = null;
-    for (const v of [...presence].reverse()) {
+    let canonical;
+    for (const v of [...presence].toReversed()) {
       const f = detailsByVersionAndName[v][name].fields?.[pos - 1];
       if (f) {
         canonical = f;
@@ -275,7 +275,7 @@ function buildSpec(name) {
     // the DataType cache (latest available version where the segment exists).
     let components;
     if (canonical.dataType) {
-      for (const v of [...presence].reverse()) {
+      for (const v of [...presence].toReversed()) {
         const lookup = v === "2.8" ? "2.8" : v;
         const subs = componentsByVersionAndType[lookup]?.[canonical.dataType];
         if (subs && subs.length > 0) {
@@ -322,8 +322,11 @@ function renderSpec(spec) {
     `  fields: [`,
   ];
   for (const f of spec.fields) {
-    lines.push(`    {`, `      num: ${f.num},`);
-    lines.push(`      name: ${JSON.stringify(f.name)},`);
+    lines.push(
+      `    {`,
+      `      num: ${f.num},`,
+      `      name: ${JSON.stringify(f.name)},`,
+    );
     if (f.hl7Type) lines.push(`      hl7Type: ${JSON.stringify(f.hl7Type)},`);
     // Caristix `length` is the maximum field length, not an exact length.
     // Render as `{ max: N }` so the validator's range-check path applies and
@@ -381,6 +384,11 @@ for (const name of generated) {
     `export { ${name}_SPEC } from "@/hl7/metadata/segments/${name.toLowerCase()}";`,
   );
 }
+const segmentSpecEntries = generated
+  .map((name) => `  ${name}: ${name}_SPEC,`)
+  .join("\n");
+const EXPORT_CONST = "export const";
+// noinspection JSConstWithoutInitializer
 barrelLines.push(
   ``,
   `/**`,
@@ -388,12 +396,9 @@ barrelLines.push(
   ` *`,
   ` * @since RELEASE_VERSION_PLACEHOLDER `,
   ` */`,
-  `export const SEGMENT_SPECS: Readonly<Record<string, SegmentSpec>> = {`,
+  `${EXPORT_CONST} SEGMENT_SPECS: Readonly<Record<string, SegmentSpec>> = {\n${segmentSpecEntries}\n};`,
+  ``,
 );
-for (const name of generated) {
-  barrelLines.push(`  ${name}: ${name}_SPEC,`);
-}
-barrelLines.push(`};`, ``);
 
 fs.writeFileSync(path.join(OUT_DIR, "index.ts"), barrelLines.join("\n"));
 
@@ -431,7 +436,7 @@ function camelize(name) {
  * we want the most permissive shape).
  */
 function pickCanonicalComponents(dtId) {
-  let best = null;
+  let best;
   for (const v of VERSIONS) {
     const subs = componentsByVersionAndType[v]?.[dtId];
     if (subs && (!best || subs.length > best.length)) best = subs;
@@ -445,7 +450,7 @@ for (const v of VERSIONS) {
     allDataTypeIds.add(id);
   }
 }
-const sortedDtIds = [...allDataTypeIds].sort();
+const sortedDtIds = [...allDataTypeIds].toSorted();
 
 const generatedDts = [];
 for (const dtId of sortedDtIds) {
@@ -502,6 +507,23 @@ for (const id of generatedDts) {
     `export type { HL7_${id} } from "@/hl7/metadata/datatypes/${id.toLowerCase()}";`,
   );
 }
+const dataTypeEntries = generatedDts
+  .map((id) => {
+    const subs = pickCanonicalComponents(id);
+    const compactSubs = subs.map((c) => {
+      const parts = [`num: ${c.num}`, `name: ${JSON.stringify(c.name)}`];
+      if (c.hl7Type) parts.push(`hl7Type: ${JSON.stringify(c.hl7Type)}`);
+      if (typeof c.length === "number")
+        parts.push(`length: { max: ${c.length} }`);
+      if (typeof c.table === "number") parts.push(`table: ${c.table}`);
+      if (c.usage) parts.push(`usage: ${JSON.stringify(c.usage)}`);
+      if (c.rpt) parts.push(`rpt: ${JSON.stringify(c.rpt)}`);
+      return `    { ${parts.join(", ")} }`;
+    });
+    return `  ${id}: [\n${compactSubs.join(",\n")},\n  ],`;
+  })
+  .join("\n");
+// noinspection JSConstWithoutInitializer
 dtBarrel.push(
   ``,
   `/**`,
@@ -513,27 +535,11 @@ dtBarrel.push(
   ` * composite types only ever grow (added components never break older`,
   ` * positions).`,
   ` *`,
-, 
   ` * @since 4.0.0`,
   ` */`,
-  `export const DATA_TYPES: Readonly<Record<string, readonly ComponentSpec[]>> = {`,
+  `${EXPORT_CONST} DATA_TYPES: Readonly<Record<string, readonly ComponentSpec[]>> = {\n${dataTypeEntries}\n};`,
+  ``,
 );
-for (const id of generatedDts) {
-  const subs = pickCanonicalComponents(id);
-  const compactSubs = subs.map((c) => {
-    const parts = [`num: ${c.num}`, `name: ${JSON.stringify(c.name)}`];
-    if (c.hl7Type) parts.push(`hl7Type: ${JSON.stringify(c.hl7Type)}`);
-    if (typeof c.length === "number")
-      parts.push(`length: { max: ${c.length} }`);
-    if (typeof c.table === "number") parts.push(`table: ${c.table}`);
-    if (c.usage) parts.push(`usage: ${JSON.stringify(c.usage)}`);
-    if (c.rpt) parts.push(`rpt: ${JSON.stringify(c.rpt)}`);
-    return `    { ${parts.join(", ")} }`;
-  });
-  dtBarrel.push(`  ${id}: [`);
-  dtBarrel.push(compactSubs.join(",\n") + ",", `  ],`);
-}
-dtBarrel.push(`};`, ``);
 fs.writeFileSync(path.join(DT_OUT_DIR, "index.ts"), dtBarrel.join("\n"));
 
 console.log(

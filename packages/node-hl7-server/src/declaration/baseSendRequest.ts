@@ -78,7 +78,7 @@ export class BaseSendResponse extends EventEmitter implements ISendRequest {
    *
    * @example
    *
-   * this._codec.sendMessage(socket, this.message.toString(), "utf-8");
+   * this._codec.sendMessage(socket, this.message.toString(), "utf8");
    *
    */
   getCodec() {
@@ -86,7 +86,7 @@ export class BaseSendResponse extends EventEmitter implements ISendRequest {
   }
 
   /**
-   * Get the socket used from the client which can be used to send a message back,
+   * Get the socket used from the client which can be used to send a message back;
    * however, you should always use the Codec class (@see getCodec()) as it can handle
    * long messages to encode the message in a way that a remote side can
    * understand.
@@ -121,7 +121,7 @@ export class BaseSendResponse extends EventEmitter implements ISendRequest {
    */
   async sendCustomResponse(
     message: Message | string,
-    encoding: BufferEncoding = "utf-8",
+    encoding: BufferEncoding = "utf8",
   ): Promise<void> {
     const ackMessage =
       typeof message === "string" ? new Message({ text: message }) : message;
@@ -136,7 +136,7 @@ export class BaseSendResponse extends EventEmitter implements ISendRequest {
    * @param _type
    * @param _encoding
    */
-  async sendResponse(_type: validMSA1, _encoding: BufferEncoding = "utf-8") {
+  async sendResponse(_type: validMSA1, _encoding: BufferEncoding = "utf8") {
     throw new Error("Method not implemented.");
   }
 

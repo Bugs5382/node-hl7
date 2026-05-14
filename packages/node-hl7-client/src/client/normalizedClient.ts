@@ -33,7 +33,7 @@ const DEFAULT_CLIENT_OPTS = {
   autoSelectFamily: true,
   autoSelectFamilyAttemptTimeout: 250,
   connectionTimeout: 0,
-  encoding: "utf-8",
+  encoding: "utf8",
   ipv4: true,
   ipv6: false,
   maxAttempts: 10,

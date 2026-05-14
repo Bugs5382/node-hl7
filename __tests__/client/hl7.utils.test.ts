@@ -93,7 +93,7 @@ describe("client utility functions", () => {
     });
 
     test("isHL7Number returns true for any input the predicate accepts", () => {
-      // Implementation is `!isNaN(value) || !Number.isFinite(value)` — the
+      // Implementation is `!Number.isNaN(value) || !Number.isFinite(value)` — the
       // second clause makes the predicate return true even for strings that
       // parseInt-coerce to NaN. Lock the current behavior.
       expect(isHL7Number("abc")).toBe(true);
@@ -104,6 +104,7 @@ describe("client utility functions", () => {
       expect(isHL7String("hello")).toBe(true);
       expect(isHL7String("")).toBe(true);
       expect(isHL7String(42 as any)).toBe(false);
+      // eslint-disable-next-line unicorn/no-null
       expect(isHL7String(null as any)).toBe(false);
       expect(isHL7String(undefined as any)).toBe(false);
     });

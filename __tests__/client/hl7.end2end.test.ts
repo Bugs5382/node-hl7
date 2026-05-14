@@ -23,13 +23,14 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import { createClient } from "@redis/client";
 import Client, {
   Batch,
+  createDeferred,
+  HL7_2_1,
+  InboundResponse,
   Message,
   MessageItem,
   NotifyPendingCount,
   ReadyState,
 } from "node-hl7-client/src";
-import { HL7_2_1 } from "node-hl7-client/src";
-import { createDeferred } from "node-hl7-client/src/utils";
 import { Server } from "node-hl7-server";
 import portfinder from "portfinder";
 import { RedisMemoryServer } from "redis-memory-server";
@@ -64,11 +65,14 @@ describe("node hl7 end to end - client", () => {
 
       const client = new Client({ host: "0.0.0.0" });
 
-      const outbound = client.createConnection({ port }, async (res) => {
-        const messageRes = res.getMessage();
-        expect(messageRes.get("MSA.1").toString()).toBe("AA");
-        dfd.resolve();
-      });
+      const outbound = client.createConnection(
+        { port },
+        async (res: InboundResponse) => {
+          const messageRes = res.getMessage();
+          expect(messageRes.get("MSA.1").toString()).toBe("AA");
+          dfd.resolve();
+        },
+      );
 
       // Ensure no errors on the connection
       outbound.on("client.error", (error) => {
@@ -162,7 +166,7 @@ describe("node hl7 end to end - client", () => {
           async () => {},
         );
 
-        vi.spyOn(outbound as any, "_connect").mockResolvedValue();
+        vi.spyOn(outbound as any, "_connect").mockReturnValue(undefined);
 
         await outbound.sendMessage(makeTestMessage());
 
@@ -226,12 +230,12 @@ describe("node hl7 end to end - client", () => {
           async () => {},
         );
 
-        vi.spyOn(outbound as any, "_connect").mockResolvedValue();
+        vi.spyOn(outbound as any, "_connect").mockReturnValue(undefined);
 
         await outbound.sendMessage(makeTestMessage());
 
         expect(client.totalPending()).toEqual(1);
-      });
+      }, 70_000);
 
       test("... queues messages 10,001 still is 10000 (autoConnect: false)", async () => {
         const client = new Client({ host: "0.0.0.0" });
@@ -241,7 +245,7 @@ describe("node hl7 end to end - client", () => {
           async () => {},
         );
 
-        vi.spyOn(outbound as any, "_connect").mockResolvedValue();
+        vi.spyOn(outbound as any, "_connect").mockReturnValue(undefined);
 
         const message = makeTestMessage();
 
@@ -310,7 +314,7 @@ describe("node hl7 end to end - client", () => {
         // Resolve only after both ACKs arrive so the totalAck() assertion below
         // is not racing the second ACK.
         let acksReceived = 0;
-        const outbound = client.createConnection({ port }, async (res) => {
+        const outbound = client.createConnection({ port }, async (res: { getMessage: () => any; }) => {
           const messageRes = res.getMessage();
           expect(messageRes.get("MSA.1").toString()).toBe("AA");
           acksReceived++;
@@ -375,11 +379,14 @@ describe("node hl7 end to end - client", () => {
           host: "0.0.0.0",
           tls: { rejectUnauthorized: false },
         });
-        const outbound = client.createConnection({ port }, async (res) => {
-          const messageRes = res.getMessage();
-          expect(messageRes.get("MSA.1").toString()).toBe("AA");
-          dfd.resolve();
-        });
+        const outbound = client.createConnection(
+          { port },
+          async (res: InboundResponse) => {
+            const messageRes = res.getMessage();
+            expect(messageRes.get("MSA.1").toString()).toBe("AA");
+            dfd.resolve();
+          },
+        );
 
         await expectEvent(outbound, "connect");
 

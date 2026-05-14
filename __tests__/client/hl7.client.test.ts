@@ -41,7 +41,6 @@ describe("node hl7 client", () => {
       test("port is set on outbound connection", async () => {
         const client = new Client({ host: "hl7.server.local" });
         const outbound = client.createConnection(
-          // @ts-ignore message is not doing anything
           { autoConnect: false, port: 12_345 },
           async () => {},
         );
@@ -161,8 +160,7 @@ describe("node hl7 client", () => {
     test("rejects enqueueMessage without flushQueue", async () => {
       try {
         client.createConnection(
-          // @ts-ignore message is not doing anything
-          { enqueueMessage: (message) => {}, port: 12_345 },
+          { enqueueMessage: (_message) => {}, port: 12_345 },
           async () => {},
         );
       } catch (error) {
@@ -173,8 +171,7 @@ describe("node hl7 client", () => {
     test("rejects flushQueue without enqueueMessage", async () => {
       try {
         client.createConnection(
-          // @ts-ignore message is not doing anything
-          { flushQueue: (message) => {}, port: 12_345 },
+          { flushQueue: (_message) => {}, port: 12_345 },
           async () => {},
         );
       } catch (error) {

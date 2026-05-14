@@ -133,7 +133,7 @@ export class HL7_2_7 extends HL7_2_6 {
     });
     this._validatorSetValue(
       "7",
-      msh.msh_7 instanceof Date && !isNaN(msh.msh_7.getTime())
+      msh.msh_7 instanceof Date && !Number.isNaN(msh.msh_7.getTime())
         ? this.setDate(msh.msh_7, this._opt.date)
         : this.setDate(new Date(), this._opt.date),
       { required: true, type: "date" },

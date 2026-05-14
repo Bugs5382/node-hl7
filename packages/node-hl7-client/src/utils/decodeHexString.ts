@@ -28,7 +28,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 export const decodeHexString = (value: string): string => {
   const result = Array.from({ length: value.length / 2 });
   for (let index = 0; index < value.length; index += 2) {
-    result[index / 2] = String.fromCharCode(
+    result[index / 2] = String.fromCodePoint(
       Number.parseInt(value.slice(index, index + 2), 16),
     );
   }

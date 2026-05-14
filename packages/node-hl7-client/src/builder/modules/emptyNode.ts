@@ -39,6 +39,10 @@ export class EmptyNode implements HL7Node {
     throw new Error("Method not implemented");
   }
 
+  [Symbol.iterator](): Iterator<HL7Node> {
+    return [][Symbol.iterator]();
+  }
+
   exists(_path: number | string): boolean {
     return false;
   }

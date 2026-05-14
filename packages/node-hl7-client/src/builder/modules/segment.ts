@@ -80,8 +80,8 @@ export class Segment extends NodeBase {
         ? `${this._segmentName}.${path}`
         : path;
       if (Array.isArray(value)) {
-        for (let index = 0; index < value.length; index++) {
-          this.set(`${resolvedPath}.${index + 1}`, value[index]);
+        for (const [index, item] of value.entries()) {
+          this.set(`${resolvedPath}.${index + 1}`, item);
         }
       } else {
         const _path = this.preparePath(resolvedPath);
@@ -119,7 +119,7 @@ export class Segment extends NodeBase {
   /** @internal */
   protected writeCore(path: string[], value: string): HL7Node {
     let index = Number.parseInt(path.shift() as string);
-    if (index < 1 || isNaN(index)) {
+    if (index < 1 || Number.isNaN(index)) {
       throw new HL7FatalError(
         "Can't have an index < 1 or not be a valid number.",
       );

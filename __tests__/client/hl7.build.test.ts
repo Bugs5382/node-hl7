@@ -1095,9 +1095,7 @@ describe("node hl7 client - builder tests", () => {
     });
 
     test("FileBatch start/end wraps a Message in FHS/FTS", async () => {
-      let message: Message;
-
-      message = new Message({
+      const message: Message = new Message({
         messageHeader: {
           ...MSH_HEADER,
           msh_10: "CONTROL_ID",
@@ -1319,16 +1317,18 @@ describe("node hl7 client - builder tests", () => {
 
   describe("complex file generation", () => {
     beforeAll(async () => {
-      fs.readdir("temp/", (error, files) => {
-        if (error != undefined) return;
-        for (const file of files) {
-          fs.unlink(path.join("temp/", file), (error) => {
-            if (error != undefined) throw error;
-          });
+      // Synchronous cleanup so the next `toFile()` write isn't racing
+      // against pending unlink callbacks. Tolerate missing files — the dir
+      // may not exist yet on a fresh checkout.
+      if (fs.existsSync("temp/")) {
+        for (const file of fs.readdirSync("temp/")) {
+          try {
+            fs.unlinkSync(path.join("temp/", file));
+          } catch {
+            /* already gone — fine */
+          }
         }
-      });
-
-      await sleep(5);
+      }
     });
 
     test("FileBatch.createFile writes the framed bytes to disk", async () => {
@@ -1420,24 +1420,22 @@ describe("node hl7 client - builder tests", () => {
       "BHS|^~\\&|||||20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1";
 
     beforeAll(async () => {
-      fs.readdir("temp/", (error, files) => {
-        if (error != undefined) return;
-        for (const file of files) {
-          fs.unlink(path.join("temp/", file), (error) => {
-            if (error != undefined) throw error;
-          });
+      // Synchronous cleanup + write so the test reads see a stable file.
+      if (fs.existsSync("temp/")) {
+        for (const file of fs.readdirSync("temp/")) {
+          try {
+            fs.unlinkSync(path.join("temp/", file));
+          } catch {
+            /* already gone — fine */
+          }
         }
-      });
-
-      await sleep(2);
+      }
 
       const message = new Message({ text: hl7_string });
       message.toFile("readTestMSH", true, "temp/");
 
       const batch = new Batch({ text: hl7_batch });
       batch.toFile("readTestBHS", true, "temp/");
-
-      await sleep(2);
     });
 
     beforeEach(async () => {
