@@ -15,7 +15,6 @@
 !/LICENSE
 !/README.md
 !/__tests__/
-!/certs/
 !/docker/
 !/eslint.config.base.mjs
 !/package.json

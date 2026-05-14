@@ -37,6 +37,7 @@
     "npm-package-json-lint": "^10.3.0",
     "npm-package-json-lint-config-default": "^9.0.1",
     "portfinder": "^1.0.38",
+    "selfsigned": "^5.5.0",
     "snazzy": "^9.0.0",
     "sort-package-json": "^3.6.1",
     "tcp-port-used": "^1.0.2",

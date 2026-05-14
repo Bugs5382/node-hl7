@@ -22,10 +22,10 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 import Client, { Batch, InboundResponse, Message } from "node-hl7-client/src";
 import Server, { HL7ServerError } from "node-hl7-server/src";
-import fs from "node:fs";
-import path from "node:path";
 import portfinder from "portfinder";
 import { describe, expect, test } from "vitest";
+
+import { tlsTestCerts } from "../__utils__/tls";
 
 import {
   createDeferred,
@@ -523,11 +523,12 @@ describe("node hl7 end to end - client", () => {
         const port = await portfinder.getPortPromise();
         const dfd = createDeferred<void>();
 
+        const { cert, key } = await tlsTestCerts();
         const server = new Server({
           bindAddress: "0.0.0.0",
           tls: {
-            cert: fs.readFileSync(path.join("certs/", "server-crt.pem")),
-            key: fs.readFileSync(path.join("certs/", "server-key.pem")),
+            cert,
+            key,
             rejectUnauthorized: false,
           },
         });

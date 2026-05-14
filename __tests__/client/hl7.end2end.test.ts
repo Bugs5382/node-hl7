@@ -31,12 +31,11 @@ import Client, {
 import { HL7_2_1 } from "node-hl7-client/src";
 import { createDeferred } from "node-hl7-client/src/utils";
 import { Server } from "node-hl7-server";
-import fs from "node:fs";
-import path from "node:path";
 import portfinder from "portfinder";
 import { RedisMemoryServer } from "redis-memory-server";
 import { describe, expect, test, vi } from "vitest";
 
+import { tlsTestCerts } from "../__utils__/tls";
 import { expectEvent } from "./__utils__";
 
 /** Minimal valid HL7 2.7 ADT^A01 message for test use. */
@@ -355,11 +354,12 @@ describe("node hl7 end to end - client", () => {
         const port = await portfinder.getPortPromise();
         const dfd = createDeferred<void>();
 
+        const { cert, key } = await tlsTestCerts();
         const server = new Server({
           bindAddress: "0.0.0.0",
           tls: {
-            cert: fs.readFileSync(path.join("certs/", "server-crt.pem")),
-            key: fs.readFileSync(path.join("certs/", "server-key.pem")),
+            cert,
+            key,
             rejectUnauthorized: false,
           },
         });
