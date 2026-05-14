@@ -1,3 +1,25 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 import { HL7_2_5_1 } from "@/hl7/2.5.1";
 import { BPX_SPEC } from "@/hl7/metadata/segments/bpx";
 import { BTX_SPEC } from "@/hl7/metadata/segments/btx";
@@ -106,8 +128,7 @@ export class HL7_2_6 extends HL7_2_5_1 {
     this._validatorSetField(BPX_SPEC,
     17,
     properties.bpx_17,
-      length: { min: 1, max: 22 },
-    });
+    { length: { min: 1, max: 22 } });
   }
 
   protected _buildBTX(properties: Partial<HL7_2_6_BTX>): void {
@@ -349,8 +370,7 @@ export class HL7_2_6 extends HL7_2_5_1 {
     this._validatorSetField(ITM_SPEC,
     38,
     properties.itm_38,
-      length: { min: 1, max: 6 },
-    });
+    { length: { min: 1, max: 6 } });
   }
 
   protected _buildIVT(properties: Partial<HL7_2_6_IVT>): void {
@@ -455,8 +475,7 @@ export class HL7_2_6 extends HL7_2_5_1 {
     this._validatorSetField(IVT_SPEC,
     25,
     properties.ivt_25,
-      allowedValues: ["Y", "N"],
-    });
+    { allowedValues: ["Y", "N"] });
   }
 
   protected _buildREL(properties: Partial<HL7_2_6_REL>): void {
@@ -526,7 +545,6 @@ export class HL7_2_6 extends HL7_2_5_1 {
     this._validatorSetField(REL_SPEC,
     14,
     properties.rel_14,
-      length: { min: 1, max: 250 },
-    });
+    { length: { min: 1, max: 250 } });
   }
 }

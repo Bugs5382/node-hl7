@@ -1,3 +1,25 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 import { HL7_2_1 } from "@/hl7/2.1";
 import {
   HL7_2_1_MSH,
@@ -345,8 +367,7 @@ export class HL7_2_2 extends HL7_2_1 {
     this._validatorSetField(ODS_SPEC,
     4,
     properties.ods_4,
-      length: { min: 1, max: 60 },
-    });
+    { length: { min: 1, max: 60 } });
   }
 
   protected _buildODT(properties: Partial<HL7_2_2_ODT>): void {
@@ -363,8 +384,7 @@ export class HL7_2_2 extends HL7_2_1 {
     this._validatorSetField(ODT_SPEC,
     3,
     properties.odt_3,
-      length: { min: 1, max: 60 },
-    });
+    { length: { min: 1, max: 60 } });
   }
 
   protected _buildORC(properties: Partial<HL7_2_1_ORC>): void {
@@ -604,8 +624,7 @@ export class HL7_2_2 extends HL7_2_1 {
     this._validatorSetField(RXD_SPEC,
     15,
     properties.rxd_15,
-      length: { min: 1, max: 200 },
-    });
+    { length: { min: 1, max: 200 } });
   }
 
   protected _buildRXE(properties: Partial<HL7_2_2_RXE>): void {
@@ -709,8 +728,7 @@ export class HL7_2_2 extends HL7_2_1 {
     this._validatorSetField(RXE_SPEC,
     24,
     properties.rxe_24,
-      length: { min: 1, max: 60 },
-    });
+    { length: { min: 1, max: 60 } });
   }
 
   protected _buildRXG(properties: Partial<HL7_2_2_RXG>): void {
@@ -779,8 +797,7 @@ export class HL7_2_2 extends HL7_2_1 {
     this._validatorSetField(RXG_SPEC,
     16,
     properties.rxg_16,
-      length: { min: 1, max: 60 },
-    });
+    { length: { min: 1, max: 60 } });
   }
 
   protected _buildRXO(properties: Partial<HL7_2_2_RXO>): void {
@@ -853,8 +870,7 @@ export class HL7_2_2 extends HL7_2_1 {
     this._validatorSetField(RXO_SPEC,
     17,
     properties.rxo_17,
-      length: { min: 1, max: 20 },
-    });
+    { length: { min: 1, max: 20 } });
   }
 
   protected _buildRXR(properties: Partial<HL7_2_2_RXR>): void {
@@ -877,8 +893,7 @@ export class HL7_2_2 extends HL7_2_1 {
     this._validatorSetField(RXR_SPEC,
     4,
     properties.rxr_4,
-      length: { min: 1, max: 60 },
-    });
+    { length: { min: 1, max: 60 } });
   }
 
   protected _buildSTF(properties: Partial<HL7_2_2_STF>): void {
@@ -1055,7 +1070,6 @@ export class HL7_2_2 extends HL7_2_1 {
     this._validatorSetField(UB2_SPEC,
     17,
     properties.ub2_17,
-      length: { min: 1, max: 3 },
-    });
+    { length: { min: 1, max: 3 } });
   }
 }

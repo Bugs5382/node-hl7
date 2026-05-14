@@ -1,3 +1,25 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 import {
   HL7_2_1_MSH,
   HL7_2_1_PID,
@@ -124,8 +146,7 @@ export class HL7_2_4 extends HL7_2_3_1 {
     this._validatorSetField(DRG_SPEC,
     8,
     properties.drg_8,
-      length: { min: 1, max: 250 },
-    });
+    { length: { min: 1, max: 250 } });
   }
 
   protected _buildECD(properties: Partial<HL7_ECD>): void {
@@ -267,8 +288,7 @@ export class HL7_2_4 extends HL7_2_3_1 {
     this._validatorSetField(GOL_SPEC,
     21,
     properties.gol_21,
-      length: { min: 1, max: 250 },
-    });
+    { length: { min: 1, max: 250 } });
   }
 
   protected _buildIAM(properties: Partial<HL7_2_4_IAM>): void {
@@ -598,8 +618,7 @@ export class HL7_2_4 extends HL7_2_3_1 {
     this._validatorSetField(OM1_SPEC,
     47,
     properties.om1_47,
-      length: { min: 1, max: 250 },
-    });
+    { length: { min: 1, max: 250 } });
   }
 
   protected _buildOM2(properties: Partial<HL7_2_4_OM2>): void {
@@ -644,8 +663,7 @@ export class HL7_2_4 extends HL7_2_3_1 {
     this._validatorSetField(OM2_SPEC,
     10,
     properties.om2_10,
-      length: { min: 1, max: 20 },
-    });
+    { length: { min: 1, max: 20 } });
   }
 
   protected _buildOM3(properties: Partial<HL7_2_4_OM3>): void {
@@ -682,8 +700,7 @@ export class HL7_2_4 extends HL7_2_3_1 {
     this._validatorSetField(OM3_SPEC,
     8,
     properties.om3_8,
-      length: { min: 1, max: 250 },
-    });
+    { length: { min: 1, max: 250 } });
     // OM3.9 is not present in the published spec — drop the call.
   }
 
@@ -761,8 +778,7 @@ export class HL7_2_4 extends HL7_2_3_1 {
     this._validatorSetField(OM4_SPEC,
     18,
     properties.om4_18,
-      length: { min: 1, max: 250 },
-    });
+    { length: { min: 1, max: 250 } });
     // OM4.19 is not present in the published spec — drop the call.
   }
 
@@ -780,8 +796,7 @@ export class HL7_2_4 extends HL7_2_3_1 {
     this._validatorSetField(OM5_SPEC,
     3,
     properties.om5_3,
-      length: { min: 1, max: 250 },
-    });
+    { length: { min: 1, max: 250 } });
   }
 
   protected _buildOM6(properties: Partial<HL7_2_4_OM6>): void {
@@ -794,8 +809,7 @@ export class HL7_2_4 extends HL7_2_3_1 {
     this._validatorSetField(OM6_SPEC,
     2,
     properties.om6_2,
-      length: { min: 1, max: 10240 },
-    });
+    { length: { min: 1, max: 10240 } });
   }
 
   protected _buildORC(properties: Partial<HL7_2_1_ORC>): void {
@@ -994,8 +1008,7 @@ export class HL7_2_4 extends HL7_2_3_1 {
     this._validatorSetField(PRB_SPEC,
     26,
     properties.prb_26,
-      length: { min: 1, max: 250 },
-    });
+    { length: { min: 1, max: 250 } });
   }
 
   protected _buildPTH(properties: Partial<HL7_2_4_PTH>): void {
@@ -1034,8 +1047,7 @@ export class HL7_2_4 extends HL7_2_3_1 {
     this._validatorSetField(PTH_SPEC,
     7,
     properties.pth_7,
-      length: { min: 1, max: 250 },
-    });
+    { length: { min: 1, max: 250 } });
   }
 
   protected _buildTXA(properties: Partial<HL7_2_4_TXA>): void {
@@ -1146,7 +1158,6 @@ export class HL7_2_4 extends HL7_2_3_1 {
     this._validatorSetField(TXA_SPEC,
     23,
     properties.txa_23,
-      length: { min: 1, max: 250 },
-    });
+    { length: { min: 1, max: 250 } });
   }
 }

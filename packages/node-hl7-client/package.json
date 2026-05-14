@@ -57,6 +57,10 @@
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsdown",
     "build:dev": "NODE_ENV=development tsdown",
@@ -64,7 +68,7 @@
     "lint:npm": "npmPkgJsonLint .",
     "lint:package": "npx sort-package-json",
     "pack": "npm pack",
-    "prepublishOnly": "npm run clean && npm run build && npm run pack",
+    "prepublishOnly": "npm run clean && npm run build",
     "typedoc": "typedoc",
     "typedoc:watch": "typedoc -watch",
     "update": "npx npm-check-updates -u --enginesNode && npm run update:post-update",
