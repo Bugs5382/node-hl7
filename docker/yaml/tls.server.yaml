@@ -29,7 +29,7 @@ spec:
     app: tls-hl7-server
   ports:
     - name: hl7-mllp-tls
-      port: 6001
+      port: 3000
       targetPort: hl7-mllp
       protocol: TCP
   sessionAffinity: ClientIP
@@ -60,14 +60,14 @@ spec:
           command: ["npm"]
           args: ["run", "server:tls"]
           env:
-            - { name: NODE_ENV,    value: "production" }
-            - { name: HL7_PORT,    value: "3000" }
+            - { name: NODE_ENV, value: "production" }
+            - { name: HL7_PORT, value: "3000" }
             - { name: BIND_ADDRESS, value: "0.0.0.0" }
-            - { name: TLS_KEY,     value: "/etc/hl7/tls/tls.key" }
-            - { name: TLS_CERT,    value: "/etc/hl7/tls/tls.crt" }
+            - { name: TLS_KEY, value: "/etc/hl7/tls/tls.key" }
+            - { name: TLS_CERT, value: "/etc/hl7/tls/tls.crt" }
             # Set TLS_CA + TLS_REQUEST_CLIENT_CERT to enable mTLS.
             # Comment them out for plain server-auth TLS.
-            - { name: TLS_CA,                  value: "/etc/hl7/tls/ca.crt" }
+            - { name: TLS_CA, value: "/etc/hl7/tls/ca.crt" }
             - { name: TLS_REQUEST_CLIENT_CERT, value: "true" }
           ports:
             - { name: hl7-mllp, containerPort: 3000, protocol: TCP }
@@ -85,7 +85,7 @@ spec:
             periodSeconds: 30
           resources:
             requests: { cpu: "200m", memory: "256Mi" }
-            limits:   { cpu: "1000m", memory: "512Mi" }
+            limits: { cpu: "1000m", memory: "512Mi" }
       volumes:
         - name: hl7-tls
           secret:

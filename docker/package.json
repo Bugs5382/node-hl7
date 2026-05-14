@@ -8,7 +8,8 @@
     "server:tls": "node tls.server.js"
   },
   "dependencies": {
-    "node-hl7-server": "^3.3.0"
+    "node-hl7-client": "file:../packages/node-hl7-client",
+    "node-hl7-server": "file:../packages/node-hl7-server"
   },
   "engines": {
     "node": ">=22.0.0"

@@ -26,7 +26,6 @@ import portfinder from "portfinder";
 import { describe, expect, test } from "vitest";
 
 import { tlsTestCerts } from "../__utils__/tls";
-
 import {
   createDeferred,
   expectEvent,

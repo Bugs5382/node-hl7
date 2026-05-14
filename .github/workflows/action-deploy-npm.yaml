@@ -40,6 +40,9 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'release'
     runs-on: ubuntu-latest
     needs: ['Test']
+    # id-token: write (declared at workflow scope) is what lets npm verify
+    # the OIDC token issued by GitHub against the trusted-publisher config
+    # registered on npmjs.com for each package.
     steps:
       - name: Download the build artifact
         uses: actions/download-artifact@v8
@@ -53,23 +56,22 @@ jobs:
           node-version: lts/*
           registry-url: 'https://registry.npmjs.org/'
 
+      # OIDC trusted publishing requires npm >= 11.5.1 (the Node 22 LTS image
+      # ships with npm 10.x). Provenance and trusted-publisher auth both
+      # depend on this client.
+      - name: Upgrade npm
+        run: |
+          npm install -g npm@latest
+          npm --version
+
       # Publish client first because node-hl7-server peer-depends on it (^4.0.0).
+      # No `--token` / NODE_AUTH_TOKEN — npm authenticates to the registry via
+      # the OIDC token issued by GitHub Actions, matched against the trusted
+      # publisher configured on npmjs.com.
       - name: Publish node-hl7-client
-        uses: JS-DevTools/npm-publish@v4
-        with:
-          package: packages/node-hl7-client
-          provenance: true
-          access: public
-          ignore-scripts: true
-          token: ${{ secrets.NPM_TOKEN }}
-          tag: latest
+        working-directory: packages/node-hl7-client
+        run: npm publish --provenance --access public --ignore-scripts
 
       - name: Publish node-hl7-server
-        uses: JS-DevTools/npm-publish@v4
-        with:
-          package: packages/node-hl7-server
-          provenance: true
-          access: public
-          ignore-scripts: true
-          token: ${{ secrets.NPM_TOKEN }}
-          tag: latest
+        working-directory: packages/node-hl7-server
+        run: npm publish --provenance --access public --ignore-scripts
