@@ -481,7 +481,7 @@ export class Connection extends EventEmitter implements IConnection {
         try {
           const loadedMessage = this._codec?.getLastMessage();
 
-          if (loadedMessage == null) {
+          if (loadedMessage == undefined) {
             return;
           }
 

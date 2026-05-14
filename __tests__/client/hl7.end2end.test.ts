@@ -166,7 +166,7 @@ describe("node hl7 end to end - client", () => {
           async () => {},
         );
 
-        vi.spyOn(outbound as any, "_connect").mockReturnValue(undefined);
+        vi.spyOn(outbound as any, "_connect").mockReturnValue();
 
         await outbound.sendMessage(makeTestMessage());
 
@@ -230,7 +230,7 @@ describe("node hl7 end to end - client", () => {
           async () => {},
         );
 
-        vi.spyOn(outbound as any, "_connect").mockReturnValue(undefined);
+        vi.spyOn(outbound as any, "_connect").mockReturnValue();
 
         await outbound.sendMessage(makeTestMessage());
 
@@ -245,7 +245,7 @@ describe("node hl7 end to end - client", () => {
           async () => {},
         );
 
-        vi.spyOn(outbound as any, "_connect").mockReturnValue(undefined);
+        vi.spyOn(outbound as any, "_connect").mockReturnValue();
 
         const message = makeTestMessage();
 
@@ -314,12 +314,15 @@ describe("node hl7 end to end - client", () => {
         // Resolve only after both ACKs arrive so the totalAck() assertion below
         // is not racing the second ACK.
         let acksReceived = 0;
-        const outbound = client.createConnection({ port }, async (res: { getMessage: () => any; }) => {
-          const messageRes = res.getMessage();
-          expect(messageRes.get("MSA.1").toString()).toBe("AA");
-          acksReceived++;
-          if (acksReceived === 2) dfd.resolve();
-        });
+        const outbound = client.createConnection(
+          { port },
+          async (res: { getMessage: () => any }) => {
+            const messageRes = res.getMessage();
+            expect(messageRes.get("MSA.1").toString()).toBe("AA");
+            acksReceived++;
+            if (acksReceived === 2) dfd.resolve();
+          },
+        );
 
         const batch = new Batch();
         batch.start();

@@ -129,10 +129,6 @@ export class NodeBase extends EventEmitter implements HL7Node {
     return !value.isEmpty();
   }
 
-  [Symbol.iterator](): Iterator<HL7Node> {
-    return this.children[Symbol.iterator]();
-  }
-
   forEach(callback: (value: HL7Node, index: number) => void): void {
     const children = this.children;
     for (let index = 0, l = children.length; index < l; index++) {
@@ -196,6 +192,10 @@ export class NodeBase extends EventEmitter implements HL7Node {
     }
 
     throw new HL7FatalError("Path must be a string or number.");
+  }
+
+  [Symbol.iterator](): Iterator<HL7Node> {
+    return this.children[Symbol.iterator]();
   }
 
   toArray(): HL7Node[] {
