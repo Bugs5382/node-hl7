@@ -159,6 +159,7 @@ export class Connection extends EventEmitter implements IConnection {
     this._retryTimeoutCount = 0;
     this._retryTimer = undefined;
     this._connectionTimer = undefined;
+    // eslint-disable-next-line unicorn/no-null
     this._codec = null;
     this._pendingMessages = [];
     this._maxLimit = this._opt.maxLimit;

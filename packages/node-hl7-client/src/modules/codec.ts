@@ -38,7 +38,7 @@ export class MLLPCodec {
   /** @internal */
   private dataBuffer: Buffer = Buffer.alloc(0);
   /** @internal */
-  private lastMessage: null | string = null;
+  private lastMessage: string | undefined = undefined;
 
   /**
    * @since 3.1.0
