@@ -55,6 +55,9 @@ export type {
   NotifyPendingCount,
   OutboundHandler,
 } from "./modules/types";
+// Full per-version HL7 value-table registry (code sets), generated from the
+// Caristix tables to parity with go-hl7. See scripts/generate-tables.mjs.
+export { lookupTable, TABLES } from "@/hl7/tables/registry";
 export { assertNumber } from "@/utils/assertNumber";
 export { createDeferred } from "@/utils/createDeferred";
 export { createHL7Date, padHL7Date } from "@/utils/createHL7Date";
