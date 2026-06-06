@@ -1,24 +1,29 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 /** HL7 GT1 - Guarantor */
 export interface HL7_GT1 {
   /** GT1.1 - Set ID */
   gt1_1?: number | string;
-  /** GT1.2 - Guarantor ID */
-  gt1_2?: string;
-  /** GT1.3 - Guarantor Name */
-  gt1_3?: string;
-  guarantorName?: string;
-  /** GT1.4 - Guarantor Spouse Name */
-  gt1_4?: string;
-  /** GT1.5 - Guarantor Address */
-  gt1_5?: string;
-  /** GT1.6 - Guarantor Phone Number - Home */
-  gt1_6?: string;
-  /** GT1.7 - Guarantor Phone Number - Business */
-  gt1_7?: string;
-  /** GT1.8 - Guarantor Date/Time of Birth */
-  gt1_8?: Date | string;
-  /** GT1.9 - Guarantor Sex */
-  gt1_9?: string;
   /** GT1.10 - Guarantor Type */
   gt1_10?: string;
   /** GT1.11 - Guarantor Relationship */
@@ -39,6 +44,23 @@ export interface HL7_GT1 {
   gt1_18?: string;
   /** GT1.19 - Guarantor Organization */
   gt1_19?: string;
+  /** GT1.2 - Guarantor ID */
+  gt1_2?: string;
   /** GT1.20 - Guarantor Billing Hold Flag */
   gt1_20?: string;
+  /** GT1.3 - Guarantor Name */
+  gt1_3?: string;
+  /** GT1.4 - Guarantor Spouse Name */
+  gt1_4?: string;
+  /** GT1.5 - Guarantor Address */
+  gt1_5?: string;
+  /** GT1.6 - Guarantor Phone Number - Home */
+  gt1_6?: string;
+  /** GT1.7 - Guarantor Phone Number - Business */
+  gt1_7?: string;
+  /** GT1.8 - Guarantor Date/Time of Birth */
+  gt1_8?: Date | string;
+  /** GT1.9 - Guarantor Sex */
+  gt1_9?: string;
+  guarantorName?: string;
 }

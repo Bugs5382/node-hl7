@@ -1,3 +1,25 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 import { HL7FatalError } from "@/helpers/exception";
 import { ClientBuilderOptions } from "@/modules/types";
 
@@ -13,21 +35,26 @@ const DEFAULT_CLIENT_BUILDER_OPTS = {
 export function normalizedClientBuilderOptions(
   raw?: ClientBuilderOptions,
 ): ClientBuilderOptions {
-  const props: ClientBuilderOptions = {
+  const properties: ClientBuilderOptions = {
     ...DEFAULT_CLIENT_BUILDER_OPTS,
     ...raw,
   };
 
   if (
-    (typeof props.newLine !== "undefined" && props.newLine === "\\r") ||
-    props.newLine === "\\n"
+    (properties.newLine !== undefined &&
+      properties.newLine === String.raw`\r`) ||
+    properties.newLine === String.raw`\n`
   ) {
     throw new HL7FatalError("newLine must be \r or \n");
   }
 
-  if (props.date !== "8" && props.date !== "12" && props.date !== "14") {
-    props.date = "14";
+  if (
+    properties.date !== "8" &&
+    properties.date !== "12" &&
+    properties.date !== "14"
+  ) {
+    properties.date = "14";
   }
 
-  return props;
+  return properties;
 }

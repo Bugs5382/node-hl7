@@ -1,38 +1,78 @@
+# Plain MLLP listener — Pattern A from pages/server/kubernetes/index.md.
+# TLS, if needed, terminates at the LoadBalancer / Service layer.
+#
+# Apply with:
+#   kubectl apply -f docker/yaml/server.yaml
+#
+# Build the image first:
+#   ../../docker build -t docker-node-hl7-server:latest .
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hl7-server
+---
 apiVersion: v1
 kind: Service
 metadata:
   name: hl7-server
   namespace: hl7-server
+  labels:
+    app: hl7-server
 spec:
-  ports:
-    - name: 6000-tcp
-      port: 6000
-      protocol: TCP
-      targetPort: 3000
+  type: LoadBalancer
   selector:
     app: hl7-server
-  type: LoadBalancer
+  ports:
+    - name: hl7-mllp
+      port: 3000
+      targetPort: hl7-mllp
+      protocol: TCP
+  # 🪝 Pin a sender's TCP connection to one pod so the per-socket
+  # MLLPCodec buffer stays consistent for the life of the connection.
+  sessionAffinity: ClientIP
+  externalTrafficPolicy: Local
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hl7-server
   namespace: hl7-server
+  labels:
+    app: hl7-server
 spec:
+  replicas: 2
   selector:
     matchLabels:
       app: hl7-server
-  replicas: 1
   template:
     metadata:
       labels:
         app: hl7-server
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
         - name: hl7-server
+          image: docker-node-hl7-server:latest
+          imagePullPolicy: IfNotPresent
           command: ["npm"]
           args: ["run", "server"]
-          image: docker-node-hl7-server:latest
+          env:
+            - { name: NODE_ENV, value: "production" }
+            - { name: HL7_PORT, value: "3000" }
+            - { name: BIND_ADDRESS, value: "0.0.0.0" }
           ports:
-            - containerPort: 3000
-          imagePullPolicy: IfNotPresent
+            - { name: hl7-mllp, containerPort: 3000, protocol: TCP }
+          # 💡 The listener doesn't speak HTTP — a TCP probe is the right
+          # readiness signal: handshake succeeds → pod is accepting frames.
+          readinessProbe:
+            tcpSocket: { port: hl7-mllp }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket: { port: hl7-mllp }
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits: { cpu: "1000m", memory: "512Mi" }

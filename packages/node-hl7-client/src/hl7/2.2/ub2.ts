@@ -1,23 +1,29 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 /** HL7 2.2 UB2 - Uniform Billing Data (UB-92) */
 export interface HL7_2_2_UB2 {
   /** UB2.1 - Set ID (optional) */
   ub2_1?: number | string;
-  /** UB2.2 - Co-Insurance Days (max 3) */
-  ub2_2?: string;
-  /** UB2.3 - Condition Code (max 14) */
-  ub2_3?: string;
-  /** UB2.4 - Covered Days (max 3) */
-  ub2_4?: string;
-  /** UB2.5 - Non-Covered Days (max 4) */
-  ub2_5?: string;
-  /** UB2.6 - Value Amount & Code */
-  ub2_6?: string;
-  /** UB2.7 - Occurrence Code & Date */
-  ub2_7?: string;
-  /** UB2.8 - Occurrence Span Code/Dates */
-  ub2_8?: string;
-  /** UB2.9 - UB92 Locator 2 (State) (max 29) */
-  ub2_9?: string;
   /** UB2.10 - UB92 Locator 11 (State) (max 12) */
   ub2_10?: string;
   /** UB2.11 - UB92 Locator 31 (National) (max 5) */
@@ -34,4 +40,20 @@ export interface HL7_2_2_UB2 {
   ub2_16?: string;
   /** UB2.17 - Special Visit Count (max 3) */
   ub2_17?: string;
+  /** UB2.2 - Co-Insurance Days (max 3) */
+  ub2_2?: string;
+  /** UB2.3 - Condition Code (max 14) */
+  ub2_3?: string;
+  /** UB2.4 - Covered Days (max 3) */
+  ub2_4?: string;
+  /** UB2.5 - Non-Covered Days (max 4) */
+  ub2_5?: string;
+  /** UB2.6 - Value Amount & Code */
+  ub2_6?: string;
+  /** UB2.7 - Occurrence Code & Date */
+  ub2_7?: string;
+  /** UB2.8 - Occurrence Span Code/Dates */
+  ub2_8?: string;
+  /** UB2.9 - UB92 Locator 2 (State) (max 29) */
+  ub2_9?: string;
 }

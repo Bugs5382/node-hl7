@@ -2,8 +2,10 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["./src/*", "../node-hl7-client/src/*"],
       "node-hl7-client": ["../node-hl7-client/src/index.ts"],
+      "node-hl7-client/src": ["../node-hl7-client/src/index.ts"],
+      "node-hl7-client/src/*": ["../node-hl7-client/src/*"],
     }
   },
   "include": ["src", "../../__tests__/server"]

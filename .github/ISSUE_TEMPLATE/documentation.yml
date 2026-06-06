@@ -1,0 +1,38 @@
+name: 📚 Documentation Improvement
+description: Something in the README, pages/, or typedoc is wrong, missing, or unclear.
+title: "[docs]: "
+labels:
+  - documentation
+  - triage
+body:
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where in the docs?
+      options:
+        - Root README.md
+        - node-hl7-client README
+        - node-hl7-server README
+        - pages/client/...
+        - pages/server/...
+        - typedoc API reference
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: path
+    attributes:
+      label: Specific page / section
+      description: File path or section heading, e.g. `pages/server/tls/index.md` → "Mutual TLS".
+  - type: textarea
+    id: issue
+    attributes:
+      label: What's wrong or missing?
+      description: Describe the problem. Quote the offending text if helpful.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Proposed fix or addition
+      description: How would you reword it / what would you add? PRs welcome.

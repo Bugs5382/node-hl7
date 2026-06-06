@@ -1,23 +1,29 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 /** HL7 2.4 GOL - Goal Detail */
 export interface HL7_2_4_GOL {
   /** GOL.1 - Action Code (required) */
   gol_1: "AD" | "CO" | "DE" | "LI" | "UC" | "UN";
-  /** GOL.2 - Action Date/Time (required) */
-  gol_2: Date | string;
-  /** GOL.3 - Goal ID (required) */
-  gol_3: string;
-  /** GOL.4 - Goal Instance ID */
-  gol_4?: string;
-  /** GOL.5 - Episode of Care ID */
-  gol_5?: string;
-  /** GOL.6 - Goal List Priority */
-  gol_6?: number | string;
-  /** GOL.7 - Goal Established Date/Time */
-  gol_7?: Date | string;
-  /** GOL.8 - Expected Goal Achieve Date/Time */
-  gol_8?: Date | string;
-  /** GOL.9 - Goal Classification */
-  gol_9?: Date | string;
   /** GOL.10 - Goal Management Discipline */
   gol_10?: string;
   /** GOL.11 - Current Goal Review Status */
@@ -38,8 +44,24 @@ export interface HL7_2_4_GOL {
   gol_18?: string;
   /** GOL.19 - Goal Life Cycle Status Date/Time */
   gol_19?: Date | string;
+  /** GOL.2 - Action Date/Time (required) */
+  gol_2: Date | string;
   /** GOL.20 - Goal Target Type */
   gol_20?: string;
   /** GOL.21 - Goal Target Name */
   gol_21?: string;
+  /** GOL.3 - Goal ID (required) */
+  gol_3: string;
+  /** GOL.4 - Goal Instance ID */
+  gol_4?: string;
+  /** GOL.5 - Episode of Care ID */
+  gol_5?: string;
+  /** GOL.6 - Goal List Priority */
+  gol_6?: number | string;
+  /** GOL.7 - Goal Established Date/Time */
+  gol_7?: Date | string;
+  /** GOL.8 - Expected Goal Achieve Date/Time */
+  gol_8?: Date | string;
+  /** GOL.9 - Goal Classification */
+  gol_9?: Date | string;
 }

@@ -1,21 +1,44 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+import { Socket } from "node:net";
+
 import {
   PROTOCOL_MLLP_END,
   PROTOCOL_MLLP_FOOTER,
   PROTOCOL_MLLP_HEADER,
 } from "@/helpers/constants";
-import { Socket } from "node:net";
 
 /** MLLPCodec Class
  * @since 3.1.0 */
 export class MLLPCodec {
   /** @internal */
-  private lastMessage: string | null = null;
-  /** @internal */
-  private dataBuffer: Buffer = Buffer.alloc(0);
-  /** @internal */
   private readonly _encoding: BufferEncoding;
   /** @internal */
   private readonly _returnCharacter: string;
+  /** @internal */
+  private dataBuffer: Buffer = Buffer.alloc(0);
+  /** @internal */
+  private lastMessage: string | undefined = undefined;
 
   /**
    * @since 3.1.0
@@ -23,7 +46,7 @@ export class MLLPCodec {
    * @param returnCharacter
    */
   constructor(
-    encoding: BufferEncoding = "utf-8",
+    encoding: BufferEncoding = "utf8",
     returnCharacter: string = "\r",
   ) {
     this._encoding = encoding;
@@ -31,38 +54,11 @@ export class MLLPCodec {
   }
 
   /**
-   * Process the stored message that was sent over.
+   * Get the last message.
    * @since 3.1.0
-   * @private
    */
-  private processMessage(): void {
-    const messages: string[] = [];
-    const dataString = this.dataBuffer.toString(this._encoding);
-    const messageParts = dataString.split("\u001c\r");
-
-    // loop though the message parts
-    for (const part of messageParts) {
-      if (part.trim() !== "") {
-        const trimmedPart = part.trim();
-        messages.push(this.stripMLLPCharacters(trimmedPart));
-      }
-    }
-
-    // put the entire message together
-    this.lastMessage = messages.join(this._returnCharacter);
-
-    // clear the data buffer
-    this.dataBuffer = Buffer.alloc(0);
-  }
-
-  /**
-   * @since 3.1.0
-   * @param message
-   * @private
-   */
-  private stripMLLPCharacters(message: string): string {
-    // eslint-disable-next-line no-control-regex
-    return message.replace(/\u000b/g, "").replace(/\u001c/g, "");
+  public getLastMessage(): null | string {
+    return this.lastMessage;
   }
 
   /**
@@ -70,8 +66,10 @@ export class MLLPCodec {
    * @since 3.1.0
    * @param data
    */
-  public receiveData(data: Buffer): boolean {
-    this.dataBuffer = Buffer.concat([this.dataBuffer, data]);
+  public receiveData(data: Buffer | string): boolean {
+    const buf =
+      typeof data === "string" ? Buffer.from(data, this._encoding) : data;
+    this.dataBuffer = Buffer.concat([this.dataBuffer, buf]);
 
     // only go into this code see that the last part of the dataBuffer contains the end and footer protocol
     if (this.dataBuffer.includes(0x1c) && this.dataBuffer.includes(0x0d)) {
@@ -83,14 +81,6 @@ export class MLLPCodec {
 
     // return false because we are still waiting for more of the message to come over
     return false;
-  }
-
-  /**
-   * Get the last message.
-   * @since 3.1.0
-   */
-  public getLastMessage(): string | null {
-    return this.lastMessage;
   }
 
   /**
@@ -113,5 +103,39 @@ export class MLLPCodec {
     ]);
 
     socket?.write(messageBuffer);
+  }
+
+  /**
+   * Process the stored message that was sent over.
+   * @since 3.1.0
+   * @private
+   */
+  private processMessage(): void {
+    const messages: string[] = [];
+    const dataString = this.dataBuffer.toString(this._encoding);
+    const messageParts = dataString.split("\u001C\r");
+
+    // loop though the message parts
+    for (const part of messageParts) {
+      if (part.trim() !== "") {
+        const trimmedPart = part.trim();
+        messages.push(this.stripMLLPCharacters(trimmedPart));
+      }
+    }
+
+    // put the entire message together
+    this.lastMessage = messages.join(this._returnCharacter);
+
+    // clear the data buffer
+    this.dataBuffer = Buffer.alloc(0);
+  }
+
+  /**
+   * @since 3.1.0
+   * @param message
+   * @private
+   */
+  private stripMLLPCharacters(message: string): string {
+    return message.replaceAll("\u000B", "").replaceAll("\u001C", "");
   }
 }

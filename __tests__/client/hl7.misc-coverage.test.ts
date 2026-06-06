@@ -1,0 +1,158 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+import { Batch, FileBatch, Message } from "node-hl7-client/src";
+import { ParserPlan } from "node-hl7-client/src/modules/parserPlan";
+import { describe, expect, test } from "vitest";
+
+import { MSH_HEADER } from "./__data__/constants";
+
+/**
+ * Targeted edge-case coverage for small modules — ParserPlan defaults,
+ * Message addSegment edge paths, Batch / FileBatch behavior. These pin
+ * fallbacks that nothing else exercises.
+ */
+describe("ParserPlan — separator defaults when input is short", () => {
+  test("only field separator → component, repetition, escape, sub default", () => {
+    const p = new ParserPlan("|");
+    expect(p.separatorField).toBe("|");
+    expect(p.separatorComponent).toBe("^");
+    expect(p.separatorRepetition).toBe("~");
+    expect(p.separatorEscape).toBe("\\");
+    expect(p.separatorSubComponent).toBe("&");
+  });
+
+  test("field + component → repetition, escape, sub default", () => {
+    const p = new ParserPlan("|^");
+    expect(p.separatorField).toBe("|");
+    expect(p.separatorComponent).toBe("^");
+    expect(p.separatorRepetition).toBe("~");
+    expect(p.separatorEscape).toBe("\\");
+    expect(p.separatorSubComponent).toBe("&");
+  });
+
+  test("field + component + repetition → escape, sub default", () => {
+    const p = new ParserPlan("|^~");
+    expect(p.separatorField).toBe("|");
+    expect(p.separatorComponent).toBe("^");
+    expect(p.separatorRepetition).toBe("~");
+    expect(p.separatorEscape).toBe("\\");
+    expect(p.separatorSubComponent).toBe("&");
+  });
+
+  test("field + component + repetition + escape → sub default", () => {
+    const p = new ParserPlan("|^~\\");
+    expect(p.separatorField).toBe("|");
+    expect(p.separatorComponent).toBe("^");
+    expect(p.separatorRepetition).toBe("~");
+    expect(p.separatorEscape).toBe("\\");
+    expect(p.separatorSubComponent).toBe("&");
+  });
+
+  test("full canonical separator set is parsed verbatim", () => {
+    const p = new ParserPlan(String.raw`|^~\&`);
+    expect(p.separatorField).toBe("|");
+    expect(p.separatorComponent).toBe("^");
+    expect(p.separatorRepetition).toBe("~");
+    expect(p.separatorEscape).toBe("\\");
+    expect(p.separatorSubComponent).toBe("&");
+  });
+});
+
+describe("Batch / FileBatch — basic round-trip", () => {
+  function newMessage(controlId: string): Message {
+    return new Message({
+      messageHeader: { ...MSH_HEADER, msh_10: controlId },
+    });
+  }
+
+  test("Batch can wrap multiple messages and produce a string", () => {
+    const batch = new Batch();
+    batch.start();
+    batch.add(newMessage("CTRL_A"));
+    batch.add(newMessage("CTRL_B"));
+    batch.end();
+    const out = batch.toString();
+    expect(out).toContain("BHS");
+    expect(out).toContain("BTS");
+    expect(out).toContain("CTRL_A");
+    expect(out).toContain("CTRL_B");
+  });
+
+  test("FileBatch produces FHS/FTS framing", () => {
+    const file = new FileBatch();
+    file.start();
+    file.add(newMessage("CTRL_FILE"));
+    file.end();
+    const out = file.toString();
+    expect(out).toContain("FHS");
+    expect(out).toContain("FTS");
+    expect(out).toContain("CTRL_FILE");
+  });
+});
+
+describe("Message — high-level segment helpers", () => {
+  test("totalSegment counts segments by name", () => {
+    const m = new Message({
+      messageHeader: { ...MSH_HEADER, msh_10: "X" },
+    });
+    m.addSegment("EVN");
+    m.addSegment("EVN");
+    m.addSegment("PID");
+    expect(m.totalSegment("EVN")).toBe(2);
+    expect(m.totalSegment("PID")).toBe(1);
+    expect(m.totalSegment("NOPE")).toBe(0);
+  });
+
+  test("getFirstSegment / getLastSegment return the expected ends", () => {
+    const m = new Message({
+      messageHeader: { ...MSH_HEADER, msh_10: "X" },
+    });
+    m.addSegment("EVN");
+    const last = m.addSegment("PID");
+    expect(m.getFirstSegment().name).toBe("MSH");
+    expect(m.getLastSegment()).toBe(last);
+  });
+
+  test("addSegment with an empty name throws", () => {
+    const m = new Message({
+      messageHeader: { ...MSH_HEADER, msh_10: "X" },
+    });
+    expect(() => m.addSegment("")).toThrow();
+  });
+
+  test("addSegment with undefined path throws HL7ParserError", () => {
+    const m = new Message({
+      messageHeader: { ...MSH_HEADER, msh_10: "X" },
+    });
+    expect(() => m.addSegment(undefined as any)).toThrow(
+      /Missing segment path/,
+    );
+  });
+
+  test("addSegment with a multi-segment path throws HL7ParserError", () => {
+    const m = new Message({
+      messageHeader: { ...MSH_HEADER, msh_10: "X" },
+    });
+    expect(() => m.addSegment("PID.1")).toThrow(/Invalid segment/);
+  });
+});

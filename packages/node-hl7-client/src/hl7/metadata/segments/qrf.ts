@@ -1,0 +1,303 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+import { SegmentSpec } from "@/hl7/metadata/types";
+
+/**
+ * QRF — Withdrawn
+ *
+ * Generated from the Caristix HL7 Definition API
+ * (https://hl7-definition.caristix.com/v2/HL7v2.X/Segments/QRF)
+ * by scripts/generate-segment-specs.mjs. Do not edit by hand — re-run the
+ * generator instead.
+ *
+ * @since 4.0.0
+ */
+export const QRF_SPEC: SegmentSpec = {
+  description: "Withdrawn",
+  fields: [
+    {
+      hl7Type: "ST",
+      name: "QRF.1",
+      num: 1,
+      usage: {
+        "2.1": "R",
+        "2.2": "R",
+        "2.3": "R",
+        "2.3.1": "R",
+        "2.4": "R",
+        "2.5": "R",
+        "2.5.1": "R",
+        "2.6": "R",
+        "2.7": "O",
+        "2.7.1": "O",
+        "2.8": "O",
+      },
+    },
+    {
+      hl7Type: "DTM",
+      length: { max: 24 },
+      name: "When Data Start Date/Time",
+      num: 2,
+      usage: {
+        "2.1": "O",
+        "2.2": "O",
+        "2.3": "O",
+        "2.3.1": "O",
+        "2.4": "B",
+        "2.5": "B",
+        "2.5.1": "B",
+        "2.6": "B",
+      },
+    },
+    {
+      hl7Type: "DTM",
+      length: { max: 24 },
+      name: "When Data End Date/Time",
+      num: 3,
+      usage: {
+        "2.1": "O",
+        "2.2": "O",
+        "2.3": "O",
+        "2.3.1": "O",
+        "2.4": "B",
+        "2.5": "B",
+        "2.5.1": "B",
+        "2.6": "B",
+      },
+    },
+    {
+      hl7Type: "ST",
+      length: { max: 60 },
+      name: "What User Qualifier",
+      num: 4,
+      usage: {
+        "2.1": "O",
+        "2.2": "O",
+        "2.3": "O",
+        "2.3.1": "O",
+        "2.4": "O",
+        "2.5": "O",
+        "2.5.1": "O",
+        "2.6": "O",
+      },
+    },
+    {
+      hl7Type: "ST",
+      length: { max: 60 },
+      name: "Other QRY Subject Filter",
+      num: 5,
+      usage: {
+        "2.1": "O",
+        "2.2": "O",
+        "2.3": "O",
+        "2.3.1": "O",
+        "2.4": "O",
+        "2.5": "O",
+        "2.5.1": "O",
+        "2.6": "O",
+      },
+    },
+    {
+      hl7Type: "ID",
+      length: { max: 12 },
+      name: "Which Date/Time Qualifier",
+      num: 6,
+      table: 156,
+      usage: {
+        "2.2": "O",
+        "2.3": "O",
+        "2.3.1": "O",
+        "2.4": "O",
+        "2.5": "O",
+        "2.5.1": "O",
+        "2.6": "O",
+      },
+    },
+    {
+      hl7Type: "ID",
+      length: { max: 12 },
+      name: "Which Date/Time Status Qualifier",
+      num: 7,
+      table: 157,
+      usage: {
+        "2.2": "O",
+        "2.3": "O",
+        "2.3.1": "O",
+        "2.4": "O",
+        "2.5": "O",
+        "2.5.1": "O",
+        "2.6": "O",
+      },
+    },
+    {
+      hl7Type: "ID",
+      length: { max: 12 },
+      name: "Date/Time Selection Qualifier",
+      num: 8,
+      table: 158,
+      usage: {
+        "2.2": "O",
+        "2.3": "O",
+        "2.3.1": "O",
+        "2.4": "O",
+        "2.5": "O",
+        "2.5.1": "O",
+        "2.6": "O",
+      },
+    },
+    {
+      components: [
+        {
+          hl7Type: "CQ",
+          length: { max: 267 },
+          name: "Quantity",
+          num: 1,
+          rpt: "1",
+          usage: "O",
+        },
+        {
+          hl7Type: "RI",
+          length: { max: 206 },
+          name: "Interval",
+          num: 2,
+          rpt: "1",
+          usage: "O",
+        },
+        {
+          hl7Type: "ST",
+          length: { max: 6 },
+          name: "Duration",
+          num: 3,
+          rpt: "1",
+          usage: "O",
+        },
+        {
+          hl7Type: "DTM",
+          length: { max: 24 },
+          name: "Start Date/Time",
+          num: 4,
+          rpt: "1",
+          usage: "O",
+        },
+        {
+          hl7Type: "DTM",
+          length: { max: 24 },
+          name: "End Date/Time",
+          num: 5,
+          rpt: "1",
+          usage: "O",
+        },
+        {
+          hl7Type: "ST",
+          length: { max: 6 },
+          name: "Priority",
+          num: 6,
+          rpt: "1",
+          usage: "O",
+        },
+        {
+          hl7Type: "ST",
+          length: { max: 199 },
+          name: "Condition",
+          num: 7,
+          rpt: "1",
+          usage: "O",
+        },
+        {
+          hl7Type: "TX",
+          length: { max: 200 },
+          name: "Text",
+          num: 8,
+          rpt: "1",
+          usage: "O",
+        },
+        {
+          hl7Type: "ID",
+          length: { max: 1 },
+          name: "Conjunction",
+          num: 9,
+          rpt: "1",
+          table: 472,
+          usage: "O",
+        },
+        {
+          hl7Type: "OSD",
+          length: { max: 110 },
+          name: "Order Sequencing",
+          num: 10,
+          rpt: "1",
+          usage: "O",
+        },
+        {
+          hl7Type: "CWE",
+          length: { max: 705 },
+          name: "Occurrence Duration",
+          num: 11,
+          rpt: "1",
+          usage: "O",
+        },
+        {
+          hl7Type: "NM",
+          length: { max: 4 },
+          name: "Total Occurrences",
+          num: 12,
+          rpt: "1",
+          usage: "O",
+        },
+      ],
+      hl7Type: "TQ",
+      length: { max: 60 },
+      name: "When Quantity/Timing Qualifier",
+      num: 9,
+      usage: {
+        "2.3": "O",
+        "2.3.1": "O",
+        "2.4": "O",
+        "2.5": "O",
+        "2.5.1": "O",
+        "2.6": "B",
+      },
+    },
+    {
+      hl7Type: "NM",
+      length: { max: 10 },
+      name: "Search Confidence Threshold",
+      num: 10,
+      usage: { "2.4": "O", "2.5": "O", "2.5.1": "O", "2.6": "O" },
+    },
+  ],
+  name: "QRF",
+  versions: [
+    "2.1",
+    "2.2",
+    "2.3",
+    "2.3.1",
+    "2.4",
+    "2.5",
+    "2.5.1",
+    "2.6",
+    "2.7",
+    "2.7.1",
+    "2.8",
+  ],
+};

@@ -1,23 +1,29 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 /** HL7 2.3 SCH - Scheduling Activity Information */
 export interface HL7_2_3_SCH {
   /** SCH.1 - Placer Appointment ID */
   sch_1?: string;
-  /** SCH.2 - Filler Appointment ID */
-  sch_2?: string;
-  /** SCH.3 - Occurrence Number */
-  sch_3?: string;
-  /** SCH.4 - Placer Group Number */
-  sch_4?: string;
-  /** SCH.5 - Schedule ID */
-  sch_5?: string;
-  /** SCH.6 - Event Reason (required) */
-  sch_6: string;
-  /** SCH.7 - Appointment Reason */
-  sch_7?: string;
-  /** SCH.8 - Appointment Type */
-  sch_8?: string;
-  /** SCH.9 - Appointment Duration */
-  sch_9?: string;
   /** SCH.10 - Appointment Duration Units */
   sch_10?: string;
   /** SCH.11 - Appointment Timing Quantity (required) */
@@ -38,6 +44,8 @@ export interface HL7_2_3_SCH {
   sch_18?: string;
   /** SCH.19 - Filler Contact Location */
   sch_19?: string;
+  /** SCH.2 - Filler Appointment ID */
+  sch_2?: string;
   /** SCH.20 - Entered By Person (required) */
   sch_20: string;
   /** SCH.21 - Entered By Phone Number */
@@ -50,4 +58,18 @@ export interface HL7_2_3_SCH {
   sch_24?: string;
   /** SCH.25 - Filler Status Code */
   sch_25?: string;
+  /** SCH.3 - Occurrence Number */
+  sch_3?: string;
+  /** SCH.4 - Placer Group Number */
+  sch_4?: string;
+  /** SCH.5 - Schedule ID */
+  sch_5?: string;
+  /** SCH.6 - Event Reason (required) */
+  sch_6: string;
+  /** SCH.7 - Appointment Reason */
+  sch_7?: string;
+  /** SCH.8 - Appointment Type */
+  sch_8?: string;
+  /** SCH.9 - Appointment Duration */
+  sch_9?: string;
 }

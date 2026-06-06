@@ -1,0 +1,77 @@
+# MIT License
+#
+# Copyright (c) 2026 Shane
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+name: Release and Publish
+on:
+  workflow_dispatch:
+  workflow_call:
+  release:
+    types:
+      - released
+
+permissions:
+  contents: write
+  actions: write
+  checks: write
+  id-token: write
+
+jobs:
+  Test:
+    uses: ./.github/workflows/action-test.yaml
+
+  Publish:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'release'
+    runs-on: ubuntu-latest
+    needs: ['Test']
+    # id-token: write (declared at workflow scope) is what lets npm verify
+    # the OIDC token issued by GitHub against the trusted-publisher config
+    # registered on npmjs.com for each package.
+    steps:
+      - name: Download the build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: cache
+          path: ./
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          registry-url: 'https://registry.npmjs.org/'
+
+      # OIDC trusted publishing requires npm >= 11.5.1 (the Node 22 LTS image
+      # ships with npm 10.x). Provenance and trusted-publisher auth both
+      # depend on this client.
+      - name: Upgrade npm
+        run: |
+          npm install -g npm@latest
+          npm --version
+
+      # Publish client first because node-hl7-server peer-depends on it (^4.0.0).
+      # No `--token` / NODE_AUTH_TOKEN — npm authenticates to the registry via
+      # the OIDC token issued by GitHub Actions, matched against the trusted
+      # publisher configured on npmjs.com.
+      - name: Publish node-hl7-client
+        working-directory: packages/node-hl7-client
+        run: npm publish --provenance --access public --ignore-scripts
+
+      - name: Publish node-hl7-server
+        working-directory: packages/node-hl7-server
+        run: npm publish --provenance --access public --ignore-scripts

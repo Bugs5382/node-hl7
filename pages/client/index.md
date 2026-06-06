@@ -1,83 +1,78 @@
-# Node HL7 Client :: Documentation
+# 🩺 Node HL7 Client :: Documentation
 
-## Introduction
+> The Node HL7 Client is a TypeScript library for **building**, **sending**, and **parsing** HL7 v2.x messages. Pair it with [`node-hl7-server`](../server/index.md) for full coverage.
 
-The point of Health Level Seven International ("HL7")
-is to allow any application that needs to integrate into the healthcare ecosystem to communicate using a common language.
+## 🌱 Why HL7?
 
-For example, let's take three different medical application and equipment companies:
+Health Level Seven International ("HL7") is the lingua franca for healthcare integrations. Three companies that don't otherwise share infrastructure can still talk to each other:
 
-- **GE Healthcare** — Produces medical equipment and software that goes along with it.
-- **Philips Healthcare** — Produces medical equipment and software that goes along with it.
-- **Epic** — A premier Electronic Medical Record ("EMR") system.
+- 🏥 **Epic** — a premier Electronic Medical Record (EMR) system.
+- 🩻 **GE Healthcare** — imaging and biomedical equipment with bundled software.
+- 🩺 **Philips Healthcare** — patient monitors, diagnostics, and bedside devices.
 
-GE and Philips systems sometimes need to share data with another system,
-like an EMR, to send the results of a patient’s diagnosis.
-Or in the other direction, Epic needs to send information that a patient has been admitted to a facility and transmit orders (i.e., tests to be done) to GE or Philips systems to ensure they are performed — and performed correctly.
+When a patient is admitted in Epic, an ADT^A01 needs to flow to the radiology system so the X-ray modality is ready, and downstream so the lab knows orders are coming. Without HL7, every vendor would need bespoke adapters to every other vendor. With HL7, they all speak one structured text protocol, often over TCP/MLLP.
 
-Since the EMR, GE, and Philips are all different companies,
-they each have their own proprietary systems and can't naturally talk to each other.
+`node-hl7-client` is the **client side** of that conversation — built so a TypeScript / Node.js application can produce well-formed messages and exchange them with a remote HL7 broker.
 
-So HL7 was born.
-HL7 allows GE, Philips, and/or the EMR to generate "results" and/or "communicate" using a shared standard framework.
-You need something in the middle to do that. While there are plenty of paid HL7 interface engines out there — and they do work — they are often expensive.
+> ⚠️ **Note**: This library is *not* the world's authority on HL7. For the canonical specification, see [hl7.org](https://www.hl7.org/implement/standards/index.cfm?ref=nav).
 
-What’s really needed is an HL7 Parser/Builder/Client (Send) — an **"HL7 Client"** — that can do this work programmatically.
+## 🧾 Table of Contents
 
-> ⚠️ **Note**: This is not the world’s authority on HL7.
-> If you need more comprehensive guidance on how to read and understand the HL7 structure,
-> please visit the official HL7 site:
-> [https://www.hl7.org](https://www.hl7.org/implement/standards/index.cfm?ref=nav)
-
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [Solving the Divide](#solving-the-divide)
-3. [Keyword Definitions](#keyword-definitions)
-4. [Layout of Documentation](#layout-of-documentation)
-5. [Copyright Notice](#copyright-notice)
-
-## Solving the Divide
-
-What we are trying to solve with this NPM library is the ability to build an HL7 Client
-that can be brought into the Node.js ecosystem — one that is well documented and strongly typed.
-
-It was also intentionally built to **not rely on outside NPM packages** (other than for development),
-making it both fast and lightweight. At just under 500KB, this package does it all.
-
-There is still more to develop, but this NPM library already covers a lot.
+1. [Why HL7?](#-why-hl7)
+2. [Solving the divide](#-solving-the-divide)
+3. [Documentation layout](#-documentation-layout)
+4. [Keyword definitions](#-keyword-definitions)
+5. [Copyright notice](#-copyright-notice)
 
 ---
 
-## Keyword Definitions
+## 🧩 Solving the divide
 
-This NPM package is designed to support medical applications with potential impact on patient care and diagnoses.
-This package documentation, and its peer package [`node-hl7-server`](#), follow these definitions when it comes to terminology.
+This library exists to make HL7 a first-class citizen of the Node.js ecosystem — strongly typed, well documented, and free of unnecessary dependencies.
 
-Keywords such as "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" are standardized terms for technology documentation interoperability. These words carry the following meanings when you encounter them. They may appear in lowercase throughout the documentation, but the intent remains the same.
-
-- **MUST** – This word, or the terms **REQUIRED** or **SHALL**, means that the definition is an absolute requirement of the specification.
-- **MUST NOT** – This phrase, or the term **SHALL NOT**, means that the definition is an absolute prohibition within the specification.
-- **SHOULD** – This word, or the adjective **RECOMMENDED**, means that there may exist valid reasons in particular circumstances to ignore a specific item, but the full implications must be understood and carefully weighed before choosing a different course.
-- **SHOULD NOT** – This phrase, or the phrase **NOT RECOMMENDED**, means that there may exist valid reasons in particular circumstances when the specified behavior is acceptable or even useful. The full implications should be understood and the case carefully weighed before implementing any behavior described with this label.
-- **MAY** – This word, or the adjective **OPTIONAL**, means that an item is truly optional. Any implementation which does not include a particular option MUST be prepared to interoperate with another implementation that does include the option, though perhaps with reduced functionality. Likewise, an implementation that does include a particular option MUST be prepared to interoperate with another implementation that does not — except, of course, for the feature that the option provides.
-
----
-
-## Layout of Documentation
-
-This documentation is laid out into three parts:
-
-| Section                     | Purpose                                                                                                                                                                                                                                                |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [Builder](builder/index.md) | The builder helps you generate standardized and proper HL7 messages. It’s the heart of generating the messages that need to be sent.                                                                                                                   |
-| [Client](client/index.md)   | The client connects you to a server or broker service to send an HL7 message, and then process the response as needed. If you need to accept messages from an external source, use the peer package `node-hl7-server`, which complements this package. |
-| [Parser](parser/index.md)   | The parser — which is built into the same builder — parses HL7 messages, either from a server response or from HL7-formatted files containing stored messages.                                                                                         |
+| 🎯 What | 🤔 Why |
+|---|---|
+| Pure TypeScript | Compile-time safety against bad segment paths and wrong types. |
+| **Zero runtime dependencies** | Faster cold starts, smaller container images, easier audits. |
+| Typed segment builders (HL7 2.1 → 2.8) | No more hand-typed `MSH|^~\&|...` strings. |
+| Built-in MLLP framing & TLS | Production-ready transport without bolting on a third library. |
+| Pluggable outbound queue | In-memory by default; swap in Redis for k8s deployments. |
 
 ---
 
-## Copyright Notice
+## 🗂️ Documentation layout
 
-Epic, GE, and Philips are all registered trademarks of their respective owners.
-We are using them only as illustrative examples, and we are **not in any way affiliated with or sponsored by** them.
-They are referenced solely to demonstrate how HL7 communication works.
+```mermaid
+flowchart LR
+    A[client/index.md] --> B[client/client/index.md]
+    A --> C[client/builder/index.md]
+    A --> D[client/parser/index.md]
+```
+
+| Section | Purpose |
+|---|---|
+| [🧱 Builder](builder/index.md) | Construct standardized HL7 messages with the new class‑based `HL7_2_x` builders. |
+| [🧬 Segment reference](segments/index.md) | Full compatibility matrix of every supported segment across HL7 v2.1 → v2.8. |
+| [🔌 Client](client/index.md) | Connect to a remote HL7 server, send messages, handle ACKs, customize the queue. |
+| [🔍 Parser](parser/index.md) | Turn raw HL7 strings (single message, batch, or file) back into `Message` objects. |
+| [🏥 Server docs](../server/index.md) | If you also need to **receive** HL7, jump to the server pages. |
+
+---
+
+## 📚 Keyword definitions
+
+This NPM package supports medical applications with potential impact on patient care and diagnoses. The terms **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**, **MAY**, and **OPTIONAL** in the documentation follow [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) semantics.
+
+> ⚠️ **Capitalization matters.** These keywords carry their RFC 2119 meaning **only when written in ALL CAPS**. The lowercase forms (`must`, `should`, `may`, …) are normal English and are not normative.
+
+- **MUST** / **REQUIRED** / **SHALL** — absolute requirement of the specification.
+- **MUST NOT** / **SHALL NOT** — absolute prohibition.
+- **SHOULD** / **RECOMMENDED** — there may be valid reasons to deviate, but only after carefully weighing the implications.
+- **SHOULD NOT** / **NOT RECOMMENDED** — there may be valid reasons to allow the behavior, again with care.
+- **MAY** / **OPTIONAL** — purely optional. Implementations on either side MUST interoperate.
+
+---
+
+## ©️ Copyright notice
+
+Epic, GE, and Philips are registered trademarks of their respective owners. They appear here only as illustrative examples — this project is **not** affiliated with or sponsored by any of them.

@@ -2,19 +2,26 @@
   "name": "docker-hl7-server",
   "version": "1.0.0",
   "private": true,
+  "description": "Minimal node-hl7-server example image, suitable for Docker / Kubernetes.",
   "scripts": {
     "server": "node server.js",
     "server:tls": "node tls.server.js"
   },
-  "description": "Simple Server running on Docker",
+  "dependencies": {
+    "node-hl7-client": "file:../packages/node-hl7-client",
+    "node-hl7-server": "file:../packages/node-hl7-server"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "author": "Shane Froebel",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Bugs5382/node-hl7-server/issues"
+    "url": "https://github.com/Bugs5382/node-hl7/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Bugs5382/node-hl7-server.git"
+    "url": "git+https://github.com/Bugs5382/node-hl7.git"
   },
   "keywords": [
     "hl7",
@@ -22,11 +29,8 @@
     "hl7-client",
     "hl7-server",
     "hl7-builder",
-    "hl7-speffications",
+    "hl7-specifications",
     "hl7-validation"
   ],
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "homepage": "https://github.com/Bugs5382/node-hl7-server#readme"
+  "homepage": "https://github.com/Bugs5382/node-hl7#readme"
 }
