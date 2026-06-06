@@ -1,8 +1,31 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 import { Delimiters } from "@/declaration/enum";
 import { HL7FatalError } from "@/helpers/exception";
 import { ClientBuilderMessageOptions } from "@/modules/types";
 import { decodeHexString } from "@/utils/decodeHexString";
 import { escapeForRegExp } from "@/utils/escapeForRegExp";
+
 import { NodeBase } from "./nodeBase";
 
 /**
@@ -12,27 +35,34 @@ import { NodeBase } from "./nodeBase";
  */
 export class RootBase extends NodeBase {
   /** @internal */
-  _opt: any;
-
-  /** @internal */
-  private readonly _delimiters: string;
-  /** @internal */
-  private readonly _matchEscape: RegExp;
-  /** @internal */
-  private readonly _matchUnescape: RegExp;
-
-  /** @internal */
   private static readonly _defaultDelimiters = "\r|^~\\&";
+
+  /** @internal */
+  private static readonly _defaultMatchEscape = RootBase._makeMatchEscape(
+    RootBase._defaultDelimiters,
+  );
   /** @internal */
   private static readonly _defaultMatchUnescape = RootBase._makeMatchUnescape(
     RootBase._defaultDelimiters,
   );
   /** @internal */
-  private static readonly _defaultMatchEscape = RootBase._makeMatchEscape(
-    RootBase._defaultDelimiters,
-  );
+  _opt: any;
+
+  /** @internal */
+  get delimiters(): string {
+    return this._delimiters;
+  }
+  /** @internal */
+  private readonly _delimiters: string;
+  /** @internal */
+  private readonly _matchEscape: RegExp;
+
+  /** @internal */
+  private readonly _matchUnescape: RegExp;
 
   constructor(opt: ClientBuilderMessageOptions) {
+    // RootBase has no parent — NodeBase models the absent parent as `null`.
+    // eslint-disable-next-line unicorn/no-null
     super(null, opt.text, Delimiters.Segment);
 
     this._delimiters = `${opt.newLine as string}${opt.separatorField as string}${opt.separatorComponent as string}${opt.separatorRepetition as string}${opt.separatorEscape as string}${opt.separatorSubComponent as string}`;
@@ -45,10 +75,25 @@ export class RootBase extends NodeBase {
       this._matchEscape = RootBase._makeMatchEscape(this._delimiters);
     }
   }
-
   /** @internal */
-  get delimiters(): string {
-    return this._delimiters;
+  protected static _makeMatchEscape(delimiters: string): RegExp {
+    const sequences = [
+      escapeForRegExp(delimiters[Delimiters.Escape]),
+      escapeForRegExp(delimiters[Delimiters.Field]),
+      escapeForRegExp(delimiters[Delimiters.Repetition]),
+      escapeForRegExp(delimiters[Delimiters.Component]),
+      escapeForRegExp(delimiters[Delimiters.SubComponent]),
+    ];
+    return new RegExp(sequences.join("|"), "g");
+  }
+  /** @internal */
+  protected static _makeMatchUnescape(delimiters: string): RegExp {
+    // setup regular expression for matching escape sequences, see http://www.hl7standards.com/blog/2006/11/02/hl7-escape-sequences/
+    const matchEscape = escapeForRegExp(delimiters[Delimiters.Escape]);
+    return new RegExp(
+      [matchEscape, "[^", matchEscape, "]*", matchEscape].join(""),
+      "g",
+    );
   }
   /** @internal */
   escape(text: string): string {
@@ -87,6 +132,7 @@ export class RootBase extends NodeBase {
     //   throw new HL7FatalError(`Escape sequence for ${match} is not known.`);
     // });
   }
+
   /** @internal */
   unescape(text: string): string {
     if (text === null) {
@@ -100,50 +146,37 @@ export class RootBase extends NodeBase {
 
     return text.replace(this._matchUnescape, (match: string) => {
       switch (match.slice(1, 2)) {
-        case "E":
-          return this._delimiters[Delimiters.Escape];
-        case "F":
-          return this._delimiters[Delimiters.Field];
-        case "R":
-          return this._delimiters[Delimiters.Repetition];
-        case "S":
-          return this._delimiters[Delimiters.Component];
-        case "T":
-          return this._delimiters[Delimiters.SubComponent];
-        case "X":
-          return decodeHexString(match.slice(2, match.length - 1));
         case "C":
         case "H":
         case "M":
         case "N":
-        case "Z":
+        case "Z": {
           break;
-        default:
+        }
+        case "E": {
+          return this._delimiters[Delimiters.Escape];
+        }
+        case "F": {
+          return this._delimiters[Delimiters.Field];
+        }
+        case "R": {
+          return this._delimiters[Delimiters.Repetition];
+        }
+        case "S": {
+          return this._delimiters[Delimiters.Component];
+        }
+        case "T": {
+          return this._delimiters[Delimiters.SubComponent];
+        }
+        case "X": {
+          return decodeHexString(match.slice(2, -1));
+        }
+        default: {
           return match;
+        }
       }
 
       return "";
     });
-  }
-  /** @internal */
-  protected static _makeMatchEscape(delimiters: string): RegExp {
-    const sequences = [
-      escapeForRegExp(delimiters[Delimiters.Escape]),
-      escapeForRegExp(delimiters[Delimiters.Field]),
-      escapeForRegExp(delimiters[Delimiters.Repetition]),
-      escapeForRegExp(delimiters[Delimiters.Component]),
-      escapeForRegExp(delimiters[Delimiters.SubComponent]),
-    ];
-    return new RegExp(sequences.join("|"), "g");
-  }
-
-  /** @internal */
-  protected static _makeMatchUnescape(delimiters: string): RegExp {
-    // setup regular expression for matching escape sequences, see http://www.hl7standards.com/blog/2006/11/02/hl7-escape-sequences/
-    const matchEscape = escapeForRegExp(delimiters[Delimiters.Escape]);
-    return new RegExp(
-      [matchEscape, "[^", matchEscape, "]*", matchEscape].join(""),
-      "g",
-    );
   }
 }

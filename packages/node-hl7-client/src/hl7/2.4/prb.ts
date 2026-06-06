@@ -1,23 +1,29 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 /** HL7 2.4 PRB - Problem Detail */
 export interface HL7_2_4_PRB {
   /** PRB.1 - Action Code (required) */
   prb_1: "AD" | "CO" | "DE" | "LI" | "UC" | "UN";
-  /** PRB.2 - Action Date/Time (required) */
-  prb_2: Date | string;
-  /** PRB.3 - Problem ID (required) */
-  prb_3: string;
-  /** PRB.4 - Problem Instance ID (required) */
-  prb_4: string;
-  /** PRB.5 - Episode of Care ID */
-  prb_5?: string;
-  /** PRB.6 - Problem List Priority */
-  prb_6?: number | string;
-  /** PRB.7 - Problem Established Date/Time */
-  prb_7?: Date | string;
-  /** PRB.8 - Anticipated Problem Resolution Date/Time */
-  prb_8?: Date | string;
-  /** PRB.9 - Actual Problem Resolution Date/Time */
-  prb_9?: Date | string;
   /** PRB.10 - Problem Classification */
   prb_10?: string;
   /** PRB.11 - Problem Management Discipline */
@@ -38,6 +44,8 @@ export interface HL7_2_4_PRB {
   prb_18?: string;
   /** PRB.19 - Certainty of Problem */
   prb_19?: string;
+  /** PRB.2 - Action Date/Time (required) */
+  prb_2: Date | string;
   /** PRB.20 - Probability of Problem (0-1) */
   prb_20?: number | string;
   /** PRB.21 - Individual Awareness of Problem */
@@ -52,4 +60,18 @@ export interface HL7_2_4_PRB {
   prb_25?: string;
   /** PRB.26 - Problem Severity */
   prb_26?: string;
+  /** PRB.3 - Problem ID (required) */
+  prb_3: string;
+  /** PRB.4 - Problem Instance ID (required) */
+  prb_4: string;
+  /** PRB.5 - Episode of Care ID */
+  prb_5?: string;
+  /** PRB.6 - Problem List Priority */
+  prb_6?: number | string;
+  /** PRB.7 - Problem Established Date/Time */
+  prb_7?: Date | string;
+  /** PRB.8 - Anticipated Problem Resolution Date/Time */
+  prb_8?: Date | string;
+  /** PRB.9 - Actual Problem Resolution Date/Time */
+  prb_9?: Date | string;
 }

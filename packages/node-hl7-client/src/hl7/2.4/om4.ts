@@ -1,23 +1,29 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 /** HL7 2.4 OM4 - Observations Requiring Specimens */
 export interface HL7_2_4_OM4 {
   /** OM4.1 - Sequence Number */
   om4_1?: number | string;
-  /** OM4.2 - Derived Specimen */
-  om4_2?: string;
-  /** OM4.3 - Container Description */
-  om4_3?: string;
-  /** OM4.4 - Container Volume */
-  om4_4?: number | string;
-  /** OM4.5 - Container Units */
-  om4_5?: string;
-  /** OM4.6 - Specimen */
-  om4_6?: string;
-  /** OM4.7 - Additive */
-  om4_7?: string;
-  /** OM4.8 - Preparation */
-  om4_8?: string;
-  /** OM4.9 - Special Handling Requirements */
-  om4_9?: string;
   /** OM4.10 - Normal Collection Volume */
   om4_10?: string;
   /** OM4.11 - Minimum Collection Volume */
@@ -38,4 +44,20 @@ export interface HL7_2_4_OM4 {
   om4_18?: string;
   /** OM4.19 - Specimen Collection Site */
   om4_19?: string;
+  /** OM4.2 - Derived Specimen */
+  om4_2?: string;
+  /** OM4.3 - Container Description */
+  om4_3?: string;
+  /** OM4.4 - Container Volume */
+  om4_4?: number | string;
+  /** OM4.5 - Container Units */
+  om4_5?: string;
+  /** OM4.6 - Specimen */
+  om4_6?: string;
+  /** OM4.7 - Additive */
+  om4_7?: string;
+  /** OM4.8 - Preparation */
+  om4_8?: string;
+  /** OM4.9 - Special Handling Requirements */
+  om4_9?: string;
 }

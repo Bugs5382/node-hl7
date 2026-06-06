@@ -1,154 +1,181 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 import { Client, HL7FatalError } from "node-hl7-client/src";
 import { beforeEach, describe, expect, test } from "vitest";
+
 import { expectHL7FatalError } from "./__utils__/expectHL7FatalError";
 
 describe("node hl7 client", () => {
-  describe("sanity tests - client class", () => {
+  describe("Client class", () => {
     describe("valid", () => {
       test("valid - properties exist", async () => {
         const client = new Client({ host: "hl7.server.local" });
         expect(client).toHaveProperty("createConnection");
       });
 
-      test("valid - ensure getHost() is what we set in the host", async () => {
+      test("getHost returns the configured host", async () => {
         const client = new Client({ host: "hl7.server.local" });
         expect(client.getHost()).toEqual("hl7.server.local");
       });
 
-      test("valid - port is being set correctly", async () => {
+      test("port is set on outbound connection", async () => {
         const client = new Client({ host: "hl7.server.local" });
         const outbound = client.createConnection(
-          // @ts-ignore message is not doing anything
-          { port: 12345, autoConnect: false },
+          { autoConnect: false, port: 12_345 },
           async () => {},
         );
 
-        expect(outbound.getPort()).toEqual(12345);
+        expect(outbound.getPort()).toEqual(12_345);
       });
     });
 
     describe("errors", () => {
-      test("error - hostname has to be string", async () => {
+      test("rejects host with non-string type", async () => {
+        expect.assertions(1);
         try {
-          // @ts-expect-error this is not a string
-          new Client({ host: 351123 });
-        } catch (err: any) {
-          expect(err.message).toBe("hostname is not valid string.");
+          // @ts-expect-error hostname has to be string
+          new Client({ host: 351_123 });
+        } catch (error: any) {
+          expect(error.message).toBe("host is not valid string.");
         }
       });
 
-      test("error - ipv4 and ipv6 both can not be true exist", async () => {
-        try {
-          new Client({ host: "5.8.6.1", ipv6: true, ipv4: true });
-        } catch (err: any) {
-          expect(err.message).toBe(
-            "ipv4 and ipv6 both can't be set to be both used exclusively.",
-          );
-        }
+      test("accepts ipv4 and ipv6 both true (dual-stack)", async () => {
+        expect(
+          () => new Client({ host: "5.8.6.1", ipv4: true, ipv6: true }),
+        ).not.toThrow();
       });
 
-      test("error - ipv4 not valid address", async () => {
+      test("rejects malformed IPv4 host when ipv4 is exclusive", async () => {
+        expect.assertions(1);
         try {
           new Client({ host: "123.34.52.455", ipv4: true });
-        } catch (err: any) {
-          expect(err.message).toBe("hostname is not a valid IPv4 address.");
+        } catch (error: any) {
+          expect(error.message).toBe("host is not a valid IPv4 address.");
         }
       });
 
-      test("error - ipv4 valid address", async () => {
-        try {
-          new Client({ host: "123.34.52.45", ipv4: true });
-        } catch (err: any) {
-          expect(err.message).toBeUndefined();
-        }
+      test("accepts valid IPv4 host when ipv4 is exclusive", async () => {
+        expect(
+          () => new Client({ host: "123.34.52.45", ipv4: true }),
+        ).not.toThrow();
       });
 
-      test("error - ipv6 not valid address", async () => {
+      test("rejects malformed IPv6 host when ipv6 is exclusive", async () => {
+        expect.assertions(1);
         try {
           new Client({
             host: "2001:0db8:85a3:0000:zz00:8a2e:0370:7334",
             ipv6: true,
           });
-        } catch (err: any) {
-          expect(err.message).toBe("hostname is not a valid IPv6 address.");
+        } catch (error: any) {
+          expect(error.message).toBe("host is not a valid IPv6 address.");
         }
       });
 
-      test("error - ipv6 valid address", async () => {
+      test("accepts valid IPv6 host when ipv6 is exclusive", async () => {
+        expect(
+          () =>
+            new Client({
+              host: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+              ipv6: true,
+            }),
+        ).not.toThrow();
+      });
+
+      test("rejects ipv4 and ipv6 both false", async () => {
+        expect.assertions(1);
         try {
-          new Client({
-            host: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-            ipv6: true,
-          });
-        } catch (err: any) {
-          expect(err.message).toBeUndefined();
+          new Client({ host: "192.0.2.1", ipv4: false, ipv6: false });
+        } catch (error: any) {
+          expect(error.message).toBe(
+            "ipv4 and ipv6 cannot both be disabled — at least one address family must be enabled.",
+          );
         }
       });
     });
   });
 
-  describe("sanity tests - listener class", () => {
+  describe("Outbound connection options", () => {
     let client: Client;
 
     beforeEach(() => {
       client = new Client({ host: "localhost" });
     });
 
-    test("error - no port specified", async () => {
+    test("rejects createConnection with no port", async () => {
       try {
-        // @ts-expect-error port is not specified
+        // @ts-expect-error no port specified
         client.createConnection();
-      } catch (err: any) {
-        expect(err.message).toBe("port is not defined.");
+      } catch (error: any) {
+        expect(error.message).toBe("port is not defined.");
       }
     });
 
-    test("error - port not a number", async () => {
+    test("rejects port given as a string", async () => {
       try {
         // @ts-expect-error port is not specified as a number
         client.createConnection({ port: "12345" }, async () => {});
-      } catch (err: any) {
-        expect(err.message).toBe("port is not valid number.");
+      } catch (error: any) {
+        expect(error.message).toBe("port is not valid number.");
       }
     });
 
-    test("error - port less than 0", async () => {
+    test("rejects negative port", async () => {
       try {
         client.createConnection({ port: -1 }, async () => {});
-      } catch (err: any) {
-        expect(err.message).toBe("port must be a number (1, 65353).");
+      } catch (error: any) {
+        expect(error.message).toBe("port must be a number (1, 65353).");
       }
     });
 
-    test("error - port greater than 65353", async () => {
+    test("rejects port above 65353", async () => {
       try {
-        client.createConnection({ port: 65354 }, async () => {});
-      } catch (err: any) {
-        expect(err.message).toBe("port must be a number (1, 65353).");
+        client.createConnection({ port: 65_354 }, async () => {});
+      } catch (error: any) {
+        expect(error.message).toBe("port must be a number (1, 65353).");
       }
     });
 
-    test("error - flushQueue needs to be set", async () => {
-      try {
-        client.createConnection(
-          // @ts-ignore message is not doing anything
-          { port: 12345, enqueueMessage: (message) => {} },
-          async () => {},
-        );
-      } catch (err) {
-        expect(err).toEqual(new HL7FatalError("flushQueue is not set."));
-      }
-    });
-
-    test("error - enqueueMessage needs to be set", async () => {
+    test("rejects enqueueMessage without flushQueue", async () => {
       try {
         client.createConnection(
-          // @ts-ignore message is not doing anything
-          { port: 12345, flushQueue: (message) => {} },
+          { enqueueMessage: (_message) => {}, port: 12_345 },
           async () => {},
         );
-      } catch (err) {
-        expectHL7FatalError(err, "enqueueMessage is not set.");
+      } catch (error) {
+        expect(error).toEqual(new HL7FatalError("flushQueue is not set."));
+      }
+    });
+
+    test("rejects flushQueue without enqueueMessage", async () => {
+      try {
+        client.createConnection(
+          { flushQueue: (_message) => {}, port: 12_345 },
+          async () => {},
+        );
+      } catch (error) {
+        expectHL7FatalError(error, "enqueueMessage is not set.");
       }
     });
   });

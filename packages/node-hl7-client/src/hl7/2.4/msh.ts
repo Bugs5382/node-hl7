@@ -1,13 +1,35 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 import { HL7_2_3_1_MSH } from "@/hl7/2.3.1/msh";
 
 /**
  * HL7 2.4 MSH Specification
  * @since 1.0.0
  */
-export type HL7_2_4_MSH = HL7_2_3_1_MSH & {
+export type HL7_2_4_MSH = {
+  /** Processing Mode — adds "T" in 2.4 */
+  msh_11_2?: "" | "A" | "I" | "R" | "T";
   /** Message Structure (e.g. "ADT_A01")
    * @default Combination of msh_9_1 and msh_9_2 with underscore */
   msh_9_3?: string;
-  /** Processing Mode — adds "T" in 2.4 */
-  msh_11_2?: "A" | "I" | "R" | "T" | "";
-};
+} & HL7_2_3_1_MSH;

@@ -1,0 +1,70 @@
+version: '3'
+vars:
+  GOLIC_VERSION: v0.2.0
+  COMMON_LIC: "2026 Shane"
+  TEMPLATE_LIC: "mit"
+tasks:
+  default:
+    cmds:
+      - task: lint
+  lint-init:
+    desc: Install linting tools via Brew
+    cmds:
+      - brew install golangci-lint gitleaks yamllint
+      - go install golang.org/x/tools/cmd/goimports@latest
+  lint:
+    desc: Run all linters and formatters
+    deps: [license]
+    cmds:
+      - goimports -w ./
+      - yamllint .
+      - gitleaks detect . --no-git --verbose --config=.gitleaks.toml
+  license:
+    desc: License injection
+    cmds:
+      - task: golic-inject-run
+        vars: { ARGS: '-t {{.TEMPLATE_LIC}} -c "{{.COMMON_LIC}}"' }
+  license-dry:
+    desc: Dry run for license injection
+    cmds:
+      - task: golic-inject-run
+        vars: { ARGS: '-d -t {{.TEMPLATE_LIC}} -c "{{.COMMON_LIC}}"' }
+  license-remove:
+    desc: License remove
+    cmds:
+      - task: golic-remove-run
+        vars: { ARGS: '-t {{.TEMPLATE_LIC}} -c "{{.COMMON_LIC}}"' }
+  license-remove-dry:
+    desc: Dry run for license remove
+    cmds:
+      - task: golic-remove-run
+        vars: { ARGS: '-d -t {{.TEMPLATE_LIC}} -c "{{.COMMON_LIC}}"' }
+  update-helm-version:
+    desc: Updates the Helm chart version in Chart.yaml
+    vars:
+      NEW_VERSION: '{{ default "0.0.0" .NEW_VERSION }}'
+    preconditions:
+      - sh: command -v yq
+        msg: "yq is not installed. Install it via 'brew install yq' or the GitHub Action."
+    cmds:
+      - yq -i '.version = "{{.NEW_VERSION}}"' "{{.TASKFILE_DIR}}/technitium/Chart.yaml"
+  update-version:
+    desc: Updates the version in both workspace package.json files (strips leading 'v')
+    vars:
+      NEW_VERSION: '{{ default "0.0.0" .NEW_VERSION }}'
+    cmds:
+      - |
+        VERSION="{{.NEW_VERSION}}"
+        VERSION="${VERSION#v}"
+        npm pkg set version="$VERSION" --workspace=packages/node-hl7-client --workspace=packages/node-hl7-server
+        echo "Updated both workspaces to $VERSION"
+  golic-inject-run:
+    internal: true
+    cmds:
+      - go install github.com/Bugs5382/golic/cmd/golic@{{.GOLIC_VERSION}}
+      - "golic inject {{.ARGS}}"
+  golic-remove-run:
+    internal: true
+    cmds:
+      - go install github.com/Bugs5382/golic/cmd/golic@{{.GOLIC_VERSION}}
+      - "golic remove {{.ARGS}}"

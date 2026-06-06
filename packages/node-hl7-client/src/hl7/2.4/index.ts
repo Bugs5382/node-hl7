@@ -1,23 +1,69 @@
-import { randomString } from "@/utils/randomString";
-import { HL7_2_1_MSH, HL7_2_1_PID, HL7_2_1_OBR, HL7_2_1_ORC } from "@/hl7/2.1/types";
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+import {
+  HL7_2_1_MSH,
+  HL7_2_1_OBR,
+  HL7_2_1_ORC,
+  HL7_2_1_PID,
+} from "@/hl7/2.1/types";
 import { HL7_2_3_1 } from "@/hl7/2.3.1";
-import { ClientBuilderOptions_Hl7_2_4 } from "./types";
-import { HL7_2_4_MSH } from "./msh";
-import { HL7_2_4_PID } from "./pid";
-import { HL7_2_4_OBR } from "./obr";
-import { HL7_2_4_ORC } from "./orc";
+import { DRG_SPEC } from "@/hl7/metadata/segments/drg";
+import { ECD_SPEC } from "@/hl7/metadata/segments/ecd";
+import { GOL_SPEC } from "@/hl7/metadata/segments/gol";
+import { IAM_SPEC } from "@/hl7/metadata/segments/iam";
+import { OBR_SPEC } from "@/hl7/metadata/segments/obr";
+import { OM1_SPEC } from "@/hl7/metadata/segments/om1";
+import { OM2_SPEC } from "@/hl7/metadata/segments/om2";
+import { OM3_SPEC } from "@/hl7/metadata/segments/om3";
+import { OM4_SPEC } from "@/hl7/metadata/segments/om4";
+import { OM5_SPEC } from "@/hl7/metadata/segments/om5";
+import { OM6_SPEC } from "@/hl7/metadata/segments/om6";
+import { ORC_SPEC } from "@/hl7/metadata/segments/orc";
+import { PID_SPEC } from "@/hl7/metadata/segments/pid";
+import { PRB_SPEC } from "@/hl7/metadata/segments/prb";
+import { PTH_SPEC } from "@/hl7/metadata/segments/pth";
+import { TXA_SPEC } from "@/hl7/metadata/segments/txa";
+import { HL7_ECD } from "@/hl7/types/ecd";
+import { randomString } from "@/utils/randomString";
+
+import { HL7_2_4_DRG } from "./drg";
+import { HL7_2_4_ECD } from "./ecd";
 import { HL7_2_4_GOL } from "./gol";
-import { HL7_2_4_PRB } from "./prb";
-import { HL7_2_4_PTH } from "./pth";
-import { HL7_2_4_TXA } from "./txa";
 import { HL7_2_4_IAM } from "./iam";
+import { HL7_2_4_MSH } from "./msh";
+import { HL7_2_4_OBR } from "./obr";
 import { HL7_2_4_OM1 } from "./om1";
 import { HL7_2_4_OM2 } from "./om2";
 import { HL7_2_4_OM3 } from "./om3";
 import { HL7_2_4_OM4 } from "./om4";
 import { HL7_2_4_OM5 } from "./om5";
 import { HL7_2_4_OM6 } from "./om6";
-import { HL7_2_4_DRG } from "./drg";
+import { HL7_2_4_ORC } from "./orc";
+import { HL7_2_4_PID } from "./pid";
+import { HL7_2_4_PRB } from "./prb";
+import { HL7_2_4_PTH } from "./pth";
+import { HL7_2_4_TXA } from "./txa";
+import { ClientBuilderOptions_Hl7_2_4 } from "./types";
 
 export type { HL7_2_4_MSH } from "./msh";
 export type { ClientBuilderOptions_Hl7_2_4 } from "./types";
@@ -27,15 +73,33 @@ export type { ClientBuilderOptions_Hl7_2_4 } from "./types";
  * @since 1.0.0
  */
 export class HL7_2_4 extends HL7_2_3_1 {
-  constructor(props?: ClientBuilderOptions_Hl7_2_4) {
-    super(props);
+  constructor(properties?: ClientBuilderOptions_Hl7_2_4) {
+    super(properties);
     this.version = "2.4";
+  }
+
+  /**
+   * Build the ECD (Equipment Command) segment.
+   *
+   * @remarks
+   * Introduced in HL7 v2.4. Field-level validation (R/O/B/W/D) is driven by
+   * `ECD_SPEC` and the per-version `usage` map, so the same method body
+   * automatically does the right thing in derived classes (v2.5 → v2.8). For
+   * example, on a v2.8 builder, attempting to set `ecd_4` throws because that
+   * field is `W` (Withdrawn) in v2.8.
+   *
+   * @since 4.0.0
+   */
+  buildECD(properties: Partial<HL7_2_4_ECD>): this {
+    this.headerExists();
+    this._buildECD(properties);
+    return this;
   }
 
   checkMSH(msh: HL7_2_4_MSH): boolean {
     super.checkMSH(msh);
     if (
-      typeof msh.msh_9_3 !== "undefined" &&
+      msh.msh_9_3 !== undefined &&
       (msh.msh_9_3.length < 3 || msh.msh_9_3.length > 10)
     ) {
       throw new Error(
@@ -45,471 +109,962 @@ export class HL7_2_4 extends HL7_2_3_1 {
     return true;
   }
 
-  protected _buildMSH(props: Partial<HL7_2_1_MSH>): void {
-    const msh = props as unknown as Partial<HL7_2_4_MSH>;
+  protected _buildDRG(properties: Partial<HL7_2_4_DRG>): void {
+    this._assertSegmentInVersion(DRG_SPEC);
+    this._segment = this._message.addSegment("DRG");
+    this._validatorSetField(DRG_SPEC, 1, properties.drg_1, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(
+      DRG_SPEC,
+      2,
+      properties.drg_2 instanceof Date &&
+        !Number.isNaN(properties.drg_2.getTime())
+        ? this.setDate(properties.drg_2, this._opt.date)
+        : (properties.drg_2 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(DRG_SPEC, 3, properties.drg_3, {
+      allowedValues: ["Y", "N"],
+      length: 1,
+    });
+    this._validatorSetField(DRG_SPEC, 4, properties.drg_4, {
+      length: { max: 2, min: 1 },
+    });
+    this._validatorSetField(DRG_SPEC, 5, properties.drg_5, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(DRG_SPEC, 6, String(properties.drg_6 ?? ""), {
+      length: { max: 3, min: 1 },
+    });
+    this._validatorSetField(DRG_SPEC, 7, properties.drg_7, {
+      length: { max: 12, min: 1 },
+    });
+    this._validatorSetField(DRG_SPEC, 8, properties.drg_8, {
+      length: { max: 250, min: 1 },
+    });
+  }
+
+  protected _buildECD(properties: Partial<HL7_ECD>): void {
+    this._assertSegmentInVersion(ECD_SPEC);
+    this._segment = this._message.addSegment("ECD");
+    this._validatorSetField(
+      ECD_SPEC,
+      1,
+      properties.ecd_1 ?? properties.referenceCommandNumber,
+    );
+    this._validatorSetField(
+      ECD_SPEC,
+      2,
+      properties.ecd_2 ?? properties.remoteControlCommand,
+    );
+    this._validatorSetField(
+      ECD_SPEC,
+      3,
+      properties.ecd_3 ?? properties.responseRequired,
+    );
+    this._validatorSetField(
+      ECD_SPEC,
+      4,
+      properties.ecd_4 ?? properties.requestedCompletionTime,
+    );
+    this._validatorSetField(
+      ECD_SPEC,
+      5,
+      properties.ecd_5 ?? properties.parameters,
+    );
+  }
+
+  protected _buildGOL(properties: Partial<HL7_2_4_GOL>): void {
+    this._assertSegmentInVersion(GOL_SPEC);
+    this._segment = this._message.addSegment("GOL");
+    this._validatorSetField(GOL_SPEC, 1, properties.gol_1, {
+      allowedValues: ["AD", "CO", "DE", "LI", "UC", "UN"],
+    });
+    this._validatorSetField(
+      GOL_SPEC,
+      2,
+      properties.gol_2 instanceof Date &&
+        !Number.isNaN(properties.gol_2.getTime())
+        ? this.setDate(properties.gol_2, this._opt.date)
+        : (properties.gol_2 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(GOL_SPEC, 3, properties.gol_3, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(GOL_SPEC, 4, properties.gol_4, {
+      length: { max: 60, min: 1 },
+    });
+    this._validatorSetField(GOL_SPEC, 5, properties.gol_5, {
+      length: { max: 60, min: 1 },
+    });
+    this._validatorSetField(GOL_SPEC, 6, String(properties.gol_6 ?? ""), {
+      length: { max: 60, min: 1 },
+    });
+    this._validatorSetField(
+      GOL_SPEC,
+      7,
+      properties.gol_7 instanceof Date &&
+        !Number.isNaN(properties.gol_7.getTime())
+        ? this.setDate(properties.gol_7, this._opt.date)
+        : (properties.gol_7 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(
+      GOL_SPEC,
+      8,
+      properties.gol_8 instanceof Date &&
+        !Number.isNaN(properties.gol_8.getTime())
+        ? this.setDate(properties.gol_8, this._opt.date)
+        : (properties.gol_8 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(
+      GOL_SPEC,
+      9,
+      properties.gol_9 instanceof Date &&
+        !Number.isNaN((properties.gol_9 as Date).getTime())
+        ? this.setDate(properties.gol_9 as Date, this._opt.date)
+        : (properties.gol_9 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(GOL_SPEC, 10, properties.gol_10, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(GOL_SPEC, 11, properties.gol_11, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(
+      GOL_SPEC,
+      12,
+      properties.gol_12 instanceof Date &&
+        !Number.isNaN(properties.gol_12.getTime())
+        ? this.setDate(properties.gol_12, this._opt.date)
+        : (properties.gol_12 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(
+      GOL_SPEC,
+      13,
+      properties.gol_13 instanceof Date &&
+        !Number.isNaN(properties.gol_13.getTime())
+        ? this.setDate(properties.gol_13, this._opt.date)
+        : (properties.gol_13 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(
+      GOL_SPEC,
+      14,
+      properties.gol_14 instanceof Date &&
+        !Number.isNaN(properties.gol_14.getTime())
+        ? this.setDate(properties.gol_14, this._opt.date)
+        : (properties.gol_14 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(
+      GOL_SPEC,
+      15,
+      properties.gol_15 instanceof Date &&
+        !Number.isNaN(properties.gol_15.getTime())
+        ? this.setDate(properties.gol_15, this._opt.date)
+        : (properties.gol_15 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(GOL_SPEC, 16, properties.gol_16, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(GOL_SPEC, 17, properties.gol_17, {
+      length: { max: 300, min: 1 },
+    });
+    this._validatorSetField(GOL_SPEC, 18, properties.gol_18, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(
+      GOL_SPEC,
+      19,
+      properties.gol_19 instanceof Date &&
+        !Number.isNaN(properties.gol_19.getTime())
+        ? this.setDate(properties.gol_19, this._opt.date)
+        : (properties.gol_19 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(GOL_SPEC, 20, properties.gol_20, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(GOL_SPEC, 21, properties.gol_21, {
+      length: { max: 250, min: 1 },
+    });
+  }
+
+  protected _buildIAM(properties: Partial<HL7_2_4_IAM>): void {
+    this._assertSegmentInVersion(IAM_SPEC);
+    this._segment = this._message.addSegment("IAM");
+    this._validatorSetField(IAM_SPEC, 1, String(properties.iam_1 ?? ""), {
+      length: { max: 4, min: 1 },
+    });
+    this._validatorSetField(IAM_SPEC, 2, properties.iam_2, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(IAM_SPEC, 3, properties.iam_3, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(IAM_SPEC, 4, properties.iam_4, {
+      allowedValues: ["MI", "MO", "SV", "U"],
+    });
+    this._validatorSetField(IAM_SPEC, 5, properties.iam_5, {
+      length: { max: 15, min: 1 },
+    });
+    this._validatorSetField(IAM_SPEC, 6, properties.iam_6, {
+      allowedValues: ["A", "D", "U"],
+    });
+    this._validatorSetField(IAM_SPEC, 7, properties.iam_7, {
+      length: { max: 60, min: 1 },
+    });
+    this._validatorSetField(IAM_SPEC, 8, properties.iam_8, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(IAM_SPEC, 9, properties.iam_9, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(IAM_SPEC, 10, properties.iam_10, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(
+      IAM_SPEC,
+      11,
+      properties.iam_11 instanceof Date &&
+        !Number.isNaN(properties.iam_11.getTime())
+        ? this.setDate(properties.iam_11, this._opt.date)
+        : (properties.iam_11 ?? ""),
+      { type: "date" },
+    );
+  }
+
+  protected _buildMSH(properties: Partial<HL7_2_1_MSH>): void {
+    const msh = properties as unknown as Partial<HL7_2_4_MSH>;
     this._segment = this._message.addSegment("MSH");
 
     this._validatorSetValue(
       "1",
       `${this._opt.separatorComponent as string}${this._opt.separatorRepetition as string}${this._opt.separatorEscape as string}${this._opt.separatorSubComponent as string}`,
-      { required: true, length: 4 },
+      { length: 4, required: true },
     );
     this._validatorSetValue("3", msh.msh_3 || msh.sendingApplication, {
-      length: { min: 1, max: 15 },
+      length: { max: 15, min: 1 },
     });
     this._validatorSetValue("4", msh.msh_4 || msh.sendingFacility, {
-      length: { min: 1, max: 20 },
+      length: { max: 20, min: 1 },
     });
     this._validatorSetValue("5", msh.msh_5 || msh.receivingApplication, {
-      length: { min: 1, max: 15 },
+      length: { max: 15, min: 1 },
     });
     this._validatorSetValue("6", msh.msh_6 || msh.receivingFacility, {
-      length: { min: 1, max: 20 },
+      length: { max: 20, min: 1 },
     });
     this._validatorSetValue(
       "7",
-      msh.msh_7 instanceof Date && !isNaN(msh.msh_7.getTime())
+      msh.msh_7 instanceof Date && !Number.isNaN(msh.msh_7.getTime())
         ? this.setDate(msh.msh_7, this._opt.date)
         : this.setDate(new Date(), this._opt.date),
       { required: true, type: "date" },
     );
-    this._validatorSetValue("8", msh.msh_8, { length: { min: 1, max: 40 } });
+    this._validatorSetValue("8", msh.msh_8, { length: { max: 40, min: 1 } });
     this._validatorSetValue("9.1", msh.msh_9_1, {
+      length: { max: 3, min: 1 },
       required: true,
-      length: { min: 1, max: 3 },
     });
     this._validatorSetValue("9.2", msh.msh_9_2, {
+      length: { max: 3, min: 1 },
       required: true,
-      length: { min: 1, max: 3 },
     });
     this._validatorSetValue(
       "9.3",
-      msh.msh_9_3 !== undefined
-        ? msh.msh_9_3
-        : `${msh.msh_9_1}_${msh.msh_9_2}`,
-      { length: { min: 3, max: 15 } },
+      msh.msh_9_3 === undefined ? `${msh.msh_9_1}_${msh.msh_9_2}` : msh.msh_9_3,
+      { length: { max: 15, min: 3 } },
     );
     this._validatorSetValue("10", msh.msh_10 || randomString(), {
-      length: { min: 1, max: 20 },
+      length: { max: 20, min: 1 },
     });
     this._validatorSetValue("11.1", msh.msh_11_1, {
-      required: true,
-      length: 1,
       allowedValues: ["D", "P", "T"],
+      length: 1,
+      required: true,
     });
     if (msh.msh_11_2 !== undefined && msh.msh_11_2 !== "") {
       this._validatorSetValue("11.2", msh.msh_11_2, {
-        length: 1,
         allowedValues: ["A", "I", "R", "T"],
+        length: 1,
       });
     }
     this._validatorSetValue("12", this.version, { required: true });
   }
 
-  protected _buildPID(props: Partial<HL7_2_1_PID>): void {
-    super._buildPID(props);
-    const pid = props as unknown as Partial<HL7_2_4_PID>;
-    this._validatorSetValue("31", pid.pid_31, { allowedValues: ["Y", "N"], length: 1 });
-    this._validatorSetValue("32", pid.pid_32, { length: { min: 1, max: 20 } });
-    this._validatorSetValue(
-      "33",
-      pid.pid_33 instanceof Date && !isNaN(pid.pid_33.getTime())
-        ? this.setDate(pid.pid_33, this._opt.date) : pid.pid_33 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue("34", pid.pid_34, { length: { min: 1, max: 21 } });
-    this._validatorSetValue("35", pid.pid_35, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("36", pid.pid_36, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("37", pid.pid_37, { length: { min: 1, max: 80 } });
-    this._validatorSetValue("38", pid.pid_38, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("39", pid.pid_39, { length: { min: 1, max: 250 } });
-  }
-
-  protected _buildOBR(props: Partial<HL7_2_1_OBR>): void {
-    super._buildOBR(props);
-    const obr = props as unknown as Partial<HL7_2_4_OBR>;
-    this._validatorSetValue("44", obr.obr_44, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("45", obr.obr_45, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("46", obr.obr_46, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("47", obr.obr_47, { length: { min: 1, max: 250 } });
-  }
-
-  protected _buildORC(props: Partial<HL7_2_1_ORC>): void {
-    super._buildORC(props);
-    const orc = props as unknown as Partial<HL7_2_4_ORC>;
-    this._validatorSetValue("24", orc.orc_24, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("25", orc.orc_25, { length: { min: 1, max: 40 } });
-    this._validatorSetValue(
-      "26",
-      orc.orc_26 instanceof Date && !isNaN(orc.orc_26.getTime())
-        ? this.setDate(orc.orc_26, this._opt.date) : orc.orc_26 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue("27", orc.orc_27, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("28", orc.orc_28, { allowedValues: ["I", "O"], length: 1 });
-    this._validatorSetValue("29", orc.orc_29, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("30", orc.orc_30, { length: { min: 1, max: 250 } });
-  }
-
-  protected _buildGOL(props: Partial<HL7_2_4_GOL>): void {
-    this._segment = this._message.addSegment("GOL");
-    this._validatorSetValue("1", props.gol_1, { required: true, allowedValues: ["AD", "CO", "DE", "LI", "UC", "UN"] });
-    this._validatorSetValue(
-      "2",
-      props.gol_2 instanceof Date && !isNaN(props.gol_2.getTime())
-        ? this.setDate(props.gol_2, this._opt.date) : props.gol_2 ?? "",
-      { required: true, type: "date" },
-    );
-    this._validatorSetValue("3", props.gol_3, { required: true, length: { min: 1, max: 250 } });
-    this._validatorSetValue("4", props.gol_4, { length: { min: 1, max: 60 } });
-    this._validatorSetValue("5", props.gol_5, { length: { min: 1, max: 60 } });
-    this._validatorSetValue("6", String(props.gol_6 ?? ""), { length: { min: 1, max: 60 } });
-    this._validatorSetValue(
-      "7",
-      props.gol_7 instanceof Date && !isNaN(props.gol_7.getTime())
-        ? this.setDate(props.gol_7, this._opt.date) : props.gol_7 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue(
-      "8",
-      props.gol_8 instanceof Date && !isNaN(props.gol_8.getTime())
-        ? this.setDate(props.gol_8, this._opt.date) : props.gol_8 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue(
-      "9",
-      props.gol_9 instanceof Date && !isNaN((props.gol_9 as Date).getTime())
-        ? this.setDate(props.gol_9 as Date, this._opt.date) : props.gol_9 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue("10", props.gol_10, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("11", props.gol_11, { length: { min: 1, max: 250 } });
-    this._validatorSetValue(
-      "12",
-      props.gol_12 instanceof Date && !isNaN(props.gol_12.getTime())
-        ? this.setDate(props.gol_12, this._opt.date) : props.gol_12 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue(
-      "13",
-      props.gol_13 instanceof Date && !isNaN(props.gol_13.getTime())
-        ? this.setDate(props.gol_13, this._opt.date) : props.gol_13 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue(
-      "14",
-      props.gol_14 instanceof Date && !isNaN(props.gol_14.getTime())
-        ? this.setDate(props.gol_14, this._opt.date) : props.gol_14 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue(
-      "15",
-      props.gol_15 instanceof Date && !isNaN(props.gol_15.getTime())
-        ? this.setDate(props.gol_15, this._opt.date) : props.gol_15 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue("16", props.gol_16, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("17", props.gol_17, { length: { min: 1, max: 300 } });
-    this._validatorSetValue("18", props.gol_18, { length: { min: 1, max: 250 } });
-    this._validatorSetValue(
-      "19",
-      props.gol_19 instanceof Date && !isNaN(props.gol_19.getTime())
-        ? this.setDate(props.gol_19, this._opt.date) : props.gol_19 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue("20", props.gol_20, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("21", props.gol_21, { length: { min: 1, max: 250 } });
-  }
-
-  protected _buildPRB(props: Partial<HL7_2_4_PRB>): void {
-    this._segment = this._message.addSegment("PRB");
-    this._validatorSetValue("1", props.prb_1, { required: true, allowedValues: ["AD", "CO", "DE", "LI", "UC", "UN"] });
-    this._validatorSetValue(
-      "2",
-      props.prb_2 instanceof Date && !isNaN(props.prb_2.getTime())
-        ? this.setDate(props.prb_2, this._opt.date) : props.prb_2 ?? "",
-      { required: true, type: "date" },
-    );
-    this._validatorSetValue("3", props.prb_3, { required: true, length: { min: 1, max: 250 } });
-    this._validatorSetValue("4", props.prb_4, { required: true, length: { min: 1, max: 60 } });
-    this._validatorSetValue("5", props.prb_5, { length: { min: 1, max: 60 } });
-    this._validatorSetValue("6", String(props.prb_6 ?? ""), { length: { min: 1, max: 60 } });
-    this._validatorSetValue(
-      "7",
-      props.prb_7 instanceof Date && !isNaN(props.prb_7.getTime())
-        ? this.setDate(props.prb_7, this._opt.date) : props.prb_7 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue(
-      "8",
-      props.prb_8 instanceof Date && !isNaN(props.prb_8.getTime())
-        ? this.setDate(props.prb_8, this._opt.date) : props.prb_8 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue(
-      "9",
-      props.prb_9 instanceof Date && !isNaN(props.prb_9.getTime())
-        ? this.setDate(props.prb_9, this._opt.date) : props.prb_9 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue("10", props.prb_10, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("11", props.prb_11, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("12", props.prb_12, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("13", props.prb_13, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("14", props.prb_14, { length: { min: 1, max: 250 } });
-    this._validatorSetValue(
-      "15",
-      props.prb_15 instanceof Date && !isNaN(props.prb_15.getTime())
-        ? this.setDate(props.prb_15, this._opt.date) : props.prb_15 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue(
-      "16",
-      props.prb_16 instanceof Date && !isNaN(props.prb_16.getTime())
-        ? this.setDate(props.prb_16, this._opt.date) : props.prb_16 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue("17", props.prb_17, { length: { min: 1, max: 80 } });
-    this._validatorSetValue("18", props.prb_18, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("19", props.prb_19, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("20", String(props.prb_20 ?? ""), { length: { min: 1, max: 5 } });
-    this._validatorSetValue("21", props.prb_21, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("22", props.prb_22, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("23", props.prb_23, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("24", props.prb_24, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("25", props.prb_25, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("26", props.prb_26, { length: { min: 1, max: 250 } });
-  }
-
-  protected _buildPTH(props: Partial<HL7_2_4_PTH>): void {
-    this._segment = this._message.addSegment("PTH");
-    this._validatorSetValue("1", props.pth_1, { required: true, allowedValues: ["AD", "DE", "LI", "UN"] });
-    this._validatorSetValue("2", props.pth_2, { required: true, length: { min: 1, max: 250 } });
-    this._validatorSetValue("3", props.pth_3, { required: true, length: { min: 1, max: 60 } });
-    this._validatorSetValue(
-      "4",
-      props.pth_4 instanceof Date && !isNaN(props.pth_4.getTime())
-        ? this.setDate(props.pth_4, this._opt.date) : props.pth_4 ?? "",
-      { required: true, type: "date" },
-    );
-    this._validatorSetValue("5", props.pth_5, { length: { min: 1, max: 250 } });
-    this._validatorSetValue(
-      "6",
-      props.pth_6 instanceof Date && !isNaN(props.pth_6.getTime())
-        ? this.setDate(props.pth_6, this._opt.date) : props.pth_6 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue("7", props.pth_7, { length: { min: 1, max: 250 } });
-  }
-
-  protected _buildTXA(props: Partial<HL7_2_4_TXA>): void {
-    this._segment = this._message.addSegment("TXA");
-    this._validatorSetValue("1", String(props.txa_1 ?? ""), { required: true, length: { min: 1, max: 4 } });
-    this._validatorSetValue("2", props.txa_2, { required: true, length: { min: 1, max: 30 } });
-    this._validatorSetValue("3", props.txa_3, { length: { min: 1, max: 2 } });
-    this._validatorSetValue(
-      "4",
-      props.txa_4 instanceof Date && !isNaN(props.txa_4.getTime())
-        ? this.setDate(props.txa_4, this._opt.date) : props.txa_4 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue("5", props.txa_5, { length: { min: 1, max: 250 } });
-    this._validatorSetValue(
-      "6",
-      props.txa_6 instanceof Date && !isNaN(props.txa_6.getTime())
-        ? this.setDate(props.txa_6, this._opt.date) : props.txa_6 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue(
-      "7",
-      props.txa_7 instanceof Date && !isNaN(props.txa_7.getTime())
-        ? this.setDate(props.txa_7, this._opt.date) : props.txa_7 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue(
-      "8",
-      props.txa_8 instanceof Date && !isNaN(props.txa_8.getTime())
-        ? this.setDate(props.txa_8, this._opt.date) : props.txa_8 ?? "",
-      { type: "date" },
-    );
-    this._validatorSetValue("9", props.txa_9, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("10", props.txa_10, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("11", props.txa_11, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("12", props.txa_12, { required: true, length: { min: 1, max: 30 } });
-    this._validatorSetValue("13", props.txa_13, { length: { min: 1, max: 30 } });
-    this._validatorSetValue("14", props.txa_14, { length: { min: 1, max: 22 } });
-    this._validatorSetValue("15", props.txa_15, { length: { min: 1, max: 22 } });
-    this._validatorSetValue("16", props.txa_16, { length: { min: 1, max: 30 } });
-    this._validatorSetValue("17", props.txa_17, {
-      required: true,
-      allowedValues: ["AU", "CA", "DO", "DT", "IN", "IP", "LA", "OB", "PA", "PR", "PY", "RD", "RV", "UN"],
+  protected _buildOBR(properties: Partial<HL7_2_1_OBR>): void {
+    this._assertSegmentInVersion(OBR_SPEC);
+    super._buildOBR(properties);
+    const obr = properties as unknown as Partial<HL7_2_4_OBR>;
+    this._validatorSetField(OBR_SPEC, 44, obr.obr_44, {
+      length: { max: 250, min: 1 },
     });
-    this._validatorSetValue("18", props.txa_18, { allowedValues: ["ET", "EMP", "UWL", "V", "R"] });
-    this._validatorSetValue("19", props.txa_19, { allowedValues: ["AV", "CA", "OB", "UN"] });
-    this._validatorSetValue("20", props.txa_20, { allowedValues: ["AC", "AA", "AH", "AL", "AR", "PU"] });
-    this._validatorSetValue("21", props.txa_21, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("22", props.txa_22, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("23", props.txa_23, { length: { min: 1, max: 250 } });
+    this._validatorSetField(OBR_SPEC, 45, obr.obr_45, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OBR_SPEC, 46, obr.obr_46, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OBR_SPEC, 47, obr.obr_47, {
+      length: { max: 250, min: 1 },
+    });
   }
 
-  protected _buildIAM(props: Partial<HL7_2_4_IAM>): void {
-    this._segment = this._message.addSegment("IAM");
-    this._validatorSetValue("1", String(props.iam_1 ?? ""), { required: true, length: { min: 1, max: 4 } });
-    this._validatorSetValue("2", props.iam_2, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("3", props.iam_3, { required: true, length: { min: 1, max: 250 } });
-    this._validatorSetValue("4", props.iam_4, { allowedValues: ["MI", "MO", "SV", "U"] });
-    this._validatorSetValue("5", props.iam_5, { length: { min: 1, max: 15 } });
-    this._validatorSetValue("6", props.iam_6, { required: true, allowedValues: ["A", "D", "U"] });
-    this._validatorSetValue("7", props.iam_7, { length: { min: 1, max: 60 } });
-    this._validatorSetValue("8", props.iam_8, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("9", props.iam_9, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("10", props.iam_10, { length: { min: 1, max: 250 } });
-    this._validatorSetValue(
-      "11",
-      props.iam_11 instanceof Date && !isNaN(props.iam_11.getTime())
-        ? this.setDate(props.iam_11, this._opt.date) : props.iam_11 ?? "",
-      { type: "date" },
-    );
-  }
-
-  protected _buildOM1(props: Partial<HL7_2_4_OM1>): void {
+  protected _buildOM1(properties: Partial<HL7_2_4_OM1>): void {
+    this._assertSegmentInVersion(OM1_SPEC);
     this._segment = this._message.addSegment("OM1");
-    this._validatorSetValue("1", String(props.om1_1 ?? ""), { required: true, length: { min: 1, max: 4 } });
-    this._validatorSetValue("2", props.om1_2, { required: true, length: { min: 1, max: 250 } });
-    this._validatorSetValue("3", props.om1_3, { length: { min: 1, max: 12 } });
-    this._validatorSetValue("4", props.om1_4, { required: true, allowedValues: ["Y", "N"] });
-    this._validatorSetValue("5", props.om1_5, { required: true, length: { min: 1, max: 250 } });
-    this._validatorSetValue("6", props.om1_6, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("7", props.om1_7, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("8", props.om1_8, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("9", props.om1_9, { length: { min: 1, max: 30 } });
-    this._validatorSetValue("10", props.om1_10, { length: { min: 1, max: 8 } });
-    this._validatorSetValue("11", props.om1_11, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("12", props.om1_12, { allowedValues: ["Y", "N"] });
-    this._validatorSetValue("13", props.om1_13, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("14", props.om1_14, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("15", props.om1_15, { allowedValues: ["Y", "N"] });
-    this._validatorSetValue("16", props.om1_16, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("17", props.om1_17, { length: { min: 1, max: 40 } });
-    this._validatorSetValue("18", props.om1_18, { allowedValues: ["A", "C", "E", "F", "P", "S"] });
-    this._validatorSetValue("19", props.om1_19, { length: { min: 1, max: 20 } });
-    this._validatorSetValue("20", props.om1_20, { length: { min: 1, max: 20 } });
-    this._validatorSetValue(
-      "21",
-      props.om1_21 instanceof Date && !isNaN(props.om1_21.getTime())
-        ? this.setDate(props.om1_21, this._opt.date) : props.om1_21 ?? "",
+    this._validatorSetField(OM1_SPEC, 1, String(properties.om1_1 ?? ""), {
+      length: { max: 4, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 2, properties.om1_2, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 3, properties.om1_3, {
+      length: { max: 12, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 4, properties.om1_4, {
+      allowedValues: ["Y", "N"],
+    });
+    this._validatorSetField(OM1_SPEC, 5, properties.om1_5, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 6, properties.om1_6, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 7, properties.om1_7, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 8, properties.om1_8, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 9, properties.om1_9, {
+      length: { max: 30, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 10, properties.om1_10, {
+      length: { max: 8, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 11, properties.om1_11, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 12, properties.om1_12, {
+      allowedValues: ["Y", "N"],
+    });
+    this._validatorSetField(OM1_SPEC, 13, properties.om1_13, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 14, properties.om1_14, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 15, properties.om1_15, {
+      allowedValues: ["Y", "N"],
+    });
+    this._validatorSetField(OM1_SPEC, 16, properties.om1_16, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 17, properties.om1_17, {
+      length: { max: 40, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 18, properties.om1_18, {
+      allowedValues: ["A", "C", "E", "F", "P", "S"],
+    });
+    this._validatorSetField(OM1_SPEC, 19, properties.om1_19, {
+      length: { max: 20, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 20, properties.om1_20, {
+      length: { max: 20, min: 1 },
+    });
+    this._validatorSetField(
+      OM1_SPEC,
+      21,
+      properties.om1_21 instanceof Date &&
+        !Number.isNaN(properties.om1_21.getTime())
+        ? this.setDate(properties.om1_21, this._opt.date)
+        : (properties.om1_21 ?? ""),
       { type: "date" },
     );
-    this._validatorSetValue(
-      "22",
-      props.om1_22 instanceof Date && !isNaN(props.om1_22.getTime())
-        ? this.setDate(props.om1_22, this._opt.date) : props.om1_22 ?? "",
+    this._validatorSetField(
+      OM1_SPEC,
+      22,
+      properties.om1_22 instanceof Date &&
+        !Number.isNaN(properties.om1_22.getTime())
+        ? this.setDate(properties.om1_22, this._opt.date)
+        : (properties.om1_22 ?? ""),
       { type: "date" },
     );
-    this._validatorSetValue("23", props.om1_23, { length: { min: 1, max: 20 } });
-    this._validatorSetValue("24", String(props.om1_24 ?? ""), { length: { min: 1, max: 20 } });
-    this._validatorSetValue("25", props.om1_25, { allowedValues: ["A", "B", "C", "P", "R", "S", "T"] });
-    this._validatorSetValue("26", props.om1_26, { allowedValues: ["C", "R"] });
-    this._validatorSetValue("27", props.om1_27, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("28", props.om1_28, { length: { min: 1, max: 1000 } });
-    this._validatorSetValue("29", props.om1_29, { length: { min: 1, max: 40 } });
-    this._validatorSetValue("30", props.om1_30, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("31", props.om1_31, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("32", props.om1_32, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("33", props.om1_33, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("34", props.om1_34, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("35", props.om1_35, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("36", props.om1_36, { length: { min: 1, max: 65536 } });
-    this._validatorSetValue("37", props.om1_37, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("38", props.om1_38, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("39", props.om1_39, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("40", props.om1_40, { length: { min: 1, max: 60 } });
-    this._validatorSetValue("41", props.om1_41, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("42", props.om1_42, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("43", props.om1_43, { length: { min: 1, max: 60 } });
-    this._validatorSetValue("44", props.om1_44, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("45", props.om1_45, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("46", props.om1_46, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("47", props.om1_47, { length: { min: 1, max: 250 } });
+    this._validatorSetField(OM1_SPEC, 23, properties.om1_23, {
+      length: { max: 20, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 24, String(properties.om1_24 ?? ""), {
+      length: { max: 20, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 25, properties.om1_25, {
+      allowedValues: ["A", "B", "C", "P", "R", "S", "T"],
+    });
+    this._validatorSetField(OM1_SPEC, 26, properties.om1_26, {
+      allowedValues: ["C", "R"],
+    });
+    this._validatorSetField(OM1_SPEC, 27, properties.om1_27, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 28, properties.om1_28, {
+      length: { max: 1000, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 29, properties.om1_29, {
+      length: { max: 40, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 30, properties.om1_30, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 31, properties.om1_31, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 32, properties.om1_32, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 33, properties.om1_33, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 34, properties.om1_34, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 35, properties.om1_35, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 36, properties.om1_36, {
+      length: { max: 65_536, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 37, properties.om1_37, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 38, properties.om1_38, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 39, properties.om1_39, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 40, properties.om1_40, {
+      length: { max: 60, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 41, properties.om1_41, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 42, properties.om1_42, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 43, properties.om1_43, {
+      length: { max: 60, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 44, properties.om1_44, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 45, properties.om1_45, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 46, properties.om1_46, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM1_SPEC, 47, properties.om1_47, {
+      length: { max: 250, min: 1 },
+    });
   }
 
-  protected _buildOM2(props: Partial<HL7_2_4_OM2>): void {
+  protected _buildOM2(properties: Partial<HL7_2_4_OM2>): void {
+    this._assertSegmentInVersion(OM2_SPEC);
     this._segment = this._message.addSegment("OM2");
-    this._validatorSetValue("1", String(props.om2_1 ?? ""), { required: true, length: { min: 1, max: 4 } });
-    this._validatorSetValue("2", props.om2_2, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("3", props.om2_3, { length: { min: 1, max: 10 } });
-    this._validatorSetValue("4", props.om2_4, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("5", props.om2_5, { length: { min: 1, max: 60 } });
-    this._validatorSetValue("6", props.om2_6, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("7", props.om2_7, { length: { min: 1, max: 205 } });
-    this._validatorSetValue("8", props.om2_8, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("9", props.om2_9, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("10", props.om2_10, { length: { min: 1, max: 20 } });
+    this._validatorSetField(OM2_SPEC, 1, String(properties.om2_1 ?? ""), {
+      length: { max: 4, min: 1 },
+    });
+    this._validatorSetField(OM2_SPEC, 2, properties.om2_2, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM2_SPEC, 3, properties.om2_3, {
+      length: { max: 10, min: 1 },
+    });
+    this._validatorSetField(OM2_SPEC, 4, properties.om2_4, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM2_SPEC, 5, properties.om2_5, {
+      length: { max: 60, min: 1 },
+    });
+    this._validatorSetField(OM2_SPEC, 6, properties.om2_6, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM2_SPEC, 7, properties.om2_7, {
+      length: { max: 205, min: 1 },
+    });
+    this._validatorSetField(OM2_SPEC, 8, properties.om2_8, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM2_SPEC, 9, properties.om2_9, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM2_SPEC, 10, properties.om2_10, {
+      length: { max: 20, min: 1 },
+    });
   }
 
-  protected _buildOM3(props: Partial<HL7_2_4_OM3>): void {
+  protected _buildOM3(properties: Partial<HL7_2_4_OM3>): void {
+    this._assertSegmentInVersion(OM3_SPEC);
     this._segment = this._message.addSegment("OM3");
-    this._validatorSetValue("1", String(props.om3_1 ?? ""), { required: true, length: { min: 1, max: 4 } });
-    this._validatorSetValue("2", props.om3_2, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("3", props.om3_3, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("4", props.om3_4, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("5", props.om3_5, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("6", props.om3_6, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("7", props.om3_7, { length: { min: 1, max: 2 } });
-    this._validatorSetValue("8", props.om3_8, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("9", props.om3_9, { length: { min: 1, max: 10 } });
+    this._validatorSetField(OM3_SPEC, 1, String(properties.om3_1 ?? ""), {
+      length: { max: 4, min: 1 },
+    });
+    this._validatorSetField(OM3_SPEC, 2, properties.om3_2, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM3_SPEC, 3, properties.om3_3, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM3_SPEC, 4, properties.om3_4, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM3_SPEC, 5, properties.om3_5, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM3_SPEC, 6, properties.om3_6, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM3_SPEC, 7, properties.om3_7, {
+      length: { max: 2, min: 1 },
+    });
+    this._validatorSetField(OM3_SPEC, 8, properties.om3_8, {
+      length: { max: 250, min: 1 },
+    });
+    // OM3.9 is not present in the published spec — drop the call.
   }
 
-  protected _buildOM4(props: Partial<HL7_2_4_OM4>): void {
+  protected _buildOM4(properties: Partial<HL7_2_4_OM4>): void {
+    this._assertSegmentInVersion(OM4_SPEC);
     this._segment = this._message.addSegment("OM4");
-    this._validatorSetValue("1", String(props.om4_1 ?? ""), { length: { min: 1, max: 4 } });
-    this._validatorSetValue("2", props.om4_2, { length: { min: 1, max: 1 } });
-    this._validatorSetValue("3", props.om4_3, { length: { min: 1, max: 60 } });
-    this._validatorSetValue("4", String(props.om4_4 ?? ""), { length: { min: 1, max: 20 } });
-    this._validatorSetValue("5", props.om4_5, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("6", props.om4_6, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("7", props.om4_7, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("8", props.om4_8, { length: { min: 1, max: 10240 } });
-    this._validatorSetValue("9", props.om4_9, { length: { min: 1, max: 10240 } });
-    this._validatorSetValue("10", props.om4_10, { length: { min: 1, max: 20 } });
-    this._validatorSetValue("11", props.om4_11, { length: { min: 1, max: 20 } });
-    this._validatorSetValue("12", props.om4_12, { length: { min: 1, max: 10240 } });
-    this._validatorSetValue("13", props.om4_13, { allowedValues: ["E", "R", "S", "T"] });
-    this._validatorSetValue("14", props.om4_14, { length: { min: 1, max: 200 } });
-    this._validatorSetValue("15", props.om4_15, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("16", props.om4_16, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("17", props.om4_17, { length: { min: 1, max: 20 } });
-    this._validatorSetValue("18", props.om4_18, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("19", props.om4_19, { length: { min: 1, max: 250 } });
+    this._validatorSetField(OM4_SPEC, 1, String(properties.om4_1 ?? ""), {
+      length: { max: 4, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 2, properties.om4_2, {
+      length: { max: 1, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 3, properties.om4_3, {
+      length: { max: 60, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 4, String(properties.om4_4 ?? ""), {
+      length: { max: 20, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 5, properties.om4_5, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 6, properties.om4_6, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 7, properties.om4_7, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 8, properties.om4_8, {
+      length: { max: 10_240, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 9, properties.om4_9, {
+      length: { max: 10_240, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 10, properties.om4_10, {
+      length: { max: 20, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 11, properties.om4_11, {
+      length: { max: 20, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 12, properties.om4_12, {
+      length: { max: 10_240, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 13, properties.om4_13, {
+      allowedValues: ["E", "R", "S", "T"],
+    });
+    this._validatorSetField(OM4_SPEC, 14, properties.om4_14, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 15, properties.om4_15, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 16, properties.om4_16, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 17, properties.om4_17, {
+      length: { max: 20, min: 1 },
+    });
+    this._validatorSetField(OM4_SPEC, 18, properties.om4_18, {
+      length: { max: 250, min: 1 },
+    });
+    // OM4.19 is not present in the published spec — drop the call.
   }
 
-  protected _buildOM5(props: Partial<HL7_2_4_OM5>): void {
+  protected _buildOM5(properties: Partial<HL7_2_4_OM5>): void {
+    this._assertSegmentInVersion(OM5_SPEC);
     this._segment = this._message.addSegment("OM5");
-    this._validatorSetValue("1", String(props.om5_1 ?? ""), { required: true, length: { min: 1, max: 4 } });
-    this._validatorSetValue("2", props.om5_2, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("3", props.om5_3, { length: { min: 1, max: 250 } });
+    this._validatorSetField(OM5_SPEC, 1, String(properties.om5_1 ?? ""), {
+      length: { max: 4, min: 1 },
+    });
+    this._validatorSetField(OM5_SPEC, 2, properties.om5_2, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(OM5_SPEC, 3, properties.om5_3, {
+      length: { max: 250, min: 1 },
+    });
   }
 
-  protected _buildOM6(props: Partial<HL7_2_4_OM6>): void {
+  protected _buildOM6(properties: Partial<HL7_2_4_OM6>): void {
+    this._assertSegmentInVersion(OM6_SPEC);
     this._segment = this._message.addSegment("OM6");
-    this._validatorSetValue("1", String(props.om6_1 ?? ""), { required: true, length: { min: 1, max: 4 } });
-    this._validatorSetValue("2", props.om6_2, { length: { min: 1, max: 10240 } });
+    this._validatorSetField(OM6_SPEC, 1, String(properties.om6_1 ?? ""), {
+      length: { max: 4, min: 1 },
+    });
+    this._validatorSetField(OM6_SPEC, 2, properties.om6_2, {
+      length: { max: 10_240, min: 1 },
+    });
   }
 
-  protected _buildDRG(props: Partial<HL7_2_4_DRG>): void {
-    this._segment = this._message.addSegment("DRG");
-    this._validatorSetValue("1", props.drg_1, { length: { min: 1, max: 250 } });
-    this._validatorSetValue(
-      "2",
-      props.drg_2 instanceof Date && !isNaN(props.drg_2.getTime())
-        ? this.setDate(props.drg_2, this._opt.date) : props.drg_2 ?? "",
+  protected _buildORC(properties: Partial<HL7_2_1_ORC>): void {
+    this._assertSegmentInVersion(ORC_SPEC);
+    super._buildORC(properties);
+    const orc = properties as unknown as Partial<HL7_2_4_ORC>;
+    this._validatorSetField(ORC_SPEC, 24, orc.orc_24, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(ORC_SPEC, 25, orc.orc_25, {
+      length: { max: 40, min: 1 },
+    });
+    this._validatorSetField(
+      ORC_SPEC,
+      26,
+      orc.orc_26 instanceof Date && !Number.isNaN(orc.orc_26.getTime())
+        ? this.setDate(orc.orc_26, this._opt.date)
+        : (orc.orc_26 ?? ""),
       { type: "date" },
     );
-    this._validatorSetValue("3", props.drg_3, { allowedValues: ["Y", "N"], length: 1 });
-    this._validatorSetValue("4", props.drg_4, { length: { min: 1, max: 2 } });
-    this._validatorSetValue("5", props.drg_5, { length: { min: 1, max: 250 } });
-    this._validatorSetValue("6", String(props.drg_6 ?? ""), { length: { min: 1, max: 3 } });
-    this._validatorSetValue("7", props.drg_7, { length: { min: 1, max: 12 } });
-    this._validatorSetValue("8", props.drg_8, { length: { min: 1, max: 250 } });
+    this._validatorSetField(ORC_SPEC, 27, orc.orc_27, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(ORC_SPEC, 28, orc.orc_28, {
+      allowedValues: ["I", "O"],
+      length: 1,
+    });
+    this._validatorSetField(ORC_SPEC, 29, orc.orc_29, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(ORC_SPEC, 30, orc.orc_30, {
+      length: { max: 250, min: 1 },
+    });
+  }
+
+  protected _buildPID(properties: Partial<HL7_2_1_PID>): void {
+    this._assertSegmentInVersion(PID_SPEC);
+    super._buildPID(properties);
+    const pid = properties as unknown as Partial<HL7_2_4_PID>;
+    this._validatorSetField(PID_SPEC, 31, pid.pid_31, {
+      allowedValues: ["Y", "N"],
+      length: 1,
+    });
+    this._validatorSetField(PID_SPEC, 32, pid.pid_32, {
+      length: { max: 20, min: 1 },
+    });
+    this._validatorSetField(
+      PID_SPEC,
+      33,
+      pid.pid_33 instanceof Date && !Number.isNaN(pid.pid_33.getTime())
+        ? this.setDate(pid.pid_33, this._opt.date)
+        : (pid.pid_33 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(PID_SPEC, 34, pid.pid_34, {
+      length: { max: 21, min: 1 },
+    });
+    this._validatorSetField(PID_SPEC, 35, pid.pid_35, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PID_SPEC, 36, pid.pid_36, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PID_SPEC, 37, pid.pid_37, {
+      length: { max: 80, min: 1 },
+    });
+    this._validatorSetField(PID_SPEC, 38, pid.pid_38, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PID_SPEC, 39, pid.pid_39, {
+      length: { max: 250, min: 1 },
+    });
+  }
+
+  protected _buildPRB(properties: Partial<HL7_2_4_PRB>): void {
+    this._assertSegmentInVersion(PRB_SPEC);
+    this._segment = this._message.addSegment("PRB");
+    this._validatorSetField(PRB_SPEC, 1, properties.prb_1, {
+      allowedValues: ["AD", "CO", "DE", "LI", "UC", "UN"],
+    });
+    this._validatorSetField(
+      PRB_SPEC,
+      2,
+      properties.prb_2 instanceof Date &&
+        !Number.isNaN(properties.prb_2.getTime())
+        ? this.setDate(properties.prb_2, this._opt.date)
+        : (properties.prb_2 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(PRB_SPEC, 3, properties.prb_3, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 4, properties.prb_4, {
+      length: { max: 60, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 5, properties.prb_5, {
+      length: { max: 60, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 6, String(properties.prb_6 ?? ""), {
+      length: { max: 60, min: 1 },
+    });
+    this._validatorSetField(
+      PRB_SPEC,
+      7,
+      properties.prb_7 instanceof Date &&
+        !Number.isNaN(properties.prb_7.getTime())
+        ? this.setDate(properties.prb_7, this._opt.date)
+        : (properties.prb_7 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(
+      PRB_SPEC,
+      8,
+      properties.prb_8 instanceof Date &&
+        !Number.isNaN(properties.prb_8.getTime())
+        ? this.setDate(properties.prb_8, this._opt.date)
+        : (properties.prb_8 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(
+      PRB_SPEC,
+      9,
+      properties.prb_9 instanceof Date &&
+        !Number.isNaN(properties.prb_9.getTime())
+        ? this.setDate(properties.prb_9, this._opt.date)
+        : (properties.prb_9 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(PRB_SPEC, 10, properties.prb_10, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 11, properties.prb_11, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 12, properties.prb_12, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 13, properties.prb_13, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 14, properties.prb_14, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(
+      PRB_SPEC,
+      15,
+      properties.prb_15 instanceof Date &&
+        !Number.isNaN(properties.prb_15.getTime())
+        ? this.setDate(properties.prb_15, this._opt.date)
+        : (properties.prb_15 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(
+      PRB_SPEC,
+      16,
+      properties.prb_16 instanceof Date &&
+        !Number.isNaN(properties.prb_16.getTime())
+        ? this.setDate(properties.prb_16, this._opt.date)
+        : (properties.prb_16 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(PRB_SPEC, 17, properties.prb_17, {
+      length: { max: 80, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 18, properties.prb_18, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 19, properties.prb_19, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 20, String(properties.prb_20 ?? ""), {
+      length: { max: 5, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 21, properties.prb_21, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 22, properties.prb_22, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 23, properties.prb_23, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 24, properties.prb_24, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 25, properties.prb_25, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PRB_SPEC, 26, properties.prb_26, {
+      length: { max: 250, min: 1 },
+    });
+  }
+
+  protected _buildPTH(properties: Partial<HL7_2_4_PTH>): void {
+    this._assertSegmentInVersion(PTH_SPEC);
+    this._segment = this._message.addSegment("PTH");
+    this._validatorSetField(PTH_SPEC, 1, properties.pth_1, {
+      allowedValues: ["AD", "DE", "LI", "UN"],
+    });
+    this._validatorSetField(PTH_SPEC, 2, properties.pth_2, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(PTH_SPEC, 3, properties.pth_3, {
+      length: { max: 60, min: 1 },
+    });
+    this._validatorSetField(
+      PTH_SPEC,
+      4,
+      properties.pth_4 instanceof Date &&
+        !Number.isNaN(properties.pth_4.getTime())
+        ? this.setDate(properties.pth_4, this._opt.date)
+        : (properties.pth_4 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(PTH_SPEC, 5, properties.pth_5, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(
+      PTH_SPEC,
+      6,
+      properties.pth_6 instanceof Date &&
+        !Number.isNaN(properties.pth_6.getTime())
+        ? this.setDate(properties.pth_6, this._opt.date)
+        : (properties.pth_6 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(PTH_SPEC, 7, properties.pth_7, {
+      length: { max: 250, min: 1 },
+    });
+  }
+
+  protected _buildTXA(properties: Partial<HL7_2_4_TXA>): void {
+    this._assertSegmentInVersion(TXA_SPEC);
+    this._segment = this._message.addSegment("TXA");
+    this._validatorSetField(TXA_SPEC, 1, String(properties.txa_1 ?? ""), {
+      length: { max: 4, min: 1 },
+    });
+    this._validatorSetField(TXA_SPEC, 2, properties.txa_2, {
+      length: { max: 30, min: 1 },
+    });
+    this._validatorSetField(TXA_SPEC, 3, properties.txa_3, {
+      length: { max: 2, min: 1 },
+    });
+    this._validatorSetField(
+      TXA_SPEC,
+      4,
+      properties.txa_4 instanceof Date &&
+        !Number.isNaN(properties.txa_4.getTime())
+        ? this.setDate(properties.txa_4, this._opt.date)
+        : (properties.txa_4 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(TXA_SPEC, 5, properties.txa_5, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(
+      TXA_SPEC,
+      6,
+      properties.txa_6 instanceof Date &&
+        !Number.isNaN(properties.txa_6.getTime())
+        ? this.setDate(properties.txa_6, this._opt.date)
+        : (properties.txa_6 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(
+      TXA_SPEC,
+      7,
+      properties.txa_7 instanceof Date &&
+        !Number.isNaN(properties.txa_7.getTime())
+        ? this.setDate(properties.txa_7, this._opt.date)
+        : (properties.txa_7 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(
+      TXA_SPEC,
+      8,
+      properties.txa_8 instanceof Date &&
+        !Number.isNaN(properties.txa_8.getTime())
+        ? this.setDate(properties.txa_8, this._opt.date)
+        : (properties.txa_8 ?? ""),
+      { type: "date" },
+    );
+    this._validatorSetField(TXA_SPEC, 9, properties.txa_9, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(TXA_SPEC, 10, properties.txa_10, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(TXA_SPEC, 11, properties.txa_11, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(TXA_SPEC, 12, properties.txa_12, {
+      length: { max: 30, min: 1 },
+    });
+    this._validatorSetField(TXA_SPEC, 13, properties.txa_13, {
+      length: { max: 30, min: 1 },
+    });
+    this._validatorSetField(TXA_SPEC, 14, properties.txa_14, {
+      length: { max: 22, min: 1 },
+    });
+    this._validatorSetField(TXA_SPEC, 15, properties.txa_15, {
+      length: { max: 22, min: 1 },
+    });
+    this._validatorSetField(TXA_SPEC, 16, properties.txa_16, {
+      length: { max: 30, min: 1 },
+    });
+    this._validatorSetField(TXA_SPEC, 17, properties.txa_17, {
+      allowedValues: [
+        "AU",
+        "CA",
+        "DO",
+        "DT",
+        "IN",
+        "IP",
+        "LA",
+        "OB",
+        "PA",
+        "PR",
+        "PY",
+        "RD",
+        "RV",
+        "UN",
+      ],
+    });
+    this._validatorSetField(TXA_SPEC, 18, properties.txa_18, {
+      allowedValues: ["ET", "EMP", "UWL", "V", "R"],
+    });
+    this._validatorSetField(TXA_SPEC, 19, properties.txa_19, {
+      allowedValues: ["AV", "CA", "OB", "UN"],
+    });
+    this._validatorSetField(TXA_SPEC, 20, properties.txa_20, {
+      allowedValues: ["AC", "AA", "AH", "AL", "AR", "PU"],
+    });
+    this._validatorSetField(TXA_SPEC, 21, properties.txa_21, {
+      length: { max: 200, min: 1 },
+    });
+    this._validatorSetField(TXA_SPEC, 22, properties.txa_22, {
+      length: { max: 250, min: 1 },
+    });
+    this._validatorSetField(TXA_SPEC, 23, properties.txa_23, {
+      length: { max: 250, min: 1 },
+    });
   }
 }

@@ -1,7 +1,27 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 import { HL7_2_3_MSH } from "@/hl7/2.3/msh";
 import { TABLE_0356 } from "@/hl7/tables/0356";
-
-export type Table0356Value = (typeof TABLE_0356)[number];
 
 /** HL7 2.3.1 MSH - extends 2.3 with fields 19-20 */
 export interface HL7_2_3_1_MSH extends HL7_2_3_MSH {
@@ -10,3 +30,5 @@ export interface HL7_2_3_1_MSH extends HL7_2_3_MSH {
   /** MSH.20 - Alternate Character Set Handling Scheme */
   msh_20?: Table0356Value;
 }
+
+export type Table0356Value = (typeof TABLE_0356)[number];

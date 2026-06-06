@@ -1,14 +1,37 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 // These are functions that exist within the node-hl7-server NPM package
 // that are tested here for diag purposes.
 
 import { Message } from "node-hl7-client/src";
 import { describe, expect, test } from "vitest";
+
 import { _createAckMessage } from "./__utils__/server";
 
 describe("hl7 module tests", () => {
   describe("sendResponse", () => {
-    test("adt siu", async () => {
-      const messageString = `MSH|^~\\&|||||20220304102435|ESBCKGRND|SIU^S12|521
+    test("creates an AA ACK from an SIU^S12 source message", async () => {
+      const messageString = String.raw`MSH|^~\&|||||20220304102435|ESBCKGRND|SIU^S12|521
 SCH||60014711||||Sch|||5|MIN|^^5^20220218153000^20220218153500|ESEOD^CADENCE^EOD^PROCESSING||||ESEOD^CADENCE^EOD^PROCESSING||||ESEOD^CADENCE^EOD^PROCESSING|||||Sch
 PID|1||3002505^^^MRN^MRN||CHILD^AMB^^^^^D||20150122|F|||123 STREET^^BROOKLYN^^11233^^L||(718)250-0000^P^H^^^718^2500000~^NET^Internet^cool@gmail.com|||SINGLE||60014711|111-52-5454||One^Mother^^|||||||||N
 ZPD|Cent Amer In|MYCH|||||||||||||||||||||N|F

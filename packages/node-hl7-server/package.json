@@ -1,6 +1,6 @@
 {
   "name": "node-hl7-server",
-  "version": "3.3.0",
+  "version": "4.0.0",
   "description": "Node.js client library for creating a HL7 Server which can accept incoming a properly formatted HL7 message(s), and then parses the HL7 message. Once the message has been parsed you can then do something with the final result that you so desire.",
   "keywords": [
     "hl7",
@@ -11,22 +11,22 @@
     "hl7-specification",
     "hl7-validation"
   ],
-  "homepage": "https://github.com/Bugs5382/node-hl7-server#readme",
+  "homepage": "https://github.com/Bugs5382/node-hl7#readme",
   "bugs": {
-    "url": "https://github.com/Bugs5382/node-hl7-server/issues"
+    "url": "https://github.com/Bugs5382/node-hl7/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Bugs5382/node-hl7-server.git"
+    "url": "git+https://github.com/Bugs5382/node-hl7.git"
   },
   "license": "MIT",
-  "author": "Shane Froebel",
+  "author": "Shane A. Froebel",
   "exports": {
     ".": {
-      "types": "./lib/types/index.d.ts",
+      "types": "./lib/types/index.d.mts",
       "import": "./lib/esm/index.mjs",
-      "require": "./lib/cjs/index.js",
-      "default": "./lib/cjs/index.js"
+      "require": "./lib/cjs/index.cjs",
+      "default": "./lib/cjs/index.cjs"
     },
     "./src": {
       "types": "./src/index.ts",
@@ -37,27 +37,27 @@
       "default": "./src/*"
     }
   },
-  "main": "./lib/cjs/index.js",
+  "main": "./lib/cjs/index.cjs",
   "module": "./lib/esm/index.mjs",
-  "types": "./lib/types/index.d.ts",
+  "types": "./lib/types/index.d.mts",
   "files": [
     "lib/",
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsdown",
     "build:dev": "NODE_ENV=development tsdown",
     "clean": "rm -rf coverage docs lib temp",
     "docker:build": "../../docker build -t docker-node-hl7-server:latest .",
-    "format:check": "prettier --check '**/*.{md,ts,json,mts}'",
-    "format:write": "prettier --write '**/*.{md,ts,json,mts}'",
-    "lint": "npm run lint:npm && eslint | snazzy && npm run format:check",
-    "lint:fix": "npm run lint:npm && eslint --fix | snazzy && npm run format:write",
     "lint:npm": "npmPkgJsonLint .",
     "lint:package": "npx sort-package-json",
     "pack": "npm pack",
-    "prepublishOnly": "npm run clean && npm run build && npm run pack",
+    "prepublishOnly": "npm run clean && npm run build",
     "typedoc": "typedoc",
     "typedoc:watch": "typedoc -watch",
     "update": "npx npm-check-updates -u --enginesNode && npm run update:post-update",
@@ -66,13 +66,11 @@
   "engines": {
     "node": ">=22.0.0"
   },
-  "precommit": [
-    "format:write",
-    "lint:fix",
-    "build"
-  ],
+  "peerDependencies": {
+    "node-hl7-client": "^4.0.0"
+  },
   "devDependencies": {
     "@types/node": "^25.6.0",
-    "node-hl7-client": "^3.1.0"
+    "node-hl7-client": "*"
   }
 }

@@ -3,32 +3,33 @@ import { defineConfig } from "vitest/config";
 
 type PackageName = "node-hl7-client" | "node-hl7-server";
 
-export function createVitestConfig(dir: string, pkg: PackageName) {
+export function createVitestConfig(dir: string, package_: PackageName) {
   const packagesDir = path.dirname(dir);
-  const testName = pkg.replace("node-hl7-", "");
-  const clientSrc = path.resolve(packagesDir, "node-hl7-client/src");
-  const serverSrc = path.resolve(packagesDir, "node-hl7-server/src");
+  const testName = package_.replace("node-hl7-", "");
+  const clientSource = path.resolve(packagesDir, "node-hl7-client/src");
+  const serverSource = path.resolve(packagesDir, "node-hl7-server/src");
 
   return defineConfig({
     resolve: {
       alias: [
         { find: "@", replacement: path.resolve(dir, "./src") },
-        { find: /^node-hl7-client\/src(.*)/, replacement: `${clientSrc}$1` },
-        { find: /^node-hl7-server\/src(.*)/, replacement: `${serverSrc}$1` },
-        { find: "node-hl7-client", replacement: path.resolve(clientSrc, "index.ts") },
-        { find: "node-hl7-server", replacement: path.resolve(serverSrc, "index.ts") },
+        { find: /^node-hl7-client\/src(.*)/, replacement: `${clientSource}$1` },
+        { find: /^node-hl7-server\/src(.*)/, replacement: `${serverSource}$1` },
+        {
+          find: "node-hl7-client",
+          replacement: path.resolve(clientSource, "index.ts"),
+        },
+        {
+          find: "node-hl7-server",
+          replacement: path.resolve(serverSource, "index.ts"),
+        },
       ],
     },
     test: {
       include: [`../../__tests__/${testName}/**/*.test.ts`],
       coverage: {
         provider: "v8",
-        exclude: [
-          "*.mts",
-          "*.mjs",
-          "**/docs/**",
-          "**/lib/**",
-        ],
+        exclude: ["*.mts", "*.mjs", "**/docs/**", "**/lib/**"],
       },
     },
   });

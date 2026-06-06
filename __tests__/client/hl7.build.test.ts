@@ -1,3 +1,25 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 import {
   Batch,
   createHL7Date,
@@ -7,22 +29,23 @@ import {
   HL7Node,
   Message,
 } from "node-hl7-client/src";
-import { HL7ValidationError } from "node-hl7-client/src/helpers";
-import { HL7_2_1 } from "node-hl7-client/src/hl7/2.1";
-import { HL7_2_2 } from "node-hl7-client/src/hl7/2.2";
-import { HL7_2_3 } from "node-hl7-client/src/hl7/2.3";
-import { HL7_2_3_1 } from "node-hl7-client/src/hl7/2.3.1";
-import { HL7_2_4 } from "node-hl7-client/src/hl7/2.4";
-import { HL7_2_5 } from "node-hl7-client/src/hl7/2.5";
-import { HL7_2_5_1 } from "node-hl7-client/src/hl7/2.5.1";
-import { HL7_2_6 } from "node-hl7-client/src/hl7/2.6";
-import { HL7_2_7 } from "node-hl7-client/src/hl7/2.7";
-import { HL7_2_7_1 } from "node-hl7-client/src/hl7/2.7.1";
-import { HL7_2_8 } from "node-hl7-client/src/hl7/2.8";
+import { HL7ValidationError } from "node-hl7-client/src";
+import { HL7_2_1 } from "node-hl7-client/src";
+import { HL7_2_2 } from "node-hl7-client/src";
+import { HL7_2_3 } from "node-hl7-client/src";
+import { HL7_2_3_1 } from "node-hl7-client/src";
+import { HL7_2_4 } from "node-hl7-client/src";
+import { HL7_2_5 } from "node-hl7-client/src";
+import { HL7_2_5_1 } from "node-hl7-client/src";
+import { HL7_2_6 } from "node-hl7-client/src";
+import { HL7_2_7 } from "node-hl7-client/src";
+import { HL7_2_7_1 } from "node-hl7-client/src";
+import { HL7_2_8 } from "node-hl7-client/src";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
+
 import { MSH_HEADER } from "./__data__/constants";
 import { sleep } from "./__utils__";
 
@@ -33,29 +56,31 @@ describe("node hl7 client - builder tests", () => {
 
     beforeEach(async () => {
       message = new Message({
-        // @ts-expect-error not filling this out for unit testing
+        /**
+         * @ts-expect-error not filling this out for unit testing
+         */
         messageHeader: {
+          msh_10: randomControlID,
           msh_9_1: "ADT",
           msh_9_2: "A01",
-          msh_10: randomControlID,
         },
       });
     });
 
-    test("...initial build", async () => {
-      expect(message.toString()).toContain("MSH|^~\\&");
+    test("Message constructor produces a valid 2.7 MSH header", async () => {
+      expect(message.toString()).toContain(String.raw`MSH|^~\&`);
       expect(message.toString()).toContain(
         `|ADT^A01^ADT_A01|${randomControlID}||2.7`,
       );
     });
 
-    test("... can't have two MSH headers", async () => {
+    test("buildMSH rejects a second MSH header", async () => {
       const builder = new HL7_2_1();
-      builder.buildMSH({ msh_9: "ACK", msh_10: "12345", msh_11: "T" });
+      builder.buildMSH({ msh_10: "12345", msh_11: "T", msh_9: "ACK" });
       try {
-        builder.buildMSH({ msh_9: "ACK", msh_10: "12345", msh_11: "T" });
-      } catch (err) {
-        expect(err).toEqual(
+        builder.buildMSH({ msh_10: "12345", msh_11: "T", msh_9: "ACK" });
+      } catch (error) {
+        expect(error).toEqual(
           new HL7FatalError(
             "You can only have one MSH Header per HL7 Message.",
           ),
@@ -63,15 +88,15 @@ describe("node hl7 client - builder tests", () => {
       }
     });
 
-    test("... ADD segment can't follow MSH", async () => {
+    test("ADD segment cannot follow MSH/BHS/FHS", async () => {
       const builder = new HL7_2_1();
-      builder.buildMSH({ msh_9: "ACK", msh_10: "12345", msh_11: "T" });
+      builder.buildMSH({ msh_10: "12345", msh_11: "T", msh_9: "ACK" });
       try {
         builder.buildADD({
           add_1: "Fail cause you can't have this after MSH",
         });
-      } catch (err) {
-        expect(err).toEqual(
+      } catch (error) {
+        expect(error).toEqual(
           new HL7ValidationError(
             "This segment must not follow a MSH, BHS, or FHS",
           ),
@@ -79,19 +104,19 @@ describe("node hl7 client - builder tests", () => {
       }
     });
 
-    test("...extend Message build", async () => {
+    test("each Message construction generates a unique control id", async () => {
       const newMessage = () => {
         return new Message({
           messageHeader: {
+            msh_11: "P",
             msh_9_1: "ADT",
             msh_9_2: "A01",
-            msh_11: "P",
           },
         });
       };
 
       // this is the original message creation at line 17
-      expect(message.toString()).toContain("MSH|^~\\&");
+      expect(message.toString()).toContain(String.raw`MSH|^~\&`);
       expect(message.toString()).toContain(
         `|ADT^A01^ADT_A01|${randomControlID}||2.7`,
       );
@@ -107,8 +132,8 @@ describe("node hl7 client - builder tests", () => {
       expect(newResultTwo.toString()).not.toContain(newRandomControlID);
     });
 
-    test("...verify MSH header is correct", async () => {
-      expect(message.toString().substring(0, 8)).toBe("MSH|^~\\&");
+    test("MSH fields read back as set by the constructor", async () => {
+      expect(message.toString().slice(0, 8)).toBe(String.raw`MSH|^~\&`);
       expect(message.get("MSH.3").exists("")).toBe(false);
       expect(message.get("MSH.9.1").toString()).toBe("ADT");
       expect(message.get("MSH.9.2").toString()).toBe("A01");
@@ -117,7 +142,7 @@ describe("node hl7 client - builder tests", () => {
       expect(message.get("MSH.12").toString()).toBe("2.7");
     });
 
-    test("...add onto the MSH header", async () => {
+    test("MSH.3 through MSH.6 can be set after construction", async () => {
       message.set("MSH.3", "SendingApp");
       message.set("MSH.4", "SendingFacility");
       message.set("MSH.5", "ReceivingApp");
@@ -129,12 +154,12 @@ describe("node hl7 client - builder tests", () => {
       expect(message.get("MSH.6").toString()).toBe("ReceivingFacility");
     });
 
-    test("...MSH.3.1 can be gotten with MSH.3", async () => {
+    test("MSH.3.1 set is readable as MSH.3", async () => {
       message.set("MSH.3.1", "SendingApp");
       expect(message.get("MSH.3").toString()).toBe("SendingApp");
     });
 
-    test("...MSH.3 can be gotten with MSH.3.1", async () => {
+    test("MSH.3 set is readable as MSH.3.1", async () => {
       message.set("MSH.3", "SendingApp");
       expect(message.get("MSH.3.1").toString()).toBe("SendingApp");
     });
@@ -143,7 +168,7 @@ describe("node hl7 client - builder tests", () => {
   describe("builder message - all versions", () => {
     const useThisDate = new Date();
     describe("2.1", async () => {
-      let message_HL7_2_1: HL7_2_1, baseResult_HL7_2_1: string;
+      let baseResult_HL7_2_1: string, message_HL7_2_1: HL7_2_1;
 
       beforeEach(async () => {
         // create new Hl7 2.1
@@ -151,21 +176,21 @@ describe("node hl7 client - builder tests", () => {
 
         // build the MSH Header
         message_HL7_2_1.buildMSH({
-          msh_7: useThisDate,
-          msh_9: "ACK",
           msh_10: "12345",
           msh_11: "T",
+          msh_7: useThisDate,
+          msh_9: "ACK",
         });
 
         // this is the base result
-        baseResult_HL7_2_1 = `MSH|^~\\&|||||${createHL7Date(useThisDate)}||ACK|12345|T|2.1`;
+        baseResult_HL7_2_1 = String.raw`MSH|^~\&|||||${createHL7Date(useThisDate)}||ACK|12345|T|2.1`;
       });
-      test("... basic", async () => {
+      test("buildMSH produces the 2.1 base wire format", async () => {
         // build MSH Header
         expect(message_HL7_2_1.toString()).toBe(baseResult_HL7_2_1);
       });
 
-      test("... add Event (EVN)", async () => {
+      test("buildEVN appends an EVN segment", async () => {
         message_HL7_2_1.buildEVN({
           evn_1: "A01",
           evn_2: useThisDate,
@@ -175,7 +200,7 @@ describe("node hl7 client - builder tests", () => {
         );
       });
 
-      test("... add Financial Transaction (FT1)", async () => {
+      test("buildFT1 appends a Financial Transaction segment", async () => {
         message_HL7_2_1.buildFT1({
           ft1_4: useThisDate,
           ft1_6: "ADD",
@@ -187,7 +212,7 @@ describe("node hl7 client - builder tests", () => {
         );
       });
 
-      test("... add System Clock (NCK)", async () => {
+      test("buildNCK appends a System Clock segment with timestamp", async () => {
         message_HL7_2_1.buildNCK();
         const result = message_HL7_2_1.toString();
         expect(result).toContain(baseResult_HL7_2_1);
@@ -203,75 +228,75 @@ describe("node hl7 client - builder tests", () => {
         builder = new HL7_2_2();
       });
 
-      test("... basic", async () => {
+      test("buildMSH produces a 2.2 base header", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11: "T",
           msh_7: useThisDate,
           msh_9_1: "ADT",
           msh_9_2: "A01",
-          msh_10: "CONTROL_ID",
-          msh_11: "T",
         });
         const result = builder.toString();
-        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(String.raw`MSH|^~\&`);
         expect(result).toContain(`|ADT^A01|CONTROL_ID|T|2.2`);
       });
 
-      test("... optional - sending/receiving app and facility", async () => {
+      test("buildMSH carries optional sending/receiving fields", async () => {
         builder.buildMSH({
-          msh_7: useThisDate,
-          msh_9_1: "ORM",
-          msh_9_2: "O01",
           msh_10: "MSG001",
           msh_11: "P",
           msh_3: "SENDAPP",
           msh_4: "SENDFAC",
           msh_5: "RECVAPP",
           msh_6: "RECVFAC",
+          msh_7: useThisDate,
+          msh_9_1: "ORM",
+          msh_9_2: "O01",
         });
         const result = builder.toString();
         expect(result).toContain("|SENDAPP|SENDFAC|RECVAPP|RECVFAC|");
         expect(result).toContain("|ORM^O01|MSG001|P|2.2");
       });
 
-      test("... checkMSH - passes for valid input", async () => {
+      test("checkMSH accepts a valid 2.2 header", async () => {
         expect(
           builder.checkMSH({
-            msh_9_1: "ADT",
-            msh_9_2: "A01",
             msh_10: "MSG001",
             msh_11: "P",
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
           }),
         ).toBe(true);
       });
 
-      test("... checkMSH - throws if msh_9_1 is not 3 chars", async () => {
+      test("checkMSH rejects msh_9_1 with length other than 3", async () => {
         expect(() =>
           builder.checkMSH({ msh_9_1: "ADTY", msh_9_2: "A01" }),
         ).toThrow("MSH.9.1 must be 3 characters in length.");
       });
 
-      test("... checkMSH - throws if msh_9_2 is not 3 chars", async () => {
+      test("checkMSH rejects msh_9_2 with length other than 3", async () => {
         expect(() =>
           builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01Y" }),
         ).toThrow("MSH.9.2 must be 3 characters in length.");
       });
 
-      test("... checkMSH - throws if msh_10 exceeds 20 chars", async () => {
+      test("checkMSH rejects msh_10 longer than 20 chars (2.2 limit)", async () => {
         expect(() =>
           builder.checkMSH({
+            msh_10: "A".repeat(21),
             msh_9_1: "ADT",
             msh_9_2: "A01",
-            msh_10: "A".repeat(21),
           }),
         ).toThrow("MSH.10 must be greater than 0 and less than 20 characters.");
       });
 
-      test("... buildMSH - throws if msh_11 is missing (required)", async () => {
+      test("buildMSH rejects missing msh_11 (required in 2.2)", async () => {
         expect(() =>
           builder.buildMSH({
+            msh_10: "MSG001",
             msh_9_1: "ADT",
             msh_9_2: "A01",
-            msh_10: "MSG001",
           }),
         ).toThrow();
       });
@@ -285,75 +310,80 @@ describe("node hl7 client - builder tests", () => {
         builder = new HL7_2_3();
       });
 
-      test("... basic", async () => {
+      test("buildMSH produces a 2.3 base header", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11_1: "T",
           msh_7: useThisDate,
           msh_9_1: "ADT",
           msh_9_2: "A01",
-          msh_10: "CONTROL_ID",
-          msh_11_1: "T",
         });
         const result = builder.toString();
-        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(String.raw`MSH|^~\&`);
         expect(result).toContain(`|ADT^A01|CONTROL_ID|T|2.3`);
       });
 
-      test("... optional - msh_11_2 processing mode", async () => {
+      test("buildMSH carries msh_11_2 processing mode", async () => {
         builder.buildMSH({
-          msh_7: useThisDate,
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
           msh_10: "CONTROL_ID",
           msh_11_1: "P",
           msh_11_2: "I",
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
         });
         const result = builder.toString();
         expect(result).toContain("|P^I|2.3");
       });
 
-      test("... optional - msh_15 and msh_16 ack types", async () => {
+      test("buildMSH carries msh_15 and msh_16 ack types", async () => {
         builder.buildMSH({
-          msh_7: useThisDate,
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
           msh_10: "CONTROL_ID",
           msh_11_1: "P",
           msh_15: "AL",
           msh_16: "NE",
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
         });
         const result = builder.toString();
         expect(result).toContain("|AL|NE|");
         expect(result).toContain("|2.3");
       });
 
-      test("... checkMSH - passes for valid input", async () => {
+      test("checkMSH accepts a valid 2.3 header", async () => {
         expect(
-          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "T" }),
+          builder.checkMSH({ msh_11_1: "T", msh_9_1: "ADT", msh_9_2: "A01" }),
         ).toBe(true);
       });
 
-      test("... checkMSH - throws if msh_11_1 is more than 1 char", async () => {
+      test("checkMSH rejects msh_11_1 longer than 1 char", async () => {
         expect(() =>
-          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "PT" }),
+          builder.checkMSH({
+            // @ts-expect-error msh_11_1 has to be 1 character long
+            msh_11_1: "PT",
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
+          }),
         ).toThrow("MSH.11.1 has to be 1 character long.");
       });
 
-      test("... checkMSH - throws if msh_11_2 is empty string", async () => {
+      test("checkMSH rejects empty-string msh_11_2", async () => {
         expect(() =>
           builder.checkMSH({
-            msh_9_1: "ADT",
-            msh_9_2: "A01",
             msh_11_1: "T",
             msh_11_2: "",
+            msh_9_1: "ADT",
+            msh_9_2: "A01",
           }),
         ).toThrow(
           "MSH.11.2 can either be undefined/blank and 1 character long.",
         );
       });
 
-      test("... checkMSH - debug mode (D) is valid", async () => {
+      test("checkMSH accepts debug processing id (D)", async () => {
         expect(
-          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "D" }),
+          builder.checkMSH({ msh_11_1: "D", msh_9_1: "ADT", msh_9_2: "A01" }),
         ).toBe(true);
       });
     });
@@ -366,36 +396,36 @@ describe("node hl7 client - builder tests", () => {
         builder = new HL7_2_3_1();
       });
 
-      test("... basic", async () => {
+      test("buildMSH produces a 2.3.1 base header", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
           msh_7: useThisDate,
           msh_9_1: "ADT",
           msh_9_2: "A01",
-          msh_10: "CONTROL_ID",
-          msh_11_1: "P",
         });
         const result = builder.toString();
-        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(String.raw`MSH|^~\&`);
         expect(result).toContain(`|ADT^A01|CONTROL_ID|P|2.3.1`);
       });
 
-      test("... optional - msh_19 principal language", async () => {
+      test("buildMSH carries msh_19 principal language", async () => {
         builder.buildMSH({
-          msh_7: useThisDate,
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
           msh_10: "CONTROL_ID",
           msh_11_1: "P",
           msh_19: "ENG",
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
         });
         const result = builder.toString();
         expect(result).toContain("|ENG");
         expect(result).toContain("|2.3.1");
       });
 
-      test("... checkMSH - passes for valid input", async () => {
+      test("checkMSH accepts a valid 2.3.1 header", async () => {
         expect(
-          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "P" }),
+          builder.checkMSH({ msh_11_1: "P", msh_9_1: "ADT", msh_9_2: "A01" }),
         ).toBe(true);
       });
     });
@@ -408,74 +438,75 @@ describe("node hl7 client - builder tests", () => {
         builder = new HL7_2_4();
       });
 
-      test("... basic - msh_9_3 auto-generated", async () => {
+      test("buildMSH auto-generates msh_9_3 from event", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11_1: "T",
           msh_7: useThisDate,
           msh_9_1: "ADT",
           msh_9_2: "A01",
-          msh_10: "CONTROL_ID",
-          msh_11_1: "T",
         });
         const result = builder.toString();
-        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(String.raw`MSH|^~\&`);
         expect(result).toContain(`|ADT^A01^ADT_A01|CONTROL_ID|T|2.4`);
       });
 
-      test("... optional - explicit msh_9_3", async () => {
+      test("buildMSH carries explicit msh_9_3", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
           msh_7: useThisDate,
           msh_9_1: "ADT",
           msh_9_2: "A01",
           msh_9_3: "ADT_A01",
-          msh_10: "CONTROL_ID",
-          msh_11_1: "P",
         });
         const result = builder.toString();
         expect(result).toContain("|ADT^A01^ADT_A01|");
       });
 
-      test("... optional - msh_11_2 T (added in 2.4)", async () => {
+      test("buildMSH carries msh_11_2 T (added in 2.4)", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
+          // @ts-expect-error msh_11_2 has to be "T"
+          msh_11_2: "T",
           msh_7: useThisDate,
           msh_9_1: "ADT",
           msh_9_2: "A01",
-          msh_10: "CONTROL_ID",
-          msh_11_1: "P",
-          msh_11_2: "T",
         });
         const result = builder.toString();
         expect(result).toContain("|P^T|2.4");
       });
 
-      test("... checkMSH - passes for valid input with msh_9_3", async () => {
+      test("checkMSH accepts a 2.4 header with msh_9_3", async () => {
         expect(
           builder.checkMSH({
+            msh_11_1: "T",
             msh_9_1: "ADT",
             msh_9_2: "A01",
             msh_9_3: "ADT_A01",
-            msh_11_1: "T",
           }),
         ).toBe(true);
       });
 
-      test("... checkMSH - throws if msh_9_3 is less than 3 chars", async () => {
+      test("checkMSH rejects msh_9_3 shorter than 3 chars", async () => {
         expect(() =>
           builder.checkMSH({
+            msh_11_1: "T",
             msh_9_1: "ADT",
             msh_9_2: "A01",
             msh_9_3: "AD",
-            msh_11_1: "T",
           }),
         ).toThrow("MSH.9.3 must be 3 to 10 characters in length if specified.");
       });
 
-      test("... checkMSH - throws if msh_9_3 is more than 10 chars", async () => {
+      test("checkMSH rejects msh_9_3 longer than 10 chars", async () => {
         expect(() =>
           builder.checkMSH({
+            msh_11_1: "T",
             msh_9_1: "ADT",
             msh_9_2: "A01",
             msh_9_3: "ADT_A01_ABCDE",
-            msh_11_1: "T",
           }),
         ).toThrow("MSH.9.3 must be 3 to 10 characters in length if specified.");
       });
@@ -489,37 +520,37 @@ describe("node hl7 client - builder tests", () => {
         builder = new HL7_2_5();
       });
 
-      test("... basic", async () => {
+      test("buildMSH produces a 2.5 base header", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11_1: "T",
           msh_7: useThisDate,
           msh_9_1: "ADT",
           msh_9_2: "A01",
-          msh_10: "CONTROL_ID",
-          msh_11_1: "T",
         });
         const result = builder.toString();
-        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(String.raw`MSH|^~\&`);
         expect(result).toContain(`|ADT^A01^ADT_A01|CONTROL_ID|T|2.5`);
       });
 
-      test("... optional - sending application and facility", async () => {
+      test("buildMSH carries 2.5 sending application and facility", async () => {
         builder.buildMSH({
-          msh_7: useThisDate,
-          msh_9_1: "ORU",
-          msh_9_2: "R01",
           msh_10: "CONTROL_ID",
           msh_11_1: "P",
           msh_3: "LABSYS",
           msh_4: "LABFAC",
+          msh_7: useThisDate,
+          msh_9_1: "ORU",
+          msh_9_2: "R01",
         });
         const result = builder.toString();
         expect(result).toContain("|LABSYS|LABFAC|");
         expect(result).toContain("|ORU^R01^ORU_R01|CONTROL_ID|P|2.5");
       });
 
-      test("... checkMSH - passes for valid input", async () => {
+      test("checkMSH accepts a valid 2.5 header", async () => {
         expect(
-          builder.checkMSH({ msh_9_1: "ORU", msh_9_2: "R01", msh_11_1: "P" }),
+          builder.checkMSH({ msh_11_1: "P", msh_9_1: "ORU", msh_9_2: "R01" }),
         ).toBe(true);
       });
     });
@@ -532,37 +563,37 @@ describe("node hl7 client - builder tests", () => {
         builder = new HL7_2_5_1();
       });
 
-      test("... basic", async () => {
+      test("buildMSH produces a 2.5.1 base header", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
           msh_7: useThisDate,
           msh_9_1: "ADT",
           msh_9_2: "A04",
-          msh_10: "CONTROL_ID",
-          msh_11_1: "P",
         });
         const result = builder.toString();
-        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(String.raw`MSH|^~\&`);
         expect(result).toContain(`|ADT^A04^ADT_A04|CONTROL_ID|P|2.5.1`);
       });
 
-      test("... optional - sending application and facility", async () => {
+      test("buildMSH carries 2.5.1 sending application and facility", async () => {
         builder.buildMSH({
-          msh_7: useThisDate,
-          msh_9_1: "ADT",
-          msh_9_2: "A04",
           msh_10: "CONTROL_ID",
           msh_11_1: "P",
           msh_3: "EMISYS",
           msh_4: "EMIFAC",
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A04",
         });
         const result = builder.toString();
         expect(result).toContain("|EMISYS|EMIFAC|");
         expect(result).toContain("|2.5.1");
       });
 
-      test("... checkMSH - passes for valid input", async () => {
+      test("checkMSH accepts a valid 2.5.1 header", async () => {
         expect(
-          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A04", msh_11_1: "P" }),
+          builder.checkMSH({ msh_11_1: "P", msh_9_1: "ADT", msh_9_2: "A04" }),
         ).toBe(true);
       });
     });
@@ -575,37 +606,37 @@ describe("node hl7 client - builder tests", () => {
         builder = new HL7_2_6();
       });
 
-      test("... basic", async () => {
+      test("buildMSH produces a 2.6 base header", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11_1: "D",
           msh_7: useThisDate,
           msh_9_1: "ADT",
           msh_9_2: "A01",
-          msh_10: "CONTROL_ID",
-          msh_11_1: "D",
         });
         const result = builder.toString();
-        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(String.raw`MSH|^~\&`);
         expect(result).toContain(`|ADT^A01^ADT_A01|CONTROL_ID|D|2.6`);
       });
 
-      test("... optional - sending and receiving application", async () => {
+      test("buildMSH carries 2.6 sending and receiving application", async () => {
         builder.buildMSH({
-          msh_7: useThisDate,
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
           msh_10: "CONTROL_ID",
           msh_11_1: "P",
           msh_3: "SRCSYS",
           msh_5: "TGTSYS",
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
         });
         const result = builder.toString();
         expect(result).toContain("|SRCSYS||TGTSYS|");
         expect(result).toContain("|2.6");
       });
 
-      test("... checkMSH - passes for valid input", async () => {
+      test("checkMSH accepts a valid 2.6 header", async () => {
         expect(
-          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "D" }),
+          builder.checkMSH({ msh_11_1: "D", msh_9_1: "ADT", msh_9_2: "A01" }),
         ).toBe(true);
       });
     });
@@ -618,64 +649,64 @@ describe("node hl7 client - builder tests", () => {
         builder = new HL7_2_7();
       });
 
-      test("... basic", async () => {
+      test("buildMSH produces a 2.7 base header", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
           msh_7: useThisDate,
           msh_9_1: "ADT",
           msh_9_2: "A01",
-          msh_10: "CONTROL_ID",
-          msh_11_1: "P",
         });
         const result = builder.toString();
-        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(String.raw`MSH|^~\&`);
         expect(result).toContain(`|ADT^A01^ADT_A01|CONTROL_ID|P|2.7`);
       });
 
-      test("... optional - sending application (up to 227 chars in 2.7)", async () => {
+      test("buildMSH carries 2.7 sending application (up to 227 chars)", async () => {
         builder.buildMSH({
-          msh_7: useThisDate,
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
           msh_10: "CONTROL_ID",
           msh_11_1: "P",
           msh_3: "LABSYSTEM",
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
         });
         const result = builder.toString();
         expect(result).toContain("|LABSYSTEM||||");
         expect(result).toContain("|2.7");
       });
 
-      test("... optional - msh_11_2 processing mode I (archive)", async () => {
+      test("buildMSH carries msh_11_2 archive processing mode", async () => {
         builder.buildMSH({
-          msh_7: useThisDate,
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
           msh_10: "CONTROL_ID",
           msh_11_1: "P",
           msh_11_2: "A",
+          msh_7: useThisDate,
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
         });
         const result = builder.toString();
         expect(result).toContain("|P^A|2.7");
       });
 
-      test("... checkMSH - passes for valid input", async () => {
+      test("checkMSH accepts a valid 2.7 header", async () => {
         expect(
           builder.checkMSH({
+            msh_11_1: "P",
             msh_9_1: "ADT",
             msh_9_2: "A01",
             msh_9_3: "ADT_A01",
-            msh_11_1: "P",
           }),
         ).toBe(true);
       });
 
-      test("... checkMSH - throws if msh_10 exceeds 199 chars (2.7 limit)", async () => {
+      test("checkMSH rejects msh_10 longer than 199 chars (2.7 limit)", async () => {
         expect(() =>
           builder.checkMSH({
+            msh_10: "A".repeat(200),
+            msh_11_1: "P",
             msh_9_1: "ADT",
             msh_9_2: "A01",
-            msh_11_1: "P",
-            msh_10: "A".repeat(200),
           }),
         ).toThrow(
           "MSH.10 must be greater than 0 and less than 199 characters.",
@@ -691,35 +722,35 @@ describe("node hl7 client - builder tests", () => {
         builder = new HL7_2_7_1();
       });
 
-      test("... basic", async () => {
+      test("buildMSH produces a 2.7.1 base header", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
           msh_7: useThisDate,
           msh_9_1: "ORM",
           msh_9_2: "O01",
-          msh_10: "CONTROL_ID",
-          msh_11_1: "P",
         });
         const result = builder.toString();
-        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(String.raw`MSH|^~\&`);
         expect(result).toContain(`|ORM^O01^ORM_O01|CONTROL_ID|P|2.7.1`);
       });
 
-      test("... optional - msh_11_2 R (restore)", async () => {
+      test("buildMSH carries msh_11_2 restore processing mode", async () => {
         builder.buildMSH({
-          msh_7: useThisDate,
-          msh_9_1: "ORM",
-          msh_9_2: "O01",
           msh_10: "CONTROL_ID",
           msh_11_1: "P",
           msh_11_2: "R",
+          msh_7: useThisDate,
+          msh_9_1: "ORM",
+          msh_9_2: "O01",
         });
         const result = builder.toString();
         expect(result).toContain("|P^R|2.7.1");
       });
 
-      test("... checkMSH - passes for valid input", async () => {
+      test("checkMSH accepts a valid 2.7.1 header", async () => {
         expect(
-          builder.checkMSH({ msh_9_1: "ORM", msh_9_2: "O01", msh_11_1: "P" }),
+          builder.checkMSH({ msh_11_1: "P", msh_9_1: "ORM", msh_9_2: "O01" }),
         ).toBe(true);
       });
     });
@@ -732,52 +763,52 @@ describe("node hl7 client - builder tests", () => {
         builder = new HL7_2_8();
       });
 
-      test("... basic", async () => {
+      test("buildMSH produces a 2.8 base header", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
           msh_7: useThisDate,
           msh_9_1: "ADT",
           msh_9_2: "A01",
-          msh_10: "CONTROL_ID",
-          msh_11_1: "P",
         });
         const result = builder.toString();
-        expect(result).toContain("MSH|^~\\&");
+        expect(result).toContain(String.raw`MSH|^~\&`);
         expect(result).toContain(`|ADT^A01^ADT_A01|CONTROL_ID|P|2.8`);
       });
 
-      test("... optional - msh_9_3 explicit structure", async () => {
+      test("buildMSH carries explicit msh_9_3 message structure", async () => {
         builder.buildMSH({
+          msh_10: "CONTROL_ID",
+          msh_11_1: "P",
           msh_7: useThisDate,
           msh_9_1: "ORU",
           msh_9_2: "R01",
           msh_9_3: "ORU_R01",
-          msh_10: "CONTROL_ID",
-          msh_11_1: "P",
         });
         const result = builder.toString();
         expect(result).toContain("|ORU^R01^ORU_R01|");
         expect(result).toContain("|2.8");
       });
 
-      test("... checkMSH - passes for valid input", async () => {
+      test("checkMSH accepts a valid 2.8 header", async () => {
         expect(
-          builder.checkMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_11_1: "P" }),
+          builder.checkMSH({ msh_11_1: "P", msh_9_1: "ADT", msh_9_2: "A01" }),
         ).toBe(true);
       });
 
-      test("... checkMSH - throws if msh_9_1 wrong length", async () => {
+      test("checkMSH rejects msh_9_1 with length other than 3", async () => {
         expect(() =>
-          builder.checkMSH({ msh_9_1: "ADTY", msh_9_2: "A01", msh_11_1: "P" }),
+          builder.checkMSH({ msh_11_1: "P", msh_9_1: "ADTY", msh_9_2: "A01" }),
         ).toThrow("MSH.9.1 must be 3 characters in length.");
       });
 
-      test("... checkMSH - throws if msh_10 exceeds 199 chars (inherits 2.7 limit)", async () => {
+      test("checkMSH inherits 2.7 msh_10 199-char limit", async () => {
         expect(() =>
           builder.checkMSH({
+            msh_10: "A".repeat(200),
+            msh_11_1: "P",
             msh_9_1: "ADT",
             msh_9_2: "A01",
-            msh_11_1: "P",
-            msh_10: "A".repeat(200),
           }),
         ).toThrow(
           "MSH.10 must be greater than 0 and less than 199 characters.",
@@ -792,71 +823,71 @@ describe("node hl7 client - builder tests", () => {
     beforeEach(async () => {
       message = new Message({
         messageHeader: {
-          msh_9_1: "ADT",
-          msh_9_2: "A01",
           msh_10: "12345",
           msh_11_1: "D",
+          msh_9_1: "ADT",
+          msh_9_2: "A01",
         },
       });
       message.set("MSH.7", "20081231");
     });
 
-    test("...real basic", async () => {
+    test("Message constructor produces an exact 2.7 wire format", async () => {
       expect(message.toString()).toBe(
-        "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7",
+        String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|12345|D|2.7`,
       );
     });
 
-    test("...should accept a number as a value", async () => {
+    test("set accepts a number value", async () => {
       message.set("EVN.2", 1);
       expect(message.toString()).toContain("EVN||1");
     });
 
-    test("...should accept a Date without time as a value", () => {
+    test("set accepts a Date without time", () => {
       message.set("PV1.1", new Date(2012, 9, 31));
       expect(message.toString()).toContain("PV1|20121031");
     });
 
-    test("...should accept a Date with time as a value", () => {
+    test("set accepts a Date with time", () => {
       message.set("PV1.1", new Date(2012, 9, 31, 22, 51, 13));
       expect(message.toString()).toContain("PV1|20121031225113");
     });
 
-    test("...should accept a float as a value", () => {
+    test("set accepts a float value", () => {
       message.set("PV1.1", 1.2);
       expect(message.toString()).toContain("PV1|1.2");
     });
 
-    test("...should accept a boolean as a value", () => {
+    test("set accepts a boolean value (Y/N)", () => {
       message.set("PV1.1", true);
       expect(message.toString()).toContain("PV1|Y");
       message.set("PV1.1", false);
       expect(message.toString()).toContain("PV1|N");
     });
 
-    test("...should set the specified field", () => {
+    test("set writes the specified field", () => {
       message.set("PID.4", "1273462894723");
       expect(message.toString()).toContain("PID||||1273462894723");
     });
 
-    test("...should be able to set more than one field on the same segment", () => {
+    test("set writes multiple fields on the same segment", () => {
       message.set("PID.4", "1273462894723");
       message.set("PID.10", "TEST");
       expect(message.toString()).toContain("PID||||1273462894723||||||TEST");
     });
 
-    test("...should set the specified component", () => {
+    test("set writes the specified component", () => {
       message.set("PV1.7.2", "Jones");
       expect(message.toString()).toContain("PV1|||||||^Jones");
     });
 
-    test("...should be able to set more that one component on the same field", () => {
+    test("set writes multiple components on the same field", () => {
       message.set("PV1.7.2", "Jones");
       message.set("PV1.7.3", "John");
       expect(message.toString()).toContain("PV1|||||||^Jones^John");
     });
 
-    test("...should be able to set repeating fields", async () => {
+    test("set writes repeating field instances", async () => {
       message.set("PID.3").set(0).set("PID.3.1", "abc");
       message.set("PID.3").set(0).set("PID.3.5", "MRN");
       message.set("PID.3").set(1).set("PID.3.1", 123);
@@ -864,7 +895,7 @@ describe("node hl7 client - builder tests", () => {
       expect(message.toString()).toContain("PID|||abc^^^^MRN~123^^^^ID");
     });
 
-    test("...can chain component setters", async () => {
+    test("component setters chain by name path", async () => {
       message
         .set("PV1.7")
         .set(0)
@@ -874,18 +905,18 @@ describe("node hl7 client - builder tests", () => {
       expect(message.toString()).toContain("PV1|||||||^Jones^John~^Smith^Bob");
     });
 
-    test("...can chain component setters with numeric indexers", async () => {
+    test("component setters chain by numeric index", async () => {
       message.set("PV1.7").set(0).set(1, "Jones").set(2, "John");
       message.set("PV1.7").set(1).set(1, "Smith").set(2, "Bob");
       expect(message.toString()).toContain("PV1|||||||^Jones^John~^Smith^Bob");
     });
 
-    test("...can set field component by number", async () => {
+    test("set writes field components by number", async () => {
       message.set("PV1.7").set(0).set(1, "Jones").set(2, "John");
       expect(message.toString()).toContain("PV1|||||||^Jones^John");
     });
 
-    test("...can set field component by number and array", async () => {
+    test("set writes field components from a number + array", async () => {
       message
         .set("PV1.7")
         .set(0, ["", "Jones", "John"])
@@ -893,7 +924,7 @@ describe("node hl7 client - builder tests", () => {
       expect(message.toString()).toContain("PV1|||||||^Jones^John~^Smith^Bob");
     });
 
-    test("... add segment EVN field - using full path", async () => {
+    test("addSegment EVN sets field via full dotted path", async () => {
       const segment = message.addSegment("EVN");
       segment.set("EVN.2.1", "20081231");
       expect(message.toString()).toBe(
@@ -901,7 +932,7 @@ describe("node hl7 client - builder tests", () => {
       );
     });
 
-    test("...add segment EVN field - using number path", async () => {
+    test("addSegment EVN sets field via number.subcomponent path", async () => {
       const segment = message.addSegment("EVN");
       segment.set("2.1", "20081231");
       expect(message.toString()).toBe(
@@ -909,7 +940,7 @@ describe("node hl7 client - builder tests", () => {
       );
     });
 
-    test("...add segment EVN field - using simple number path", async () => {
+    test("addSegment EVN sets field via single-number string path", async () => {
       const segment = message.addSegment("EVN");
       segment.set("2", "20081231");
       expect(message.toString()).toBe(
@@ -917,7 +948,7 @@ describe("node hl7 client - builder tests", () => {
       );
     });
 
-    test("...add segment EVN field - using simple number", async () => {
+    test("addSegment EVN sets field via numeric index", async () => {
       const segment = message.addSegment("EVN");
       segment.set(2, "20081231");
       expect(message.toString()).toBe(
@@ -934,20 +965,20 @@ describe("node hl7 client - builder tests", () => {
       batch.start();
     });
 
-    test("...initial build", async () => {
+    test("Batch start/end produces BHS and BTS|0", async () => {
       batch.end();
-      expect(batch.toString()).toContain("BHS|^~\\&");
+      expect(batch.toString()).toContain(String.raw`BHS|^~\&`);
       expect(batch.toString()).toContain("BTS|0");
     });
 
-    test("...verify BHS header is correct", async () => {
+    test("BHS.7 set is reflected in toString output", async () => {
       batch.set("BHS.7", "20081231");
       batch.end();
       expect(batch.get("BHS.7").toString()).toBe("20081231");
       expect(batch.toString()).toBe("BHS|^~\\&|||||20081231\rBTS|0");
     });
 
-    test("...add onto the BHS header", async () => {
+    test("BHS.3 through BHS.6 can be set after start", async () => {
       batch.set("BHS.7", "20081231");
       batch.set("BHS.3", "SendingApp");
       batch.set("BHS.4", "SendingFacility");
@@ -976,7 +1007,7 @@ describe("node hl7 client - builder tests", () => {
       batch.set("BHS.7", date);
     });
 
-    test("...add single message to batch", async () => {
+    test("Batch.add accepts a single Message", async () => {
       message = new Message({
         messageHeader: {
           ...MSH_HEADER,
@@ -989,14 +1020,14 @@ describe("node hl7 client - builder tests", () => {
       batch.end();
       expect(batch.toString()).toBe(
         [
-          `BHS|^~\\&|||||${date}`,
-          `MSH|^~\\&|||||${date}||ADT^A01^ADT_A01|CONTROL_ID|D|2.7`,
+          String.raw`BHS|^~\&|||||${date}`,
+          String.raw`MSH|^~\&|||||${date}||ADT^A01^ADT_A01|CONTROL_ID|D|2.7`,
           "BTS|1",
         ].join("\r"),
       );
     });
 
-    test("...add 10 message to batch", async () => {
+    test("BTS counter reflects 10 added messages", async () => {
       message = new Message({
         messageHeader: {
           ...MSH_HEADER,
@@ -1005,14 +1036,14 @@ describe("node hl7 client - builder tests", () => {
       });
       message.set("MSH.7", date);
 
-      for (let i = 0; i < 10; i++) {
+      for (let index = 0; index < 10; index++) {
         batch.add(message);
       }
       batch.end();
       expect(batch.toString()).toContain("BTS|10");
     });
 
-    test("...add message to batch with additional segments in message", async () => {
+    test("Batch preserves additional segments inside the Message", async () => {
       message = new Message({
         messageHeader: {
           ...MSH_HEADER,
@@ -1031,7 +1062,7 @@ describe("node hl7 client - builder tests", () => {
       );
     });
 
-    test("...add message to batch with 2x additional segments in message", async () => {
+    test("Batch preserves multiple repeating EVN segments", async () => {
       message = new Message({
         messageHeader: {
           ...MSH_HEADER,
@@ -1063,10 +1094,8 @@ describe("node hl7 client - builder tests", () => {
       file.set("FHS.7", "20081231");
     });
 
-    test("...initial build", async () => {
-      let message: Message;
-
-      message = new Message({
+    test("FileBatch start/end wraps a Message in FHS/FTS", async () => {
+      const message: Message = new Message({
         messageHeader: {
           ...MSH_HEADER,
           msh_10: "CONTROL_ID",
@@ -1083,21 +1112,21 @@ describe("node hl7 client - builder tests", () => {
       // unit checking
       expect(file.toString()).toBe(
         [
-          "FHS|^~\\&|||||20081231",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID|D|2.7",
+          String.raw`FHS|^~\&|||||20081231`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID|D|2.7`,
           "FTS|1",
         ].join("\r"),
       );
     });
 
-    test("...add 10 message", async () => {
+    test("FileBatch handles 10 messages with unique control ids", async () => {
       let message: Message;
 
-      for (let i = 0; i < 10; i++) {
+      for (let index = 0; index < 10; index++) {
         message = new Message({
           messageHeader: {
             ...MSH_HEADER,
-            msh_10: `CONTROL_ID${i + 1}`,
+            msh_10: `CONTROL_ID${index + 1}`,
           },
         });
         message.set("MSH.7", "20081231");
@@ -1112,23 +1141,23 @@ describe("node hl7 client - builder tests", () => {
       // unit checking
       expect(file.toString()).toBe(
         [
-          "FHS|^~\\&|||||20081231",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID1|D|2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID2|D|2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID3|D|2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID4|D|2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID5|D|2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID6|D|2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID7|D|2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID8|D|2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID9|D|2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID10|D|2.7",
+          String.raw`FHS|^~\&|||||20081231`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID1|D|2.7`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID2|D|2.7`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID3|D|2.7`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID4|D|2.7`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID5|D|2.7`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID6|D|2.7`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID7|D|2.7`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID8|D|2.7`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID9|D|2.7`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID10|D|2.7`,
           "FTS|10",
         ].join("\r"),
       );
     });
 
-    test("...add single a batch", async () => {
+    test("FileBatch.add accepts a Batch", async () => {
       // basic batch
       const batch = new Batch();
       batch.start();
@@ -1144,15 +1173,15 @@ describe("node hl7 client - builder tests", () => {
       // unit checking
       expect(file.toString()).toBe(
         [
-          "FHS|^~\\&|||||20081231",
-          "BHS|^~\\&|||||20081231",
+          String.raw`FHS|^~\&|||||20081231`,
+          String.raw`BHS|^~\&|||||20081231`,
           "BTS|0",
           "FTS|1",
         ].join("\r"),
       );
     });
 
-    test("...add single a batch with a single message", async () => {
+    test("FileBatch wraps a Batch that contains one Message", async () => {
       const batch = new Batch();
       batch.start();
       batch.set("BHS.7", "20081231");
@@ -1180,16 +1209,16 @@ describe("node hl7 client - builder tests", () => {
       // unit checking
       expect(file.toString()).toBe(
         [
-          "FHS|^~\\&|||||20081231",
-          "BHS|^~\\&|||||20081231",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID|D|2.7",
+          String.raw`FHS|^~\&|||||20081231`,
+          String.raw`BHS|^~\&|||||20081231`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID|D|2.7`,
           "BTS|1",
           "FTS|1",
         ].join("\r"),
       );
     });
 
-    test("...add single a batch with a single message, if add a message to the file, it should add it to the batch", async () => {
+    test("FileBatch.add routes new Messages into the open Batch", async () => {
       const batch = new Batch();
       batch.start();
       batch.set("BHS.7", "20081231");
@@ -1242,18 +1271,18 @@ describe("node hl7 client - builder tests", () => {
       // unit checking
       expect(file.toString()).toBe(
         [
-          "FHS|^~\\&|||||20081231",
-          "BHS|^~\\&|||||20081231",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID1|D|2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID2|D|2.7",
-          "MSH|^~\\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID3|D|2.7",
+          String.raw`FHS|^~\&|||||20081231`,
+          String.raw`BHS|^~\&|||||20081231`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID1|D|2.7`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID2|D|2.7`,
+          String.raw`MSH|^~\&|||||20081231||ADT^A01^ADT_A01|CONTROL_ID3|D|2.7`,
           "BTS|3",
           "FTS|1",
         ].join("\r"),
       );
     });
 
-    test("...add 2 batch", async () => {
+    test("FileBatch.add accepts two consecutive Batches", async () => {
       let batch = new Batch();
       batch.start();
       batch.set("BHS.7", "20081231");
@@ -1275,10 +1304,10 @@ describe("node hl7 client - builder tests", () => {
       // unit checking
       expect(file.toString()).toBe(
         [
-          "FHS|^~\\&|||||20081231",
-          "BHS|^~\\&|||||20081231",
+          String.raw`FHS|^~\&|||||20081231`,
+          String.raw`BHS|^~\&|||||20081231`,
           "BTS|0",
-          "BHS|^~\\&|||||20081231",
+          String.raw`BHS|^~\&|||||20081231`,
           "BTS|0",
           "FTS|2",
         ].join("\r"),
@@ -1288,19 +1317,21 @@ describe("node hl7 client - builder tests", () => {
 
   describe("complex file generation", () => {
     beforeAll(async () => {
-      fs.readdir("temp/", (err, files) => {
-        if (err != null) return;
-        for (const file of files) {
-          fs.unlink(path.join("temp/", file), (err) => {
-            if (err != null) throw err;
-          });
+      // Synchronous cleanup so the next `toFile()` write isn't racing
+      // against pending unlink callbacks. Tolerate missing files — the dir
+      // may not exist yet on a fresh checkout.
+      if (fs.existsSync("temp/")) {
+        for (const file of fs.readdirSync("temp/")) {
+          try {
+            fs.unlinkSync(path.join("temp/", file));
+          } catch {
+            /* already gone — fine */
+          }
         }
-      });
-
-      await sleep(5);
+      }
     });
 
-    test("...create file", async () => {
+    test("FileBatch.createFile writes the framed bytes to disk", async () => {
       const file = new FileBatch({ location: "temp/" });
       file.start();
       file.set("FHS.7", "20081231");
@@ -1308,7 +1339,7 @@ describe("node hl7 client - builder tests", () => {
       file.createFile("HELLO");
     });
 
-    test("...create file from message", async () => {
+    test("Message.toFile writes the message to disk", async () => {
       const message = new Message({
         messageHeader: {
           ...MSH_HEADER,
@@ -1319,7 +1350,7 @@ describe("node hl7 client - builder tests", () => {
       message.toFile("ADT", true, "temp/");
     });
 
-    test("...create file from batch", async () => {
+    test("Batch.toFile writes the batch to disk", async () => {
       const batch = new Batch();
       batch.start();
       batch.set("BHS.7", "20081231");
@@ -1329,36 +1360,36 @@ describe("node hl7 client - builder tests", () => {
   });
 
   describe("non standard tests", () => {
-    test("...returns true if specified path exists", () => {
+    test("exists returns true for present paths", () => {
       const message = new Message({ text: "MSH|^~\\&|value\rPV1|" });
       expect(message.exists("MSH.3")).toBe(true);
       expect(message.exists("PV1")).toBe(true);
     });
 
-    test("...returns false if specified path does not exists", () => {
-      const message = new Message({ text: "MSH|^~\\&|value" });
+    test("exists returns false for missing paths", () => {
+      const message = new Message({ text: String.raw`MSH|^~\&|value` });
       expect(message.exists("MSH.4")).toBe(false);
       expect(message.exists("PV1")).toBe(false);
     });
 
-    test("...should return EmptyNode for out-of-range indexes", () => {
-      const message = new Message({ text: "MSH|^~\\&|" });
+    test("get returns EmptyNode for out-of-range indexes", () => {
+      const message = new Message({ text: String.raw`MSH|^~\&|` });
       expect(message.get(10)).toBeInstanceOf(EmptyNode);
       expect(message.get("PV1").get(10)).toBeInstanceOf(EmptyNode);
     });
 
-    test("...should resolve escape sequence for hex character sequence", () => {
+    test("hex escape sequences decode to raw characters", () => {
       const field = new Message({ text: "MSH|^~\\&|\\X0D\\" }).get("MSH.3");
       expect(field.toString()).toBe("\r");
     });
 
-    test("...should pass through invalid escape sequences", () => {
+    test("unknown escape sequences are passed through verbatim", () => {
       expect(
         new Message({ text: "MSH|^~\\&|\\a\\" }).get("MSH.3").toString(),
       ).toBe("\\a\\");
     });
 
-    test("...count 2x EVN segments as nodes", async () => {
+    test("repeated EVN segments are iterable via forEach", async () => {
       const message = new Message({
         messageHeader: {
           ...MSH_HEADER,
@@ -1389,31 +1420,29 @@ describe("node hl7 client - builder tests", () => {
       "BHS|^~\\&|||||20231208\rMSH|^~\\&|||||20231208||ADT^A01^ADT_A01|CONTROL_ID||2.7\rEVN||20081231\rEVN||20081231\rBTS|1";
 
     beforeAll(async () => {
-      fs.readdir("temp/", (err, files) => {
-        if (err != null) return;
-        for (const file of files) {
-          fs.unlink(path.join("temp/", file), (err) => {
-            if (err != null) throw err;
-          });
+      // Synchronous cleanup + write so the test reads see a stable file.
+      if (fs.existsSync("temp/")) {
+        for (const file of fs.readdirSync("temp/")) {
+          try {
+            fs.unlinkSync(path.join("temp/", file));
+          } catch {
+            /* already gone — fine */
+          }
         }
-      });
-
-      await sleep(2);
+      }
 
       const message = new Message({ text: hl7_string });
       message.toFile("readTestMSH", true, "temp/");
 
       const batch = new Batch({ text: hl7_batch });
       batch.toFile("readTestBHS", true, "temp/");
-
-      await sleep(2);
     });
 
     beforeEach(async () => {
       await sleep(1);
     });
 
-    test("...test parsing - file path", async () => {
+    test("FileBatch reads from a fullFilePath", async () => {
       const fileBatch_one = new FileBatch({
         fullFilePath: path.join("temp/", "hl7.readTestMSH.20081231.hl7"),
       });
@@ -1425,7 +1454,7 @@ describe("node hl7 client - builder tests", () => {
       expect(fileBatch_two._opt.text).toContain(hl7_batch);
     });
 
-    test("...test parsing - buffer", async () => {
+    test("FileBatch reads from a fileBuffer", async () => {
       const fileBatch_one = new FileBatch({
         fileBuffer: fs.readFileSync(
           path.join("temp/", "hl7.readTestMSH.20081231.hl7"),
@@ -1441,7 +1470,7 @@ describe("node hl7 client - builder tests", () => {
       expect(fileBatch_two._opt.text).toContain(hl7_batch);
     });
 
-    test("...get MSH", async () => {
+    test("FileBatch.messages yields one Message with one EVN", async () => {
       const fileBatch = new FileBatch({
         fullFilePath: path.join("temp/", "hl7.readTestMSH.20081231.hl7"),
       });
@@ -1460,7 +1489,7 @@ describe("node hl7 client - builder tests", () => {
       });
     });
 
-    test("...get MSH in a BHS", async () => {
+    test("FileBatch with BHS yields one Message with two EVN segments", async () => {
       const fileBatch = new FileBatch({
         fullFilePath: path.join("temp/", "hl7.readTestBHS.20231208.hl7"),
       });

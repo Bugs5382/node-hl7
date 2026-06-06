@@ -1,7 +1,30 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+import { HL7Node } from "@/builder/interface/hL7Node";
 import { Delimiters } from "@/declaration/enum";
 import { HL7FatalError } from "@/helpers/exception";
 import { isHL7Number, isHL7String } from "@/utils/is";
-import { HL7Node } from "../interface/hL7Node";
+
 import { Field } from "./field";
 import { NodeBase } from "./nodeBase";
 import { SubComponent } from "./subComponent";
@@ -26,12 +49,12 @@ export class Segment extends NodeBase {
 
   /** @internal */
   read(path: string[]): HL7Node {
-    let index = parseInt(path.shift() as string);
+    let index = Number.parseInt(path.shift() as string);
     if (index < 1) {
       throw new HL7FatalError("Index must be 1 or greater.");
     }
     if (this._name === "MSH" || this._name === "BHS" || this._name === "FHS") {
-      if (typeof this.message !== "undefined" && index === 1) {
+      if (this.message !== undefined && index === 1) {
         return new SubComponent(
           this,
           "1",
@@ -43,13 +66,11 @@ export class Segment extends NodeBase {
     }
 
     const field = this.children[index];
-    return typeof field !== "undefined" && path.length > 0
-      ? field.read(path)
-      : field;
+    return field !== undefined && path.length > 0 ? field.read(path) : field;
   }
 
   /** @internal */
-  set(path: string | number, value?: any): HL7Node {
+  set(path: number | string, value?: any): HL7Node {
     if (arguments.length === 1) {
       return this.ensure(path);
     }
@@ -59,8 +80,8 @@ export class Segment extends NodeBase {
         ? `${this._segmentName}.${path}`
         : path;
       if (Array.isArray(value)) {
-        for (let i = 0; i < value.length; i++) {
-          this.set(`${resolvedPath}.${i + 1}`, value[i]);
+        for (const [index, item] of value.entries()) {
+          this.set(`${resolvedPath}.${index + 1}`, item);
         }
       } else {
         const _path = this.preparePath(resolvedPath);
@@ -71,8 +92,8 @@ export class Segment extends NodeBase {
     } else if (isHL7Number(path)) {
       if (Array.isArray(value)) {
         const child = this.ensure(path);
-        for (let i = 0, l = value.length; i < l; i++) {
-          child.set(i, value[i]);
+        for (let index = 0, l = value.length; index < l; index++) {
+          child.set(index, value[index]);
         }
         return this;
       } else {
@@ -86,20 +107,8 @@ export class Segment extends NodeBase {
   }
 
   /** @internal */
-  protected writeCore(path: string[], value: string): HL7Node {
-    let index = parseInt(path.shift() as string);
-    if (index < 1 || isNaN(index)) {
-      throw new HL7FatalError(
-        "Can't have an index < 1 or not be a valid number.",
-      );
-    }
-    if (this._name === "MSH" || this._name === "BHS" || this._name === "FHS") {
-      if (index !== 1 && index !== 2) {
-        index = index - 1;
-      }
-    }
-
-    return this.writeAtIndex(path, value, index);
+  protected createChild(text: string, index: number): HL7Node {
+    return new Field(this, index.toString(), text);
   }
 
   /** @internal */
@@ -108,7 +117,21 @@ export class Segment extends NodeBase {
   }
 
   /** @internal */
-  protected createChild(text: string, index: number): HL7Node {
-    return new Field(this, index.toString(), text);
+  protected writeCore(path: string[], value: string): HL7Node {
+    let index = Number.parseInt(path.shift() as string);
+    if (index < 1 || Number.isNaN(index)) {
+      throw new HL7FatalError(
+        "Can't have an index < 1 or not be a valid number.",
+      );
+    }
+    if (
+      (this._name === "MSH" || this._name === "BHS" || this._name === "FHS") &&
+      index !== 1 &&
+      index !== 2
+    ) {
+      index = index - 1;
+    }
+
+    return this.writeAtIndex(path, value, index);
   }
 }

@@ -1,30 +1,31 @@
-import { TABLE_0001 } from "@/hl7/tables/0001";
+/*
+MIT License
 
-export type Table0001Value = (typeof TABLE_0001)[number];
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+import { TABLE_0001 } from "@/hl7/tables/0001";
 
 /** HL7 IN1 - Insurance */
 export interface HL7_IN1 {
   /** IN1.1 - Set ID */
   in1_1: number | string;
-  setId?: number | string;
-  /** IN1.2 - Insurance Plan ID */
-  in1_2: string;
-  insurancePlanId?: string;
-  /** IN1.3 - Insurance Company ID */
-  in1_3: string;
-  insuranceCompanyId?: string;
-  /** IN1.4 - Insurance Company Name */
-  in1_4?: string;
-  /** IN1.5 - Insurance Company Address */
-  in1_5?: string;
-  /** IN1.6 - Insurance Company Contact Person */
-  in1_6?: string;
-  /** IN1.7 - Insurance Company Phone Number */
-  in1_7?: string;
-  /** IN1.8 - Group Number */
-  in1_8?: string;
-  /** IN1.9 - Group Name */
-  in1_9?: string;
   /** IN1.10 - Insured's Group Employee ID */
   in1_10?: string;
   /** IN1.11 - Insured's Group Employee Name */
@@ -45,6 +46,8 @@ export interface HL7_IN1 {
   in1_18?: Date | string;
   /** IN1.19 - Insured's Address */
   in1_19?: string;
+  /** IN1.2 - Insurance Plan ID */
+  in1_2: string;
   /** IN1.20 - Assignment Of Benefits */
   in1_20?: string;
   /** IN1.21 - Coordination Of Benefits */
@@ -65,6 +68,8 @@ export interface HL7_IN1 {
   in1_28?: string;
   /** IN1.29 - Verification Date/Time */
   in1_29?: Date | string;
+  /** IN1.3 - Insurance Company ID */
+  in1_3: string;
   /** IN1.30 - Verification By */
   in1_30?: string;
   /** IN1.31 - Type Of Agreement Code */
@@ -85,6 +90,8 @@ export interface HL7_IN1 {
   in1_38?: string;
   /** IN1.39 - Policy Limit - Days */
   in1_39?: string;
+  /** IN1.4 - Insurance Company Name */
+  in1_4?: string;
   /** IN1.40 - Room Rate - Semi-Private */
   in1_40?: string;
   /** IN1.41 - Room Rate - Private */
@@ -95,4 +102,19 @@ export interface HL7_IN1 {
   in1_43?: Table0001Value;
   /** IN1.44 - Insured's Employer Address */
   in1_44?: string;
+  /** IN1.5 - Insurance Company Address */
+  in1_5?: string;
+  /** IN1.6 - Insurance Company Contact Person */
+  in1_6?: string;
+  /** IN1.7 - Insurance Company Phone Number */
+  in1_7?: string;
+  /** IN1.8 - Group Number */
+  in1_8?: string;
+  /** IN1.9 - Group Name */
+  in1_9?: string;
+  insuranceCompanyId?: string;
+  insurancePlanId?: string;
+  setId?: number | string;
 }
+
+export type Table0001Value = (typeof TABLE_0001)[number];

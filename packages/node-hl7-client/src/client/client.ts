@@ -1,10 +1,34 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+import EventEmitter from "node:events";
+
 import { normalizeClientOptions } from "@/client/normalizedClient";
 import {
   ClientListenerOptions,
   ClientOptions,
   OutboundHandler,
 } from "@/modules/types";
-import EventEmitter from "node:events";
+
 import { Connection } from "./connection";
 
 /**
@@ -13,24 +37,24 @@ import { Connection } from "./connection";
  * @since 1.0.0 */
 export class Client extends EventEmitter {
   /** @internal */
-  readonly stats = {
-    /** Total outbound connections able to connect to at this moment.
-     * @since 1.1.0 */
-    _totalConnections: 0,
-    /** Overall total sent messages
-     * @since 2.0.0 */
-    _totalSent: 0,
-    /** Overall Ack *
-     * @since 2.0.0 */
-    _totalAck: 0,
-    /** Overall Pending
-     * @since 3.1.0 */
-    _totalPending: 0,
-  };
+  _connections: Connection[];
   /** @internal */
   _opt: ReturnType<typeof normalizeClientOptions>;
   /** @internal */
-  _connections: Connection[];
+  readonly stats = {
+    /** Overall Ack *
+     * @since 2.0.0 */
+    _totalAck: 0,
+    /** Total outbound connections able to connect to at this moment.
+     * @since 1.1.0 */
+    _totalConnections: 0,
+    /** Overall Pending
+     * @since 3.1.0 */
+    _totalPending: 0,
+    /** Overall total sent messages
+     * @since 2.0.0 */
+    _totalSent: 0,
+  };
 
   /**
    * This creates a new client to a new server connection.
@@ -43,9 +67,9 @@ export class Client extends EventEmitter {
    * const client = new Client({host: '0.0.0.0'})
    * ```
    */
-  constructor(props?: ClientOptions) {
+  constructor(properties?: ClientOptions) {
     super();
-    this._opt = normalizeClientOptions(props);
+    this._opt = normalizeClientOptions(properties);
     this._connections = [];
   }
 
@@ -54,9 +78,9 @@ export class Client extends EventEmitter {
    * @since 2.0.0
    */
   closeAll(): void {
-    this._connections.forEach((connection) => {
+    for (const connection of this._connections) {
       void connection.close();
-    });
+    }
     this._connections = [];
   }
 
@@ -73,10 +97,10 @@ export class Client extends EventEmitter {
    * Review the {@link InboundResponse} on the properties returned.
    */
   createConnection(
-    props: ClientListenerOptions,
-    cb: OutboundHandler,
+    properties: ClientListenerOptions,
+    callback: OutboundHandler,
   ): Connection {
-    const outbound = new Connection(this, props, cb);
+    const outbound = new Connection(this, properties, callback);
 
     outbound.on("client.acknowledged", (total: number) => {
       this.stats._totalAck = total;

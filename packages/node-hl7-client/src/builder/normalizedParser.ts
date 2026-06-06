@@ -1,11 +1,33 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+import fs from "node:fs";
+
 import { HL7FatalError } from "@/helpers/exception";
 import { ParserPlan } from "@/modules/parserPlan";
 import {
   ClientBuilderFileOptions,
   ClientBuilderMessageOptions,
 } from "@/modules/types";
-import fs from "fs";
-
 import { isBatch } from "@/utils/is";
 
 const DEFAULT_CLIENT_BUILDER_OPTS = {
@@ -24,75 +46,28 @@ const DEFAULT_CLIENT_FILE_OPTS = {
   location: "",
 };
 
-export function normalizedClientMessageParserOptions(
-  raw?: ClientBuilderMessageOptions,
-): ClientBuilderMessageOptions {
-  const props: ClientBuilderMessageOptions = {
-    ...DEFAULT_CLIENT_BUILDER_OPTS,
-    ...raw,
-  };
-
-  if (
-    typeof props.text != "undefined" &&
-    props.text !== "" &&
-    props.text?.slice(0, 3) !== "MSH"
-  ) {
-    throw new Error("text must begin with the MSH segment.");
-  }
-
-  if (
-    (typeof props.newLine !== "undefined" && props.newLine === "\\r") ||
-    props.newLine === "\\n"
-  ) {
-    throw new HL7FatalError("newLine must be \r or \n");
-  }
-
-  if (props.date !== "8" && props.date !== "12" && props.date !== "14") {
-    props.date = "14";
-  }
-
-  if (props.text === "" && typeof props.messageHeader !== "undefined") {
-    props.text = `MSH${props.separatorField as string}${props.separatorComponent as string}${props.separatorRepetition as string}${props.separatorEscape as string}${props.separatorSubComponent as string}`;
-  } else if (typeof props.text !== "undefined" && props.text !== "") {
-    const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8));
-    // check to make sure that we set the correct properties
-    props.newLine = props.text.includes("\r") ? "\r" : "\n";
-    props.separatorField = plan.separatorField;
-    props.separatorComponent = plan.separatorComponent;
-    props.separatorRepetition = plan.separatorRepetition;
-    props.separatorEscape = plan.separatorEscape;
-    props.separatorSubComponent = plan.separatorSubComponent;
-    // cleanup
-    props.text = props.text.trim();
-  } else {
-    props.text = "";
-  }
-
-  return props;
-}
-
 export function normalizedClientBatchParserOptions(
   raw?: ClientBuilderMessageOptions,
 ): ClientBuilderMessageOptions {
-  const props: ClientBuilderMessageOptions = {
+  const properties: ClientBuilderMessageOptions = {
     ...DEFAULT_CLIENT_BUILDER_OPTS,
     ...raw,
   };
 
   if (
-    typeof props.text !== "undefined" &&
-    props.text !== "" &&
-    props.text.slice(0, 3) !== "BHS" &&
-    props.text.slice(0, 3) !== "MSH"
+    properties.text !== undefined &&
+    properties.text !== "" &&
+    properties.text.slice(0, 3) !== "BHS" &&
+    properties.text.slice(0, 3) !== "MSH"
   ) {
     throw new HL7FatalError("text must begin with the BHS or MSH segment.");
   }
 
   if (
-    typeof props.text !== "undefined" &&
-    props.text !== "" &&
-    props.text.slice(0, 3) === "MSH" &&
-    !isBatch(props.text)
+    properties.text !== undefined &&
+    properties.text !== "" &&
+    properties.text.slice(0, 3) === "MSH" &&
+    !isBatch(properties.text)
   ) {
     throw new HL7FatalError(
       "Unable to process a single MSH as a batch. Use Message.",
@@ -100,102 +75,164 @@ export function normalizedClientBatchParserOptions(
   }
 
   if (
-    (typeof props.newLine !== "undefined" && props.newLine === "\\r") ||
-    props.newLine === "\\n"
+    (properties.newLine !== undefined &&
+      properties.newLine === String.raw`\r`) ||
+    properties.newLine === String.raw`\n`
   ) {
     throw new HL7FatalError("newLine must be \r or \n");
   }
 
-  if (props.date !== "8" && props.date !== "12" && props.date !== "14") {
-    props.date = "14";
+  if (
+    properties.date !== "8" &&
+    properties.date !== "12" &&
+    properties.date !== "14"
+  ) {
+    properties.date = "14";
   }
 
-  if (props.text === "") {
-    props.text = `BHS${props.separatorField as string}${props.separatorComponent as string}${props.separatorRepetition as string}${props.separatorEscape as string}${props.separatorSubComponent as string}`;
-  } else if (typeof props.text !== "undefined") {
-    const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8));
+  if (properties.text === "") {
+    properties.text = `BHS${properties.separatorField as string}${properties.separatorComponent as string}${properties.separatorRepetition as string}${properties.separatorEscape as string}${properties.separatorSubComponent as string}`;
+  } else if (properties.text !== undefined) {
+    const plan: ParserPlan = new ParserPlan(properties.text.slice(3, 8));
     // check to make sure that we set the correct properties
-    props.newLine = props.text.includes("\r") ? "\r" : "\n";
-    props.separatorField = plan.separatorField;
-    props.separatorComponent = plan.separatorComponent;
-    props.separatorRepetition = plan.separatorRepetition;
-    props.separatorEscape = plan.separatorEscape;
-    props.separatorSubComponent = plan.separatorSubComponent;
+    properties.newLine = properties.text.includes("\r") ? "\r" : "\n";
+    properties.separatorField = plan.separatorField;
+    properties.separatorComponent = plan.separatorComponent;
+    properties.separatorRepetition = plan.separatorRepetition;
+    properties.separatorEscape = plan.separatorEscape;
+    properties.separatorSubComponent = plan.separatorSubComponent;
   }
 
-  return props;
+  return properties;
 }
 
 export function normalizedClientFileParserOptions(
   raw?: ClientBuilderFileOptions,
 ): ClientBuilderFileOptions {
-  const props: ClientBuilderFileOptions = {
+  const properties: ClientBuilderFileOptions = {
     ...DEFAULT_CLIENT_FILE_OPTS,
     ...DEFAULT_CLIENT_BUILDER_OPTS,
     ...raw,
   };
 
   if (
-    typeof props.text !== "undefined" &&
-    props.text !== "" &&
-    props.text.slice(0, 3) !== "FHS"
+    properties.text !== undefined &&
+    properties.text !== "" &&
+    properties.text.slice(0, 3) !== "FHS"
   ) {
     throw new HL7FatalError("text must begin with the FHS segment.");
   }
 
   if (
-    (typeof props.newLine !== "undefined" && props.newLine === "\\r") ||
-    props.newLine === "\\n"
+    (properties.newLine !== undefined &&
+      properties.newLine === String.raw`\r`) ||
+    properties.newLine === String.raw`\n`
   ) {
     throw new HL7FatalError("newLine must be \r or \n");
   }
 
-  if (typeof props.extension !== "undefined" && props.extension.length !== 3) {
+  if (properties.extension !== undefined && properties.extension.length !== 3) {
     throw new HL7FatalError(
       "The extension for file save must be 3 characters long.",
     );
   }
 
   if (
-    typeof props.fullFilePath !== "undefined" &&
-    typeof props.fileBuffer !== "undefined"
+    properties.fullFilePath !== undefined &&
+    properties.fileBuffer !== undefined
   ) {
     throw new HL7FatalError(
       "You can not have specified a file path and a buffer. Please choose one or the other.",
     );
   }
 
-  if (props.date !== "8" && props.date !== "12" && props.date !== "14") {
-    props.date = "14";
+  if (
+    properties.date !== "8" &&
+    properties.date !== "12" &&
+    properties.date !== "14"
+  ) {
+    properties.date = "14";
   }
 
   const regex = /\n/gm;
-  const subst = "\\r";
+  const subst = "\r";
   if (
-    typeof props.fullFilePath !== "undefined" &&
-    typeof props.fileBuffer === "undefined"
+    properties.fullFilePath !== undefined &&
+    properties.fileBuffer === undefined
   ) {
-    const fileBuffer = fs.readFileSync(props.fullFilePath);
-    props.text = fileBuffer.toString().replace(regex, subst);
+    const fileBuffer = fs.readFileSync(properties.fullFilePath);
+    properties.text = fileBuffer.toString().replaceAll(regex, subst);
   } else if (
-    typeof props.fullFilePath === "undefined" &&
-    typeof props.fileBuffer !== "undefined"
+    properties.fullFilePath === undefined &&
+    properties.fileBuffer !== undefined
   ) {
-    props.text = props.fileBuffer.toString().replace(regex, subst);
+    properties.text = properties.fileBuffer.toString().replaceAll(regex, subst);
   }
 
-  if (props.text === "") {
-    props.text = `FHS${props.separatorField as string}${props.separatorComponent as string}${props.separatorRepetition as string}${props.separatorEscape as string}${props.separatorSubComponent as string}`;
-  } else if (typeof props.text !== "undefined") {
-    const plan: ParserPlan = new ParserPlan(props.text.slice(3, 8));
+  if (properties.text === "") {
+    properties.text = `FHS${properties.separatorField as string}${properties.separatorComponent as string}${properties.separatorRepetition as string}${properties.separatorEscape as string}${properties.separatorSubComponent as string}`;
+  } else if (properties.text !== undefined) {
+    const plan: ParserPlan = new ParserPlan(properties.text.slice(3, 8));
     // check to make sure that we set the correct properties
-    props.newLine = props.text.includes("\r") ? "\r" : "\n";
-    props.separatorField = plan.separatorField;
-    props.separatorComponent = plan.separatorComponent;
-    props.separatorRepetition = plan.separatorRepetition;
-    props.separatorEscape = plan.separatorEscape;
-    props.separatorSubComponent = plan.separatorSubComponent;
+    properties.newLine = properties.text.includes("\r") ? "\r" : "\n";
+    properties.separatorField = plan.separatorField;
+    properties.separatorComponent = plan.separatorComponent;
+    properties.separatorRepetition = plan.separatorRepetition;
+    properties.separatorEscape = plan.separatorEscape;
+    properties.separatorSubComponent = plan.separatorSubComponent;
   }
 
-  return props;
+  return properties;
+}
+
+export function normalizedClientMessageParserOptions(
+  raw?: ClientBuilderMessageOptions,
+): ClientBuilderMessageOptions {
+  const properties: ClientBuilderMessageOptions = {
+    ...DEFAULT_CLIENT_BUILDER_OPTS,
+    ...raw,
+  };
+
+  if (
+    properties.text !== undefined &&
+    properties.text !== "" &&
+    properties.text?.slice(0, 3) !== "MSH"
+  ) {
+    throw new Error("text must begin with the MSH segment.");
+  }
+
+  if (
+    (properties.newLine !== undefined &&
+      properties.newLine === String.raw`\r`) ||
+    properties.newLine === String.raw`\n`
+  ) {
+    throw new HL7FatalError("newLine must be \r or \n");
+  }
+
+  if (
+    properties.date !== "8" &&
+    properties.date !== "12" &&
+    properties.date !== "14"
+  ) {
+    properties.date = "14";
+  }
+
+  if (properties.text === "" && properties.messageHeader !== undefined) {
+    properties.text = `MSH${properties.separatorField as string}${properties.separatorComponent as string}${properties.separatorRepetition as string}${properties.separatorEscape as string}${properties.separatorSubComponent as string}`;
+  } else if (properties.text !== undefined && properties.text !== "") {
+    const plan: ParserPlan = new ParserPlan(properties.text.slice(3, 8));
+    // check to make sure that we set the correct properties
+    properties.newLine = properties.text.includes("\r") ? "\r" : "\n";
+    properties.separatorField = plan.separatorField;
+    properties.separatorComponent = plan.separatorComponent;
+    properties.separatorRepetition = plan.separatorRepetition;
+    properties.separatorEscape = plan.separatorEscape;
+    properties.separatorSubComponent = plan.separatorSubComponent;
+    // cleanup
+    properties.text = properties.text.trim();
+  } else {
+    properties.text = "";
+  }
+
+  return properties;
 }

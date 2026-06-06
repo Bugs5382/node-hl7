@@ -1,0 +1,145 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+import { HL7ValidationError } from "node-hl7-client/src";
+import { HL7_BASE } from "node-hl7-client/src";
+import { SegmentSpec } from "node-hl7-client/src";
+import { describe, expect, test } from "vitest";
+
+/**
+ * Exercises the spec-driven validator (`_validatorSetField`) on every HL7
+ * usage code: R, O, B, W, D, X, plus the "field not in this version" case.
+ *
+ * Uses a synthetic `TST` segment spec rather than a real HL7 segment so
+ * each scenario can be tested in isolation.
+ */
+
+class TestBuilder extends HL7_BASE {
+  version = "2.6";
+
+  constructor() {
+    super();
+    // Without a listener, EventEmitter throws a generic Error on `emit("error", ...)`,
+    // shadowing the HL7ValidationError the validator wants to throw.
+    this.on("error", () => {});
+  }
+
+  /**
+   * Set a field on the current synthetic segment. The segment is created
+   * lazily on first call so dependsOn checks can find prior fields.
+   */
+  public callSetField(spec: SegmentSpec, number_: number, value: unknown) {
+    if (!this._segment || this._segment._name !== spec.name) {
+      this._segment = this._message.addSegment(spec.name);
+    }
+    return this._validatorSetField(spec, number_, value);
+  }
+}
+
+const SPEC: SegmentSpec = {
+  description: "Test",
+  fields: [
+    { name: "Required Field", num: 1, usage: { "2.6": "R" } },
+    { name: "Optional Field", num: 2, usage: { "2.6": "O" } },
+    {
+      length: { max: 5, min: 1 },
+      name: "Backward Compat",
+      num: 3,
+      usage: { "2.6": "B" },
+    },
+    { name: "Withdrawn", num: 4, usage: { "2.6": "W" } },
+    { name: "Not Supported", num: 5, usage: { "2.6": "X" } },
+    {
+      dependsOn: { mustBeSet: true, path: "1" },
+      name: "Conditional",
+      num: 6,
+      usage: { "2.6": "D" },
+    },
+    { name: "Future Field", num: 7, usage: { "2.7": "O" } },
+  ],
+  name: "TST",
+  versions: ["2.4", "2.5", "2.5.1", "2.6", "2.7"],
+};
+
+describe("usage codes — spec-driven validator", () => {
+  test("R required field unset throws HL7ValidationError", () => {
+    const b = new TestBuilder();
+    expect(() => b.callSetField(SPEC, 1)).toThrow(HL7ValidationError);
+  });
+
+  test("R required field with value succeeds", () => {
+    const b = new TestBuilder();
+    expect(() => b.callSetField(SPEC, 1, "OK")).not.toThrow();
+  });
+
+  test("O optional field unset is fine", () => {
+    const b = new TestBuilder();
+    expect(b.callSetField(SPEC, 2)).toEqual([]);
+  });
+
+  test("B backward-compat field warns but still serializes", () => {
+    const b = new TestBuilder();
+    let warning: string | undefined;
+    b.on("warning", (m: string) => (warning = m));
+    const errors = b.callSetField(SPEC, 3, "abc");
+    expect(errors.length).toBeGreaterThan(0);
+    expect(warning).toContain("deprecated");
+    expect(b.toMessage().toString()).toContain("abc");
+  });
+
+  test("W withdrawn field throws even with hardError: false", () => {
+    const b = new TestBuilder();
+    expect(() => b.callSetField(SPEC, 4, "boom")).toThrow(
+      /withdrawn in HL7 v2\.6/,
+    );
+  });
+
+  test("X not-supported field throws", () => {
+    const b = new TestBuilder();
+    expect(() => b.callSetField(SPEC, 5, "boom")).toThrow(
+      /not supported in HL7 v2\.6/,
+    );
+  });
+
+  test("D conditional field — dependsOn unmet throws", () => {
+    const b = new TestBuilder();
+    expect(() => b.callSetField(SPEC, 6, "value")).toThrow(HL7ValidationError);
+  });
+
+  test("D conditional field — dependsOn satisfied succeeds", () => {
+    const b = new TestBuilder();
+    b.callSetField(SPEC, 1, "anchor");
+    expect(() => b.callSetField(SPEC, 6, "value")).not.toThrow();
+  });
+
+  test("field not present in this version throws when set", () => {
+    const b = new TestBuilder();
+    expect(() => b.callSetField(SPEC, 7, "future")).toThrow(
+      /not available in HL7 v2\.6/,
+    );
+  });
+
+  test("field not present in this version + no value is a no-op", () => {
+    const b = new TestBuilder();
+    expect(b.callSetField(SPEC, 7)).toEqual([]);
+  });
+});

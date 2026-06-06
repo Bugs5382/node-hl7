@@ -1,6 +1,28 @@
-export type HL7Date = string & { __brand: "HL7Date" };
+/*
+MIT License
 
-export type DateLength = "8" | "12" | "14" | "19" | "24" | "26" | undefined;
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+export type DateLength = "12" | "14" | "19" | "24" | "26" | "8" | undefined;
+
+export type HL7Date = { __brand: "HL7Date" } & string;
 
 /**
  * Create a valid HL7 Date.
@@ -26,14 +48,15 @@ export const createHL7Date = (date: Date, length?: DateLength): HL7Date => {
 
   const result = (() => {
     switch (length) {
-      case "8":
-        return `${y}${mo}${d}`;
-      case "12":
+      case "12": {
         return `${y}${mo}${d}${h}${mi}`;
-      case "14":
+      }
+      case "14": {
         return `${y}${mo}${d}${h}${mi}${s}`;
-      case "19":
+      }
+      case "19": {
         return `${y}${mo}${d}${h}${mi}${s}.${ms}`;
+      }
       case "24": {
         const base = `${y}${mo}${d}${h}${mi}${s}.${ms}`;
         const offset = -date.getTimezoneOffset(); // minutes offset from UTC
@@ -54,8 +77,12 @@ export const createHL7Date = (date: Date, length?: DateLength): HL7Date => {
         const tz = `${sign}${offsetHours}${offsetMinutes}`;
         return `${base}.${micros}${tz}` as HL7Date;
       }
-      default:
+      case "8": {
+        return `${y}${mo}${d}`;
+      }
+      default: {
         return `${y}${mo}${d}${h}${mi}${s}`;
+      }
     }
   })();
 
@@ -72,5 +99,7 @@ export const padHL7Date = (
   z: string = "0",
 ): string => {
   const s = n.toString();
-  return s.length >= width ? s : new Array(width - s.length + 1).join(z) + s;
+  return s.length >= width
+    ? s
+    : Array.from({ length: width - s.length + 1 }).join(z) + s;
 };

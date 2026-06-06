@@ -1,0 +1,59 @@
+name: ✨ Feature Request
+description: Suggest a new capability, builder, parser improvement, or API addition.
+title: "[feat]: "
+labels:
+  - enhancement
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing an improvement! For larger changes, the more design context you can share up-front, the smoother the review.
+  - type: input
+    id: package
+    attributes:
+      label: Which package?
+      description: `node-hl7-client`, `node-hl7-server`, both, or "monorepo tooling".
+      placeholder: "node-hl7-server"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the use case. What can you not do today? What's the workaround you're stuck on?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API / change
+      description: |
+        Sketch the API you'd want — class, method signature, options, etc. Pseudocode is fine.
+      render: ts
+      placeholder: |
+        // Add a `getMessageType()` helper on InboundRequest:
+        const type = req.getMessageType(); // "ADT^A01" | "ORU^R01" | ...
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you considered and why this one is better.
+  - type: dropdown
+    id: breaking
+    attributes:
+      label: Would this be a breaking change?
+      options:
+        - "No — purely additive"
+        - "Maybe — depends on implementation"
+        - "Yes — would change existing API"
+        - "Not sure"
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Links to HL7 spec sections, related issues, prior art, or sample messages.

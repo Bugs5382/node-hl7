@@ -1,17 +1,41 @@
+/*
+MIT License
+
+Copyright (c) 2026 Shane
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+import fs from "node:fs";
+import path from "node:path";
+
+import { HL7Node } from "@/builder/interface/hL7Node";
+import { SegmentList } from "@/builder/modules/segmentList";
 import { normalizedClientFileParserOptions } from "@/builder/normalizedParser";
 import { NAME_FORMAT } from "@/helpers/constants";
 import { HL7FatalError, HL7ParserError } from "@/helpers/exception";
 import { ClientBuilderFileOptions } from "@/modules/types";
 import { createHL7Date } from "@/utils/createHL7Date";
 import { split } from "@/utils/spilt";
-import fs from "node:fs";
-import path from "node:path";
+
 import { Batch } from "./batch";
-import { HL7Node } from "./interface/hL7Node";
 import { Message } from "./message";
 import { RootBase } from "./modules/rootBase";
 import { Segment } from "./modules/segment";
-import { SegmentList } from "./modules/segmentList";
 
 /**
  * File Batch Class
@@ -23,14 +47,14 @@ import { SegmentList } from "./modules/segmentList";
  * @since 1.0.0
  */
 export class FileBatch extends RootBase {
-  /** @internal */
-  protected _fileName: string;
   /** @internal **/
   _opt: ReturnType<typeof normalizedClientFileParserOptions>;
   /** @internal */
-  protected _lines: string[];
-  /** @internal */
   protected _batchCount: number;
+  /** @internal */
+  protected _fileName: string;
+  /** @internal */
+  protected _lines: string[];
   /** @internal */
   protected _messagesCount: number;
 
@@ -38,8 +62,8 @@ export class FileBatch extends RootBase {
    * @since 1.0.0
    * @param props Passing the options to build the file batch.
    */
-  constructor(props?: ClientBuilderFileOptions) {
-    const opt = normalizedClientFileParserOptions(props);
+  constructor(properties?: ClientBuilderFileOptions) {
+    const opt = normalizedClientFileParserOptions(properties);
     super(opt);
     this._fileName = "";
     this._lines = [];
@@ -48,8 +72,10 @@ export class FileBatch extends RootBase {
     this._messagesCount = 0;
     this._fileName = "";
 
-    if (typeof opt.text !== "undefined" && opt.text !== "") {
-      this._lines = split(opt.text).filter((line) => line.startsWith("MSH"));
+    if (opt.text !== undefined && opt.text !== "") {
+      this._lines = split(opt.text).filter((line: string) =>
+        line.startsWith("MSH"),
+      );
     } else {
       this.set("FHS.7", createHL7Date(new Date(), this._opt.date));
     }
@@ -62,7 +88,7 @@ export class FileBatch extends RootBase {
    * @since 1.0.0
    * @param message The {@link Message} or {@link Batch} to add into the batch.
    */
-  add(message: Message | Batch): void {
+  add(message: Batch | Message): void {
     this.setDirty();
     // if we are adding a message to a file
     if (message instanceof Message) {
@@ -100,7 +126,7 @@ export class FileBatch extends RootBase {
   createFile(name: string): void {
     const getFSHDate = this.get("FHS.7").toString();
 
-    if (typeof name === "undefined") {
+    if (name === undefined) {
       throw new HL7FatalError("Missing file name.");
     }
 
@@ -110,17 +136,20 @@ export class FileBatch extends RootBase {
       );
     }
 
-    if (typeof this._opt.location !== "undefined") {
+    if (this._opt.location !== undefined) {
+      // Use synchronous fs APIs so callers can read the file immediately
+      // after createFile() returns. The async + fire-and-forget pattern that
+      // lived here previously had a race where the file did not exist yet
+      // when downstream code (e.g. FileBatch(fullFilePath)) tried to read it.
       if (!fs.existsSync(this._opt.location)) {
-        fs.mkdir(this._opt.location, { recursive: true }, () => {});
+        fs.mkdirSync(this._opt.location, { recursive: true });
       }
 
       this._fileName = `hl7.${name}.${getFSHDate}.${this._opt.extension as string}`;
 
-      fs.appendFile(
+      fs.appendFileSync(
         path.join(this._opt.location, this._fileName),
         this.toString(),
-        () => {},
       );
     }
   }
@@ -161,7 +190,7 @@ export class FileBatch extends RootBase {
    * const fileBatch = file.get(7)
    * ```
    */
-  get(path: string | number): HL7Node {
+  get(path: number | string): HL7Node {
     return super.get(path);
   }
 
@@ -189,18 +218,37 @@ export class FileBatch extends RootBase {
    * @returns Returns an array of messages or a HL7ParserError will throw.
    */
   messages(): Message[] {
-    if (
-      typeof this._lines !== "undefined" &&
-      typeof this._opt.newLine !== "undefined"
-    ) {
+    if (this._lines !== undefined && this._opt.newLine !== undefined) {
       const message: Message[] = [];
       const re = new RegExp(`${this._opt.newLine}$`, "g");
-      for (let i = 0; i < this._lines.length; i++) {
-        message.push(new Message({ text: this._lines[i].replace(re, "") }));
+      for (let index = 0; index < this._lines.length; index++) {
+        message.push(new Message({ text: this._lines[index].replace(re, "") }));
       }
       return message;
     }
     throw new HL7FatalError("No messages inside file segment.");
+  }
+
+  /** @internal */
+  read(path: string[]): HL7Node {
+    const segmentName = path.shift() as string;
+    if (path.length === 0) {
+      const segments = this.children.filter(
+        (x) => (x as Segment).name === segmentName,
+      ) as Segment[];
+      if (segments.length > 0) {
+        return new SegmentList(this, segments) as HL7Node;
+      }
+    } else {
+      if (segmentName === undefined) {
+        throw new HL7ParserError("Segment name is not defined.");
+      }
+      const segment = this._getFirstSegment(segmentName);
+      if (segment !== undefined) {
+        return segment.read(path);
+      }
+    }
+    throw new HL7FatalError("Unable to process the read function correctly.");
   }
 
   /**
@@ -221,7 +269,7 @@ export class FileBatch extends RootBase {
    * batch.set('BHS.3').set(0).set('BHS.3.1', 'abc');
    * ```
    */
-  set(path: string | number, value?: any): HL7Node {
+  set(path: number | string, value?: any): HL7Node {
     return super.set(path, value);
   }
 
@@ -234,41 +282,19 @@ export class FileBatch extends RootBase {
   }
 
   /** @internal */
-  protected pathCore(): string[] {
-    return [];
-  }
-
-  /** @internal */
   protected createChild(text: string, _index: number): HL7Node {
     return new Segment(this, text.trim());
   }
 
   /** @internal */
-  read(path: string[]): HL7Node {
-    const segmentName = path.shift() as string;
-    if (path.length === 0) {
-      const segments = this.children.filter(
-        (x) => (x as Segment).name === segmentName,
-      ) as Segment[];
-      if (segments.length > 0) {
-        return new SegmentList(this, segments) as HL7Node;
-      }
-    } else {
-      if (typeof segmentName === "undefined") {
-        throw new HL7ParserError("Segment name is not defined.");
-      }
-      const segment = this._getFirstSegment(segmentName);
-      if (typeof segment !== "undefined") {
-        return segment.read(path);
-      }
-    }
-    throw new HL7FatalError("Unable to process the read function correctly.");
+  protected pathCore(): string[] {
+    return [];
   }
 
   /** @internal */
   protected writeCore(path: string[], value: string): HL7Node {
     const segmentName = path.shift() as string;
-    if (typeof segmentName === "undefined") {
+    if (segmentName === undefined) {
       throw new HL7ParserError("Segment name is not defined.");
     }
     return this.writeAtIndex(path, value, 0, segmentName);
@@ -276,7 +302,7 @@ export class FileBatch extends RootBase {
 
   /** @internal **/
   private _addSegment(path: string): Segment {
-    if (typeof path === "undefined") {
+    if (path === undefined) {
       throw new HL7ParserError("Missing segment path.");
     }
 
@@ -291,9 +317,9 @@ export class FileBatch extends RootBase {
   /** @internal */
   private _getFirstBatch(): Batch {
     const children = this.children;
-    for (let i = 0, l = children.length; i < l; i++) {
-      if (children[i] instanceof Batch) {
-        return children[i] as Batch;
+    for (let index = 0, l = children.length; index < l; index++) {
+      if (children[index] instanceof Batch) {
+        return children[index] as Batch;
       }
     }
     throw new HL7FatalError("Unable to process _getFirstBatch.");
@@ -302,8 +328,8 @@ export class FileBatch extends RootBase {
   /** @internal */
   private _getFirstSegment(name: string): Segment {
     const children = this.children;
-    for (let i = 0, l = children.length; i < l; i++) {
-      const segment = children[i] as Segment;
+    for (let index = 0, l = children.length; index < l; index++) {
+      const segment = children[index] as Segment;
       if (segment.name === name) {
         return segment;
       }
