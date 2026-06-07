@@ -64,11 +64,6 @@ jobs:
       - name: 📝 Release Drafter (Anticipate Version)
         id: drafter
         uses: release-drafter/release-drafter@v6
-        with:
-          # One-time override to seed the first v4.0.0 release.
-          # REMOVE this `version:` line after v4.0.0 ships — subsequent
-          # versions resolve from PR labels via .github/release-drafter.yml.
-          version: '4.0.0'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
