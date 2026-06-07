@@ -38,7 +38,7 @@ const server = new Server({
   },
 });
 
-server.createInbound({ port: 6661 }, async (req, res) => {
+server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => {
   await res.sendResponse("AA");
 });
 ```
@@ -73,7 +73,7 @@ const server = new Server({
   },
 });
 
-server.createInbound({ port: 6661 }, async (req, res) => {
+server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => {
   await res.sendResponse("AA");
 });
 ```
@@ -95,7 +95,7 @@ Once the handshake completes, the peer certificate is available via the TLS sock
 ```ts
 import type { TLSSocket } from "node:tls";
 
-server.createInbound({ port: 6661 }, async (req, res) => {
+server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => {
   const sock = req.getSocket() as TLSSocket;
 
   if (typeof sock.getPeerCertificate === "function") {

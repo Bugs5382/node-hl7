@@ -65,6 +65,7 @@ import { format } from "date-fns";
 server.createInbound(
   {
     port: 3000,
+    version: "2.5",
     mshOverrides: {
       "3": "MY_APP",                                       // literal
       "7": () => format(new Date(), "yyyyMMddHHmmssxx"),   // calculated timestamp
@@ -97,7 +98,7 @@ Some receivers expect vendor-shaped ACKs:
 ```ts
 import { Message, createHL7Date } from "node-hl7-client";
 
-server.createInbound({ port: 3000 }, async (req, res) => {
+server.createInbound({ port: 3000, version: "2.5" }, async (req, res) => {
   const original = req.getMessage();
   const ctrlId = original.get("MSH.10").toString();
 
@@ -161,7 +162,7 @@ class LoggedResponse extends BaseSendResponse {
   }
 }
 
-server.createInbound({ port: 3000, responseClass: LoggedResponse }, handler);
+server.createInbound({ port: 3000, version: "2.5", responseClass: LoggedResponse }, handler);
 ```
 
 > 🚨 If you override `sendResponse`, you also inherit `sendCustomResponse` from `BaseSendResponse` for free — no need to re-implement it unless you want to.

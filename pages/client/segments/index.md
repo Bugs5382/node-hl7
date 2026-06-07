@@ -49,7 +49,7 @@ Use this with `builder.buildSegment(name, props)` to cover the long tail of segm
 
 ```ts
 builder
-  .buildMSH({ msh_9: "ADT^A01", msh_10: "X", msh_11: "P" })
+  .buildMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_10: "X", msh_11_1: "P" })
   .buildSegment("ABS", { abs_1: "DOC1^Smith^John", abs_2: "MED" })
   .buildSegment("ADJ", { /* … */ });
 ```

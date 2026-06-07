@@ -33,8 +33,8 @@ import { Server } from "node-hl7-server";
 // IPv4 only by default (binds 0.0.0.0).
 const server = new Server();
 
-const IB_ADT = server.createInbound({ port: 6661 }, async (req, res) => { /* … */ });
-const IB_ORU = server.createInbound({ port: 6662 }, async (req, res) => { /* … */ });
+const IB_ADT = server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => { /* … */ });
+const IB_ORU = server.createInbound({ port: 6662, version: "2.7" }, async (req, res) => { /* … */ });
 ```
 
 ---
@@ -88,6 +88,7 @@ new Server({ bindAddress: "fd12::4",   ipv6: true });
 server.createInbound(
   {
     port: 6661,                                  // required, 0 < port < 65353
+    version: "2.7",                              // required — the HL7 version this listener accepts
     name: "IB_EPIC_ADT",                         // optional, for logging
     encoding: "utf-8",
     mshOverrides: {                              // see Responses docs
@@ -103,6 +104,7 @@ server.createInbound(
 | Option | Purpose |
 |---|---|
 | `port` | TCP port to listen on. Required. |
+| `version` | HL7 version this listener accepts (`2.1`–`2.8`). Required — there is no implicit default. A message whose `MSH.12` differs is rejected with an `AR` and the handler is skipped. |
 | `name` | Human‑readable identifier; defaults to a random string. |
 | `encoding` | Buffer encoding for inbound bytes. Default `utf-8`. |
 | `mshOverrides` | Per‑field MSH overrides for the auto‑ACK. See [Responses](../responses/index.md). |
@@ -119,7 +121,7 @@ type InboundHandler = (req: InboundRequest, res: SendResponse) => void;
 The handler runs **once per parsed message** — even if the frame was a BHS batch or FHS file containing many messages.
 
 ```ts
-server.createInbound({ port: 6661 }, async (req, res) => {
+server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => {
   // 1) Inspect the message.
   const msg = req.getMessage();
   const mrn = msg.get("PID.3").toString();

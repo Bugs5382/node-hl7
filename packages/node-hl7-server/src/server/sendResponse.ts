@@ -46,7 +46,7 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
    * (Application Error) to tell the client your overall application had an error.
    * ```ts
    * const server = new Server({bindAddress: '0.0.0.0'})
-   * const IB_ADT = server.createInbound({port: LISTEN_PORT}, async (req, res) => {
+   * const IB_ADT = server.createInbound({port: LISTEN_PORT, version: '2.7'}, async (req, res) => {
    *  const messageReq = req.getMessage()
    *  await res.sendResponse("AA")
    * })
@@ -54,7 +54,7 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
    * or
    *
    * const server = new Server({bindAddress: '0.0.0.0'})
-   * const IB_ADT = server.createInbound({port: LISTEN_PORT}, async (req, res) => {
+   * const IB_ADT = server.createInbound({port: LISTEN_PORT, version: '2.7'}, async (req, res) => {
    *  const messageReq = req.getMessage()
    *  await res.sendResponse("AR")
    * })
@@ -62,7 +62,7 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
    * or
    *
    * const server = new Server({bindAddress: '0.0.0.0'})
-   * const IB_ADT = server.createInbound({port: LISTEN_PORT}, async (req, res) => {
+   * const IB_ADT = server.createInbound({port: LISTEN_PORT, version: '2.7'}, async (req, res) => {
    *  const messageReq = req.getMessage()
    *  await res.sendResponse("AE")
    * })
@@ -119,7 +119,10 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
 
     const ackMessage = new Message({ text });
 
-    // Apply MSH field overrides if set
+    // Apply MSH field overrides last, so they win over the echoed values. This
+    // includes MSH.12: the listener's pinned `version` only validates the
+    // INBOUND message, so an override of MSH.12 here makes the ACK declare a
+    // different HL7 version on purpose (an escape hatch; matches go-hl7).
     if (typeof this._mshOverrides === "object") {
       for (const [path, override] of Object.entries(this._mshOverrides)) {
         ackMessage.set(

@@ -116,9 +116,10 @@ builder.buildMSH({
   msh_4: "SENDING_FAC",
   msh_5: "RECEIVING_APP",
   msh_6: "RECEIVING_FAC",
-  msh_9: "ADT^A01",        // 2.4+ accepts the composite directly
+  msh_9_1: "ADT",          // message code (MSH.9.1) — required
+  msh_9_2: "A01",          // trigger event (MSH.9.2) — required on 2.2+
   msh_10: "MSG00001",      // control id; auto‑randomized if omitted
-  msh_11: "P",             // P = production, T = test
+  msh_11_1: "P",           // processing ID (MSH.11.1) — P = production, T = test
 });
 ```
 
@@ -167,14 +168,16 @@ builder.buildOBX({
 The builder treats every prop as a literal field value, so you can embed HL7 delimiters directly instead of building components piece‑by‑piece. This is what makes the typed builder feel *fun* — short, declarative, and easy to template from another data source.
 
 ```ts
-builder.buildMSH({ msh_9: "ADT^A01" });                                  // composite trigger
 builder.buildPID({
+  pid_3: "MRN12345",                                                     // patient id (required)
   pid_5: "DOE^JANE^A",                                                   // last^first^middle
   pid_11: "123 ELM ST^^SPRINGFIELD^IL^62701",                            // ^^ skips a component
   pid_13: "555-0100~555-0200",                                           // ~ separates repetitions
 });
-builder.buildOBX({ obx_3: "NOTE^Discharge Note^L" });                    // identifier^text^codingSystem
+builder.buildOBX({ obx_3: "NOTE^Discharge Note^L", obx_11: "F" });       // identifier^text^codingSystem (+ status)
 ```
+
+> ⚠️ This works for fields whose components are optional. `MSH.9` is the exception — its `9.1`/`9.2` are individually required, so pass `msh_9_1`/`msh_9_2` (and `msh_11_1` on 2.3+), not `msh_9: "ADT^A01"`.
 
 | Delimiter | Means | Example |
 |:---:|---|---|

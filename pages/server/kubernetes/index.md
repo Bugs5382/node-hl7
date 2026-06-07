@@ -176,8 +176,8 @@ The Node app:
 import { Server } from "node-hl7-server";
 
 const server = new Server({ bindAddress: "0.0.0.0" }); // ⬅️ no `tls`
-server.createInbound({ port: 6661 }, handleADT);
-server.createInbound({ port: 6662 }, handleORU);
+server.createInbound({ port: 6661, version: "2.7" }, handleADT);
+server.createInbound({ port: 6662, version: "2.7" }, handleORU);
 ```
 
 ✅ **Pros**: cert lives in ACM (or cert-manager); rotation is automatic; pods are simpler.
@@ -235,8 +235,8 @@ const server = new Server({
   },
 });
 
-server.createInbound({ port: 6661 }, handleADT);
-server.createInbound({ port: 6662 }, handleORU);
+server.createInbound({ port: 6661, version: "2.7" }, handleADT);
+server.createInbound({ port: 6662, version: "2.7" }, handleORU);
 ```
 
 ### And the Service / LB needs to **passthrough**
@@ -278,7 +278,7 @@ await redis.connect();
 
 const server = new Server({ bindAddress: "0.0.0.0" });
 
-server.createInbound({ port: 6661, name: "IB_ADT" }, async (req, res) => {
+server.createInbound({ port: 6661, version: "2.7", name: "IB_ADT" }, async (req, res) => {
   const msg = req.getMessage();
 
   // 1️⃣  Push the parsed message onto the queue. Sub-millisecond.
@@ -345,7 +345,7 @@ await ch.assertQueue("hl7.adt", { durable: true });
 
 const server = new Server({ bindAddress: "0.0.0.0" });
 
-server.createInbound({ port: 6661 }, async (req, res) => {
+server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => {
   const msg = req.getMessage();
   const buf = Buffer.from(msg.toString(), "utf-8");
 

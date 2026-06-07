@@ -76,7 +76,7 @@ export class Server extends EventEmitter {
    *```
    * const server = new Server()
    *
-   * const IB = server.createInbound({port: 3000}, async (req, res) => {
+   * const IB = server.createInbound({port: 3000, version: "2.7"}, async (req, res) => {
    *   const messageReq = req.getMessage()
    *   const messageRes = res.getAckMessage()
    *   // do your code here

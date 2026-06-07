@@ -36,4 +36,5 @@ coverage/
 temp/
 package-lock.json
 *.log
+*.tgz
 .DS_Store
