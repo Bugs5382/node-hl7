@@ -38,3 +38,12 @@ package-lock.json
 *.log
 *.tgz
 .DS_Store
+
+# Track the shared governance (hooks + settings); other .claude stays local.
+!/.claude/
+/.claude/*
+!/.claude/hooks/
+!/.claude/settings.json
+
+# Track shared governance file.
+!/CLAUDE.md
