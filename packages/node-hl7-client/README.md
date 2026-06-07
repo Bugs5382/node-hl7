@@ -57,9 +57,10 @@ const message = new HL7_2_5()
     msh_4: "MY_FAC",
     msh_5: "EPIC",
     msh_6: "HOSP",
-    msh_9: "ADT^A01",
+    msh_9_1: "ADT",
+    msh_9_2: "A01",
     msh_10: "MSG00001",
-    msh_11: "P",
+    msh_11_1: "P",
   })
   .buildEVN({ evn_1: "A01" })
   .buildPID({
@@ -70,8 +71,9 @@ const message = new HL7_2_5()
   })
   .toMessage();
 
-// 2) Open a persistent connection and send it.
-const client = new Client({ host: "127.0.0.1" });
+// 2) Open a persistent connection and send it. The client version is required
+// and must match the MSH.12 of every message you send through it.
+const client = new Client({ host: "127.0.0.1", version: "2.5" });
 const conn = client.createConnection({ port: 3000 }, async (res) => {
   console.log("✅ ACK:", res.getMessage().get("MSA.1").toString()); // AA
 });
@@ -262,6 +264,7 @@ import Client from "node-hl7-client";
 
 const client = new Client({
   host: "127.0.0.1",
+  version: "2.7",
 });
 
 const OB_ADT = client.createConnection(
@@ -288,22 +291,28 @@ The client supports IPv4, IPv6, and FQDN hosts. **It runs IPv4-only by default.*
 
 ```ts
 // IPv4 only (default)
-const client = new Client({ host: "hl7.example.com" });
+const client = new Client({ host: "hl7.example.com", version: "2.7" });
 
 // Dual-stack with auto-fallback (opt-in)
-const dual = new Client({ host: "hl7.example.com", ipv4: true, ipv6: true });
+const dual = new Client({
+  host: "hl7.example.com",
+  ipv4: true,
+  ipv6: true,
+  version: "2.7",
+});
 
 // Force IPv6 only
-const v6Only = new Client({ host: "fd00::42", ipv6: true });
+const v6Only = new Client({ host: "fd00::42", ipv6: true, version: "2.7" });
 
 // Pin a specific termination address (when the host has multiple)
-const pinned = new Client({ host: "fe80::1234", ipv6: true });
+const pinned = new Client({ host: "fe80::1234", ipv6: true, version: "2.7" });
 
 // Tune Happy-Eyeballs cadence (defaults shown — only takes effect in dual-stack):
 const tuned = new Client({
   host: "hl7.example.com",
   ipv4: true,
   ipv6: true,
+  version: "2.7",
   autoSelectFamily: true,             // default
   autoSelectFamilyAttemptTimeout: 250, // ms before racing the other family
 });
@@ -331,6 +340,7 @@ import Client from "node-hl7-client";
 
 const client = new Client({
   host: "hl7.example.local",
+  version: "2.7",
   tls: {
     // ✅ Validate the server's certificate (production default).
     rejectUnauthorized: true,
@@ -351,7 +361,7 @@ await OB_ADT.sendMessage(message);
 The shorthand `tls: true` is also accepted when the server uses a cert chained to a public CA already in Node's trust store:
 
 ```ts
-const client = new Client({ host: "hl7.example.com", tls: true });
+const client = new Client({ host: "hl7.example.com", tls: true, version: "2.7" });
 ```
 
 ---
@@ -367,6 +377,7 @@ import Client from "node-hl7-client";
 
 const client = new Client({
   host: "hl7.example.local",
+  version: "2.7",
   tls: {
     // 🔑 The client's identity — what the remote server validates.
     key: fs.readFileSync(path.join("certs", "client-key.pem")),
@@ -451,7 +462,7 @@ const flushQueue = async (
   }
 };
 
-const client = new Client({ host: "127.0.0.1" });
+const client = new Client({ host: "127.0.0.1", version: "2.7" });
 const conn = client.createConnection(
   { port: 3000, autoConnect: false, enqueueMessage, flushQueue },
   async () => {},

@@ -47,7 +47,7 @@ const overallTimer = setTimeout(
   OVERALL_TIMEOUT_MS,
 );
 
-const client = new Client({ host: HOST });
+const client = new Client({ host: HOST, version: "2.7" });
 
 let ackReceived = false;
 const ackPromise = new Promise((resolve, reject) => {

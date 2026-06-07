@@ -142,7 +142,7 @@ describe("node hl7 server", () => {
       try {
         const server = new Server();
         // @ts-expect-error port is not specified
-        server.createInbound();
+        server.createInbound({ version: "2.7" });
       } catch (error: any) {
         expect(error.message).toBe("port is not defined.");
       }
@@ -152,7 +152,7 @@ describe("node hl7 server", () => {
       try {
         const server = new Server();
         // @ts-expect-error port is not a number
-        server.createInbound({ port: "12345" }, async () => {});
+        server.createInbound({ port: "12345", version: "2.7" }, async () => {});
       } catch (error: any) {
         expect(error.message).toBe("port is not a valid number.");
       }
@@ -161,7 +161,7 @@ describe("node hl7 server", () => {
     test("rejects negative port", async () => {
       try {
         const server = new Server();
-        server.createInbound({ port: -1 }, async () => {});
+        server.createInbound({ port: -1, version: "2.7" }, async () => {});
       } catch (error: any) {
         expect(error.message).toEqual("port must be a number (0, 65353).");
       }
@@ -170,7 +170,7 @@ describe("node hl7 server", () => {
     test("rejects port above 65353", async () => {
       try {
         const server = new Server();
-        server.createInbound({ port: 65_354 }, async () => {});
+        server.createInbound({ port: 65_354, version: "2.7" }, async () => {});
       } catch (error: any) {
         expect(error.message).toBe("port must be a number (0, 65353).");
       }

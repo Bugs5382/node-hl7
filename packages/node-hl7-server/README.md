@@ -58,13 +58,18 @@ import { Server } from "node-hl7-server";
 
 const server = new Server({ bindAddress: "0.0.0.0" });
 
-const IB_ADT = server.createInbound({ port: 3000 }, async (req, res) => {
-  const message = req.getMessage();
-  console.log("⬅️  received", message.get("MSH.10").toString());
+// The listener version is required. Any inbound whose MSH.12 differs is
+// rejected with an "AR" and the handler never runs.
+const IB_ADT = server.createInbound(
+  { port: 3000, version: "2.7" },
+  async (req, res) => {
+    const message = req.getMessage();
+    console.log("⬅️  received", message.get("MSH.10").toString());
 
-  // Tell the sender we accepted it.
-  await res.sendResponse("AA");
-});
+    // Tell the sender we accepted it.
+    await res.sendResponse("AA");
+  },
+);
 
 IB_ADT.on("listen", () => console.log("🎧 listening on :3000"));
 ```
@@ -159,6 +164,10 @@ server.createInbound(props: ListenerOptions, handler: InboundHandler): Inbound;
 interface ListenerOptions {
   /** Required. 0 < port < 65353. */
   port: number;
+  /** Required. The HL7 version this listener pins (2.1, 2.2, 2.3, 2.3.1, 2.4,
+   *  2.5, 2.5.1, 2.6, 2.7, 2.7.1, 2.8). Inbound messages whose MSH.12 differs
+   *  are rejected with an "AR" and the handler is not invoked. */
+  version: HL7Version;
   /** Optional human‑readable name for logging. */
   name?: string;
   /** Encoding for inbound bytes. Default: utf-8 */
@@ -179,7 +188,7 @@ The handler gets called **once per parsed message**, even when the inbound frame
 ## 📨 Reading the Request
 
 ```ts
-server.createInbound({ port: 3000 }, async (req, res) => {
+server.createInbound({ port: 3000, version: "2.7" }, async (req, res) => {
   const msg = req.getMessage();           // Message from node-hl7-client
   const type = req.getType();             // 'message' | 'batch' | 'file'
   const sock = req.getSocket();           // 🔌 the underlying net.Socket
@@ -233,7 +242,7 @@ When the receiving system expects a vendor‑shaped acknowledgement (extra `MSA`
 ```ts
 import { Message, createHL7Date } from "node-hl7-client";
 
-server.createInbound({ port: 3000 }, async (req, res) => {
+server.createInbound({ port: 3000, version: "2.7" }, async (req, res) => {
   const original = req.getMessage();
   const ctrlId = original.get("MSH.10").toString();
 
@@ -263,6 +272,7 @@ import { format } from "date-fns";
 server.createInbound(
   {
     port: 3000,
+    version: "2.7",
     mshOverrides: {
       "3": "MY_APP",                                              // literal
       "7": () => format(new Date(), "yyyyMMddHHmmssxx"),          // callback
@@ -343,7 +353,7 @@ const server = new Server({
   },
 });
 
-const IB = server.createInbound({ port: 6661 }, async (req, res) => {
+const IB = server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => {
   // The TLS handshake has already enforced the client cert.
   // You can still inspect peer details via the socket:
   const sock = req.getSocket() as import("tls").TLSSocket;

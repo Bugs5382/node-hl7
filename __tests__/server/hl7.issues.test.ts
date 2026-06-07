@@ -72,21 +72,24 @@ describe("node hl7 server - issue coverage", () => {
       const dfd = createDeferred<void>();
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (request, res) => {
-        const socket = request.getSocket();
-        // The exact concrete class is net.Socket (or tls.TLSSocket which extends it).
-        expect(socket).toBeInstanceOf(net.Socket);
-        // localPort should match the port we bound to.
-        expect(socket.localPort).toBe(port);
-        // Both ends of the connection should have addresses available.
-        expect(typeof socket.remoteAddress).toBe("string");
-        expect(typeof socket.localAddress).toBe("string");
-        await res.sendResponse("AA");
-      });
+      const listener = server.createInbound(
+        { port, version: "2.7" },
+        async (request, res) => {
+          const socket = request.getSocket();
+          // The exact concrete class is net.Socket (or tls.TLSSocket which extends it).
+          expect(socket).toBeInstanceOf(net.Socket);
+          // localPort should match the port we bound to.
+          expect(socket.localPort).toBe(port);
+          // Both ends of the connection should have addresses available.
+          expect(typeof socket.remoteAddress).toBe("string");
+          expect(typeof socket.localAddress).toBe("string");
+          await res.sendResponse("AA");
+        },
+      );
 
       await expectEvent(listener, "listen");
 
-      const client = new Client({ host: "0.0.0.0" });
+      const client = new Client({ host: "0.0.0.0", version: "2.7" });
       const outbound = client.createConnection(
         { port },
         async (_res: InboundResponse) => {
@@ -110,31 +113,36 @@ describe("node hl7 server - issue coverage", () => {
       const dfd = createDeferred<void>();
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (request, res) => {
-        const original = request.getMessage();
-        // Build a vendor-shaped ACK that does NOT come from the auto-generator.
-        // Note the additional MSA fields (MSA.3 text + custom MSA.6) and the
-        // explicit ERR segment that sendResponse() would never produce.
-        const customAck = new Message({
-          text: [
-            String.raw`MSH|^~\&|CUSTOM_APP|CUSTOM_FAC|REMOTE_APP|REMOTE_FAC|${createHL7Date(new Date())}||ACK^A01|RESP_${original.get("MSH.10").toString()}|P|2.5`,
-            `MSA|AA|${original.get("MSH.10").toString()}|Custom message accepted|||VENDOR_CODE`,
-            `ERR|||0^Message accepted^HL70357|I`,
-          ].join("\r"),
-        });
+      const listener = server.createInbound(
+        { port, version: "2.7" },
+        async (request, res) => {
+          const original = request.getMessage();
+          // Build a vendor-shaped ACK that does NOT come from the auto-generator.
+          // Note the additional MSA fields (MSA.3 text + custom MSA.6) and the
+          // explicit ERR segment that sendResponse() would never produce.
+          const customAck = new Message({
+            text: [
+              String.raw`MSH|^~\&|CUSTOM_APP|CUSTOM_FAC|REMOTE_APP|REMOTE_FAC|${createHL7Date(new Date())}||ACK^A01|RESP_${original.get("MSH.10").toString()}|P|2.5`,
+              `MSA|AA|${original.get("MSH.10").toString()}|Custom message accepted|||VENDOR_CODE`,
+              `ERR|||0^Message accepted^HL70357|I`,
+            ].join("\r"),
+          });
 
-        await res.sendCustomResponse(customAck);
+          await res.sendCustomResponse(customAck);
 
-        // After sending, getAckMessage() should reflect the custom ACK.
-        const stored = res.getAckMessage();
-        expect(stored?.get("MSH.3").toString()).toBe("CUSTOM_APP");
-        expect(stored?.get("MSA.3").toString()).toBe("Custom message accepted");
-        expect(stored?.get("MSA.6").toString()).toBe("VENDOR_CODE");
-      });
+          // After sending, getAckMessage() should reflect the custom ACK.
+          const stored = res.getAckMessage();
+          expect(stored?.get("MSH.3").toString()).toBe("CUSTOM_APP");
+          expect(stored?.get("MSA.3").toString()).toBe(
+            "Custom message accepted",
+          );
+          expect(stored?.get("MSA.6").toString()).toBe("VENDOR_CODE");
+        },
+      );
 
       await expectEvent(listener, "listen");
 
-      const client = new Client({ host: "0.0.0.0" });
+      const client = new Client({ host: "0.0.0.0", version: "2.7" });
       const outbound = client.createConnection(
         { port },
         async (res: InboundResponse) => {
@@ -163,19 +171,22 @@ describe("node hl7 server - issue coverage", () => {
       const dfd = createDeferred<void>();
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (request, res) => {
-        const original = request.getMessage();
-        const raw = [
-          String.raw`MSH|^~\&|RAW|FAC|R|RF|${createHL7Date(new Date())}||ACK^A01|RAW_${original.get("MSH.10").toString()}|P|2.5`,
-          `MSA|AA|${original.get("MSH.10").toString()}`,
-        ].join("\r");
+      const listener = server.createInbound(
+        { port, version: "2.7" },
+        async (request, res) => {
+          const original = request.getMessage();
+          const raw = [
+            String.raw`MSH|^~\&|RAW|FAC|R|RF|${createHL7Date(new Date())}||ACK^A01|RAW_${original.get("MSH.10").toString()}|P|2.5`,
+            `MSA|AA|${original.get("MSH.10").toString()}`,
+          ].join("\r");
 
-        await res.sendCustomResponse(raw);
-      });
+          await res.sendCustomResponse(raw);
+        },
+      );
 
       await expectEvent(listener, "listen");
 
-      const client = new Client({ host: "0.0.0.0" });
+      const client = new Client({ host: "0.0.0.0", version: "2.7" });
       const outbound = client.createConnection(
         { port },
         async (res: InboundResponse) => {
@@ -201,21 +212,24 @@ describe("node hl7 server - issue coverage", () => {
       const ackReceived = createDeferred<void>();
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (request, res) => {
-        const ack = new Message({
-          text: [
-            String.raw`MSH|^~\&|A|F|R|RF|${createHL7Date(new Date())}||ACK|X${request.getMessage().get("MSH.10").toString()}|P|2.5`,
-            `MSA|AA|${request.getMessage().get("MSH.10").toString()}`,
-          ].join("\r"),
-        });
-        await res.sendCustomResponse(ack);
-      });
+      const listener = server.createInbound(
+        { port, version: "2.7" },
+        async (request, res) => {
+          const ack = new Message({
+            text: [
+              String.raw`MSH|^~\&|A|F|R|RF|${createHL7Date(new Date())}||ACK|X${request.getMessage().get("MSH.10").toString()}|P|2.5`,
+              `MSA|AA|${request.getMessage().get("MSH.10").toString()}`,
+            ].join("\r"),
+          });
+          await res.sendCustomResponse(ack);
+        },
+      );
 
       listener.on("response.sent", () => responseSent.resolve());
 
       await expectEvent(listener, "listen");
 
-      const client = new Client({ host: "0.0.0.0" });
+      const client = new Client({ host: "0.0.0.0", version: "2.7" });
       const outbound = client.createConnection(
         { port },
         async (_res: InboundResponse) => {
@@ -247,18 +261,21 @@ describe("node hl7 server - issue coverage", () => {
       const dataErrors: any[] = [];
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (request, res) => {
-        const id = request.getMessage().get("MSH.10").toString();
-        seenControlIds.add(id);
-        await res.sendResponse("AA");
-        if (seenControlIds.size === expected) allDone.resolve();
-      });
+      const listener = server.createInbound(
+        { port, version: "2.7" },
+        async (request, res) => {
+          const id = request.getMessage().get("MSH.10").toString();
+          seenControlIds.add(id);
+          await res.sendResponse("AA");
+          if (seenControlIds.size === expected) allDone.resolve();
+        },
+      );
       listener.on("data.error", (error) => dataErrors.push(error));
 
       await expectEvent(listener, "listen");
 
-      const clientA = new Client({ host: "0.0.0.0" });
-      const clientB = new Client({ host: "0.0.0.0" });
+      const clientA = new Client({ host: "0.0.0.0", version: "2.7" });
+      const clientB = new Client({ host: "0.0.0.0", version: "2.7" });
       const outboundA = clientA.createConnection(
         { port, waitAck: false },
         async () => {},
@@ -306,9 +323,12 @@ describe("node hl7 server - issue coverage", () => {
       const dataErrors: any[] = [];
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (request, res) => {
-        await res.sendResponse("AA");
-      });
+      const listener = server.createInbound(
+        { port, version: "2.5" },
+        async (request, res) => {
+          await res.sendResponse("AA");
+        },
+      );
       listener.on("data.error", (error) => dataErrors.push(error));
 
       await expectEvent(listener, "listen");
@@ -372,17 +392,20 @@ describe("node hl7 server - issue coverage", () => {
       const dataErrors: any[] = [];
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (request, res) => {
-        const id = request.getMessage().get("MSH.10").toString();
-        seen.add(id);
-        await res.sendResponse("AA");
-        if (seen.size === total) allDone.resolve();
-      });
+      const listener = server.createInbound(
+        { port, version: "2.7" },
+        async (request, res) => {
+          const id = request.getMessage().get("MSH.10").toString();
+          seen.add(id);
+          await res.sendResponse("AA");
+          if (seen.size === total) allDone.resolve();
+        },
+      );
       listener.on("data.error", (error) => dataErrors.push(error));
 
       await expectEvent(listener, "listen");
 
-      const client = new Client({ host: "0.0.0.0" });
+      const client = new Client({ host: "0.0.0.0", version: "2.7" });
       const outbound = client.createConnection(
         { port, waitAck: false },
         async () => {},

@@ -50,7 +50,7 @@ const log = (level, message, extra = {}) => {
 const server = new Server({ bindAddress: BIND });
 
 const inbound = server.createInbound(
-  { name: "HL7_LISTENER", port: PORT },
+  { name: "HL7_LISTENER", port: PORT, version: "2.7" },
   async (request, res) => {
     const message = request.getMessage();
     log("info", "received", {
