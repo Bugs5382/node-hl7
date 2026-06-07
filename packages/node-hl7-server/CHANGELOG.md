@@ -1,6 +1,6 @@
 # Node HL7 Server
 
-## v4.0.0 - 2026-06-06
+## v4.0.0 - 2026-06-07
 
 ### What Changed 👀
 
