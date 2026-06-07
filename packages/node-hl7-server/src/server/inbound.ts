@@ -33,6 +33,7 @@ import net, { Socket } from "node:net";
 import tls from "node:tls";
 
 import { BaseSendResponse } from "@/declaration/baseSendRequest";
+import { HL7ListenerError } from "@/utils/exception";
 import { ListenerOptions, normalizeListenerOptions } from "@/utils/normalize";
 
 import { InboundRequest } from "./inboundRequest";
@@ -174,6 +175,22 @@ export class Inbound extends EventEmitter implements IInbound {
       );
 
       res.on("response.sent", () => this.emit("response.sent"));
+
+      // Enforce the listener-pinned HL7 version. On a mismatch, reject the
+      // message with an "AR" acknowledgement, surface the error, and skip the
+      // user handler.
+      const got = parsed.get("MSH.12").toString();
+      if (got !== this._opt.version) {
+        void res.sendResponse("AR");
+        this.emit(
+          "data.error",
+          new HL7ListenerError(
+            `message version "${got}" does not match the listener version "${this._opt.version}".`,
+          ),
+        );
+        continue;
+      }
+
       void this._handler(request, res);
     }
   };
@@ -309,6 +326,22 @@ export class Inbound extends EventEmitter implements IInbound {
             );
 
             res.on("response.sent", () => this.emit("response.sent"));
+
+            // Enforce the listener-pinned HL7 version. On a mismatch, reject
+            // the message with an "AR" acknowledgement, surface the error, and
+            // skip the user handler.
+            const got = parsed.get("MSH.12").toString();
+            if (got !== this._opt.version) {
+              void res.sendResponse("AR");
+              this.emit(
+                "data.error",
+                new HL7ListenerError(
+                  `message version "${got}" does not match the listener version "${this._opt.version}".`,
+                ),
+              );
+              return;
+            }
+
             void this._handler(request, res);
           }
         } catch (error) {

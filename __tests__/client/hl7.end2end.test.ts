@@ -55,15 +55,18 @@ describe("node hl7 end to end - client", () => {
       const dfdConnectionChecks = createDeferred<void>();
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (request, res) => {
-        const messageRequest = request.getMessage();
-        expect(messageRequest.get("MSH.12").toString()).toBe("2.7");
-        await res.sendResponse("AA");
-      });
+      const listener = server.createInbound(
+        { port, version: "2.7" },
+        async (request, res) => {
+          const messageRequest = request.getMessage();
+          expect(messageRequest.get("MSH.12").toString()).toBe("2.7");
+          await res.sendResponse("AA");
+        },
+      );
 
       await expectEvent(listener, "listen");
 
-      const client = new Client({ host: "0.0.0.0" });
+      const client = new Client({ host: "0.0.0.0", version: "2.7" });
 
       const outbound = client.createConnection(
         { port },
@@ -119,16 +122,19 @@ describe("node hl7 end to end - client", () => {
       let totalSent = 0;
 
       const server = new Server({ bindAddress: "0.0.0.0" });
-      const listener = server.createInbound({ port }, async (request, res) => {
-        const messageRequest = request.getMessage();
-        expect(messageRequest.get("MSH.12").toString()).toBe("2.7");
-        totalSent++;
-        await res.sendResponse("AA");
-      });
+      const listener = server.createInbound(
+        { port, version: "2.7" },
+        async (request, res) => {
+          const messageRequest = request.getMessage();
+          expect(messageRequest.get("MSH.12").toString()).toBe("2.7");
+          totalSent++;
+          await res.sendResponse("AA");
+        },
+      );
 
       await expectEvent(listener, "listen");
 
-      const client = new Client({ host: "0.0.0.0" });
+      const client = new Client({ host: "0.0.0.0", version: "2.7" });
       const outbound = client.createConnection(
         { port, waitAck: false },
         async () => {
@@ -159,7 +165,7 @@ describe("node hl7 end to end - client", () => {
       const mockPort = 9999;
 
       test("... queues messages (autoConnect: false)", async () => {
-        const client = new Client({ host: "0.0.0.0" });
+        const client = new Client({ host: "0.0.0.0", version: "2.7" });
 
         const outbound = client.createConnection(
           { autoConnect: false, port: mockPort },
@@ -219,7 +225,7 @@ describe("node hl7 end to end - client", () => {
           }
         };
 
-        const client = new Client({ host: "0.0.0.0" });
+        const client = new Client({ host: "0.0.0.0", version: "2.7" });
 
         const outbound = client.createConnection(
           {
@@ -240,7 +246,7 @@ describe("node hl7 end to end - client", () => {
 
       // note: this test fails on github. The local redis server is flaky. It does work locally.
       test.skip("... queues messages 10,001 still is 10000 (autoConnect: false)", async () => {
-        const client = new Client({ host: "0.0.0.0" });
+        const client = new Client({ host: "0.0.0.0", version: "2.7" });
 
         const outbound = client.createConnection(
           { autoConnect: false, port: mockPort },
@@ -267,7 +273,11 @@ describe("node hl7 end to end - client", () => {
       // Find a free port — no server will be started on it, so connection must fail.
       const port = await portfinder.getPortPromise();
 
-      const client = new Client({ connectionTimeout: 1000, host: "0.0.0.0" });
+      const client = new Client({
+        connectionTimeout: 1000,
+        host: "0.0.0.0",
+        version: "2.7",
+      });
       const outbound = client.createConnection({ port }, async () => {});
 
       // ECONNREFUSED fires almost immediately (before the 1s timeout), so
@@ -286,6 +296,7 @@ describe("node hl7 end to end - client", () => {
         connectionTimeout: 1000,
         host: "0.0.0.0",
         tls: { rejectUnauthorized: false },
+        version: "2.7",
       });
       const outbound = client.createConnection({ port }, async () => {});
 
@@ -304,15 +315,18 @@ describe("node hl7 end to end - client", () => {
         const dfd = createDeferred<void>();
 
         const server = new Server({ bindAddress: "0.0.0.0" });
-        const inbound = server.createInbound({ port }, async (request, res) => {
-          const messageRequest = request.getMessage();
-          expect(messageRequest.get("MSH.12").toString()).toBe("2.1");
-          await res.sendResponse("AA");
-        });
+        const inbound = server.createInbound(
+          { port, version: "2.1" },
+          async (request, res) => {
+            const messageRequest = request.getMessage();
+            expect(messageRequest.get("MSH.12").toString()).toBe("2.1");
+            await res.sendResponse("AA");
+          },
+        );
 
         await expectEvent(inbound, "listen");
 
-        const client = new Client({ host: "0.0.0.0" });
+        const client = new Client({ host: "0.0.0.0", version: "2.1" });
         // Resolve only after both ACKs arrive so the totalAck() assertion below
         // is not racing the second ACK.
         let acksReceived = 0;
@@ -372,17 +386,21 @@ describe("node hl7 end to end - client", () => {
             rejectUnauthorized: false,
           },
         });
-        const inbound = server.createInbound({ port }, async (request, res) => {
-          const messageRequest = request.getMessage();
-          expect(messageRequest.get("MSH.12").toString()).toBe("2.7");
-          await res.sendResponse("AA");
-        });
+        const inbound = server.createInbound(
+          { port, version: "2.7" },
+          async (request, res) => {
+            const messageRequest = request.getMessage();
+            expect(messageRequest.get("MSH.12").toString()).toBe("2.7");
+            await res.sendResponse("AA");
+          },
+        );
 
         await expectEvent(inbound, "listen");
 
         const client = new Client({
           host: "0.0.0.0",
           tls: { rejectUnauthorized: false },
+          version: "2.7",
         });
         const outbound = client.createConnection(
           { port },

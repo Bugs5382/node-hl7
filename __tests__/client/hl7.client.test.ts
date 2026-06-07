@@ -29,17 +29,17 @@ describe("node hl7 client", () => {
   describe("Client class", () => {
     describe("valid", () => {
       test("valid - properties exist", async () => {
-        const client = new Client({ host: "hl7.server.local" });
+        const client = new Client({ host: "hl7.server.local", version: "2.7" });
         expect(client).toHaveProperty("createConnection");
       });
 
       test("getHost returns the configured host", async () => {
-        const client = new Client({ host: "hl7.server.local" });
+        const client = new Client({ host: "hl7.server.local", version: "2.7" });
         expect(client.getHost()).toEqual("hl7.server.local");
       });
 
       test("port is set on outbound connection", async () => {
-        const client = new Client({ host: "hl7.server.local" });
+        const client = new Client({ host: "hl7.server.local", version: "2.7" });
         const outbound = client.createConnection(
           { autoConnect: false, port: 12_345 },
           async () => {},
@@ -54,7 +54,7 @@ describe("node hl7 client", () => {
         expect.assertions(1);
         try {
           // @ts-expect-error hostname has to be string
-          new Client({ host: 351_123 });
+          new Client({ host: 351_123, version: "2.7" });
         } catch (error: any) {
           expect(error.message).toBe("host is not valid string.");
         }
@@ -62,14 +62,20 @@ describe("node hl7 client", () => {
 
       test("accepts ipv4 and ipv6 both true (dual-stack)", async () => {
         expect(
-          () => new Client({ host: "5.8.6.1", ipv4: true, ipv6: true }),
+          () =>
+            new Client({
+              host: "5.8.6.1",
+              ipv4: true,
+              ipv6: true,
+              version: "2.7",
+            }),
         ).not.toThrow();
       });
 
       test("rejects malformed IPv4 host when ipv4 is exclusive", async () => {
         expect.assertions(1);
         try {
-          new Client({ host: "123.34.52.455", ipv4: true });
+          new Client({ host: "123.34.52.455", ipv4: true, version: "2.7" });
         } catch (error: any) {
           expect(error.message).toBe("host is not a valid IPv4 address.");
         }
@@ -77,7 +83,8 @@ describe("node hl7 client", () => {
 
       test("accepts valid IPv4 host when ipv4 is exclusive", async () => {
         expect(
-          () => new Client({ host: "123.34.52.45", ipv4: true }),
+          () =>
+            new Client({ host: "123.34.52.45", ipv4: true, version: "2.7" }),
         ).not.toThrow();
       });
 
@@ -87,6 +94,7 @@ describe("node hl7 client", () => {
           new Client({
             host: "2001:0db8:85a3:0000:zz00:8a2e:0370:7334",
             ipv6: true,
+            version: "2.7",
           });
         } catch (error: any) {
           expect(error.message).toBe("host is not a valid IPv6 address.");
@@ -99,6 +107,7 @@ describe("node hl7 client", () => {
             new Client({
               host: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
               ipv6: true,
+              version: "2.7",
             }),
         ).not.toThrow();
       });
@@ -106,7 +115,12 @@ describe("node hl7 client", () => {
       test("rejects ipv4 and ipv6 both false", async () => {
         expect.assertions(1);
         try {
-          new Client({ host: "192.0.2.1", ipv4: false, ipv6: false });
+          new Client({
+            host: "192.0.2.1",
+            ipv4: false,
+            ipv6: false,
+            version: "2.7",
+          });
         } catch (error: any) {
           expect(error.message).toBe(
             "ipv4 and ipv6 cannot both be disabled — at least one address family must be enabled.",
@@ -120,7 +134,7 @@ describe("node hl7 client", () => {
     let client: Client;
 
     beforeEach(() => {
-      client = new Client({ host: "localhost" });
+      client = new Client({ host: "localhost", version: "2.7" });
     });
 
     test("rejects createConnection with no port", async () => {

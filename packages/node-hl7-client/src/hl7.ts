@@ -152,6 +152,7 @@ export {
 } from "@/hl7/metadata/datatypes";
 export { SEGMENT_SPECS } from "@/hl7/metadata/segments";
 export { ECD_SPEC } from "@/hl7/metadata/segments/ecd";
+export { isKnownVersion, KNOWN_VERSIONS } from "@/hl7/metadata/types";
 export type {
   ComponentSpec,
   FieldSpec,

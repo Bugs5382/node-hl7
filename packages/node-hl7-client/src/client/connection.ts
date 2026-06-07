@@ -291,6 +291,29 @@ export class Connection extends EventEmitter implements IConnection {
    */
   async sendMessage(message: Batch | FileBatch | Message): Promise<void> {
     const theMessage = message.toString();
+
+    // Enforce the client-pinned HL7 version before the message is queued or
+    // sent. A Batch/FileBatch must have every contained message match. Parsing
+    // the serialized form lets `messages()` enumerate the contained MSH
+    // segments regardless of whether the batch was built or received as text.
+    const want = this._main._opt.version;
+    let messagesToCheck: Message[];
+    if (message instanceof FileBatch) {
+      messagesToCheck = new FileBatch({ text: theMessage }).messages();
+    } else if (message instanceof Batch) {
+      messagesToCheck = new Batch({ text: theMessage }).messages();
+    } else {
+      messagesToCheck = [message];
+    }
+    for (const msg of messagesToCheck) {
+      const got = msg.get("MSH.12").toString();
+      if (got !== want) {
+        throw new HL7FatalError(
+          `message version "${got}" does not match the connection version "${want}".`,
+        );
+      }
+    }
+
     const emitter = new EventEmitter();
     const codec = new MLLPCodec(this._opt.encoding);
     const maxAttempts = this._opt.maxAttempts;

@@ -94,21 +94,25 @@ describe("dual-stack & IP family handling", () => {
 
   describe("Client option normalization", () => {
     test("IPv4-only is the default", () => {
-      const client = new Client({ host: "hl7.example.com" });
+      const client = new Client({ host: "hl7.example.com", version: "2.7" });
       expect(client._opt.ipv4).toBe(true);
       expect(client._opt.ipv6).toBe(false);
       expect(client._opt.family).toBe(4);
     });
 
     test("explicit ipv4: true alone forces IPv4-only family", () => {
-      const client = new Client({ host: "192.0.2.1", ipv4: true });
+      const client = new Client({
+        host: "192.0.2.1",
+        ipv4: true,
+        version: "2.7",
+      });
       expect(client._opt.ipv4).toBe(true);
       expect(client._opt.ipv6).toBe(false);
       expect(client._opt.family).toBe(4);
     });
 
     test("explicit ipv6: true alone forces IPv6-only family", () => {
-      const client = new Client({ host: "::1", ipv6: true });
+      const client = new Client({ host: "::1", ipv6: true, version: "2.7" });
       expect(client._opt.ipv4).toBe(false);
       expect(client._opt.ipv6).toBe(true);
       expect(client._opt.family).toBe(6);
@@ -119,6 +123,7 @@ describe("dual-stack & IP family handling", () => {
         host: "hl7.example.com",
         ipv4: true,
         ipv6: true,
+        version: "2.7",
       });
       expect(client._opt.ipv4).toBe(true);
       expect(client._opt.ipv6).toBe(true);
@@ -128,12 +133,22 @@ describe("dual-stack & IP family handling", () => {
     });
 
     test("dual-stack with IPv6 literal pins family to 6", () => {
-      const client = new Client({ host: "::1", ipv4: true, ipv6: true });
+      const client = new Client({
+        host: "::1",
+        ipv4: true,
+        ipv6: true,
+        version: "2.7",
+      });
       expect(client._opt.family).toBe(6);
     });
 
     test("dual-stack with IPv4 literal pins family to 4", () => {
-      const client = new Client({ host: "127.0.0.1", ipv4: true, ipv6: true });
+      const client = new Client({
+        host: "127.0.0.1",
+        ipv4: true,
+        ipv6: true,
+        version: "2.7",
+      });
       expect(client._opt.family).toBe(4);
     });
 
@@ -143,6 +158,7 @@ describe("dual-stack & IP family handling", () => {
         host: "hl7.example.com",
         ipv4: true,
         ipv6: true,
+        version: "2.7",
       });
       expect(client._opt.autoSelectFamily).toBe(false);
     });
@@ -150,7 +166,7 @@ describe("dual-stack & IP family handling", () => {
     test("rejects an IPv6 literal when ipv4 is exclusive", () => {
       expect.assertions(1);
       try {
-        new Client({ host: "::1", ipv4: true });
+        new Client({ host: "::1", ipv4: true, version: "2.7" });
       } catch (error: any) {
         expect(error.message).toBe("host is not a valid IPv4 address.");
       }
@@ -159,7 +175,7 @@ describe("dual-stack & IP family handling", () => {
     test("rejects an IPv4 literal when ipv6 is exclusive", () => {
       expect.assertions(1);
       try {
-        new Client({ host: "127.0.0.1", ipv6: true });
+        new Client({ host: "127.0.0.1", ipv6: true, version: "2.7" });
       } catch (error: any) {
         expect(error.message).toBe("host is not a valid IPv6 address.");
       }
@@ -171,6 +187,7 @@ describe("dual-stack & IP family handling", () => {
         new Client({
           autoSelectFamilyAttemptTimeout: 5,
           host: "192.0.2.1",
+          version: "2.7",
         });
       } catch (error: any) {
         expect(error.message).toMatch(
@@ -270,13 +287,20 @@ describe("dual-stack & IP family handling", () => {
       const dfd = createDeferred<void>();
 
       const server = new Server({ bindAddress: "127.0.0.1", ipv4: true });
-      const listener = server.createInbound({ port }, async (_request, res) => {
-        await res.sendResponse("AA");
-      });
+      const listener = server.createInbound(
+        { port, version: "2.7" },
+        async (_request, res) => {
+          await res.sendResponse("AA");
+        },
+      );
 
       await expectEvent(listener, "listen");
 
-      const client = new Client({ host: "127.0.0.1", ipv4: true });
+      const client = new Client({
+        host: "127.0.0.1",
+        ipv4: true,
+        version: "2.7",
+      });
       const outbound = client.createConnection(
         { port },
         async (res: InboundResponse) => {
@@ -299,13 +323,16 @@ describe("dual-stack & IP family handling", () => {
       const dfd = createDeferred<void>();
 
       const server = new Server({ bindAddress: "::1", ipv6: true });
-      const listener = server.createInbound({ port }, async (_request, res) => {
-        await res.sendResponse("AA");
-      });
+      const listener = server.createInbound(
+        { port, version: "2.7" },
+        async (_request, res) => {
+          await res.sendResponse("AA");
+        },
+      );
 
       await expectEvent(listener, "listen");
 
-      const client = new Client({ host: "::1", ipv6: true });
+      const client = new Client({ host: "::1", ipv6: true, version: "2.7" });
       const outbound = client.createConnection(
         { port },
         async (res: InboundResponse) => {
@@ -328,15 +355,22 @@ describe("dual-stack & IP family handling", () => {
 
       // Opt into dual-stack: bindAddress "::", ipv6Only=false
       const server = new Server({ ipv4: true, ipv6: true });
-      const listener = server.createInbound({ port }, async (_request, res) => {
-        await res.sendResponse("AA");
-      });
+      const listener = server.createInbound(
+        { port, version: "2.7" },
+        async (_request, res) => {
+          await res.sendResponse("AA");
+        },
+      );
 
       await expectEvent(listener, "listen");
 
       // IPv4 client
       const v4Done = createDeferred<void>();
-      const clientV4 = new Client({ host: "127.0.0.1", ipv4: true });
+      const clientV4 = new Client({
+        host: "127.0.0.1",
+        ipv4: true,
+        version: "2.7",
+      });
       const v4Out = clientV4.createConnection(
         { port },
         async (res: InboundResponse) => {
@@ -352,7 +386,7 @@ describe("dual-stack & IP family handling", () => {
 
       // IPv6 client
       const v6Done = createDeferred<void>();
-      const clientV6 = new Client({ host: "::1", ipv6: true });
+      const clientV6 = new Client({ host: "::1", ipv6: true, version: "2.7" });
       const v6Out = clientV6.createConnection(
         { port },
         async (res: InboundResponse) => {
@@ -378,9 +412,12 @@ describe("dual-stack & IP family handling", () => {
       const dfd = createDeferred<void>();
 
       const server = new Server({ bindAddress: "127.0.0.1", ipv4: true });
-      const listener = server.createInbound({ port }, async (_request, res) => {
-        await res.sendResponse("AA");
-      });
+      const listener = server.createInbound(
+        { port, version: "2.7" },
+        async (_request, res) => {
+          await res.sendResponse("AA");
+        },
+      );
 
       await expectEvent(listener, "listen");
 
@@ -389,6 +426,7 @@ describe("dual-stack & IP family handling", () => {
         host: "localhost",
         ipv4: true,
         ipv6: true,
+        version: "2.7",
       });
       const outbound = client.createConnection(
         { maxConnectionAttempts: 2, port },

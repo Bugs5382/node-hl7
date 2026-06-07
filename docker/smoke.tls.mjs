@@ -60,6 +60,7 @@ const client = new Client({
     rejectUnauthorized: true,
     servername: "localhost",
   },
+  version: "2.7",
 });
 
 let ackReceived = false;

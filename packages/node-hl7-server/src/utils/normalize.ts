@@ -24,6 +24,8 @@ import type { ConnectionOptions as TLSOptions } from "node:tls";
 
 import {
   assertNumber,
+  HL7Version,
+  isKnownVersion,
   Message,
   randomString,
   validIPv4,
@@ -66,6 +68,12 @@ export interface ListenerOptions {
    * you need to extend the base BaseSendResponse class from
    *  **/
   responseClass?: typeof BaseSendResponse;
+  /** The HL7 version this listener pins. Required. Any inbound message whose
+   * `MSH.12` does not match is rejected with an `AR` acknowledgement and the
+   * handler is not invoked. Must be one of the known HL7 versions
+   * (2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1, 2.6, 2.7, 2.7.1, 2.8).
+   * @since 4.0.0 */
+  version: HL7Version;
 }
 
 /**
@@ -142,6 +150,7 @@ interface ValidatedOptions extends Pick<
   name?: string;
   port: number;
   responseClass?: typeof BaseSendResponse;
+  version: HL7Version;
 }
 
 /** @internal */
@@ -173,6 +182,16 @@ export function normalizeListenerOptions(
         );
       }
     }
+  }
+
+  if (merged.version === undefined) {
+    throw new HL7ListenerError("version is not defined.");
+  }
+
+  if (!isKnownVersion(merged.version)) {
+    throw new HL7ListenerError(
+      `version "${merged.version}" is not a known HL7 version.`,
+    );
   }
 
   if (merged.port === undefined) {

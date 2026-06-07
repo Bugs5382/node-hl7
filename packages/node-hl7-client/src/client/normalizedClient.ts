@@ -25,6 +25,7 @@ import type { ConnectionOptions as TLSOptions } from "node:tls";
 import { TcpSocketConnectOpts } from "node:net";
 
 import { HL7FatalError } from "@/helpers/exception";
+import { HL7Version, isKnownVersion } from "@/hl7/metadata/types";
 import { ClientListenerOptions, ClientOptions } from "@/modules/types";
 import { assertNumber } from "@/utils";
 import { detectIPFamily, validIPv4, validIPv6 } from "@/utils/ipAddress";
@@ -94,6 +95,7 @@ interface ValidatedClientOptions extends Pick<
   retryLow: number;
   socket?: TcpSocketConnectOpts;
   tls?: TLSOptions;
+  version: HL7Version;
 }
 
 /** @internal */
@@ -167,6 +169,16 @@ export function normalizeClientOptions(
 
   if (typeof properties.host !== "string") {
     throw new HL7FatalError("host is not valid string.");
+  }
+
+  if (properties.version === undefined) {
+    throw new HL7FatalError("version is not defined.");
+  }
+
+  if (!isKnownVersion(properties.version)) {
+    throw new HL7FatalError(
+      `version "${properties.version}" is not a known HL7 version.`,
+    );
   }
 
   if (properties.ipv4 === false && properties.ipv6 === false) {
