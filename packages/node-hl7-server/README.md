@@ -266,6 +266,8 @@ server.createInbound({ port: 3000, version: "2.7" }, async (req, res) => {
 
 When the auto‑ACK is *almost* right but a couple of MSH fields need tweaking (a different `MSH.3`, a calculated timestamp, a vendor‑specific `MSH.18`), set `mshOverrides`. Each entry is either a literal value or a callback that receives the inbound `Message`:
 
+> Overrides are applied **after** the echoed values, so they win — including `MSH.12`. The listener's pinned `version` only validates the *inbound* message; an `MSH.12` override therefore makes the ACK declare a different HL7 version. That is intentional (an escape hatch, matching go-hl7), so override `MSH.12` only when you mean it.
+
 ```ts
 import { format } from "date-fns";
 

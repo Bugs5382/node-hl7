@@ -119,7 +119,10 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
 
     const ackMessage = new Message({ text });
 
-    // Apply MSH field overrides if set
+    // Apply MSH field overrides last, so they win over the echoed values. This
+    // includes MSH.12: the listener's pinned `version` only validates the
+    // INBOUND message, so an override of MSH.12 here makes the ACK declare a
+    // different HL7 version on purpose (an escape hatch; matches go-hl7).
     if (typeof this._mshOverrides === "object") {
       for (const [path, override] of Object.entries(this._mshOverrides)) {
         ackMessage.set(
