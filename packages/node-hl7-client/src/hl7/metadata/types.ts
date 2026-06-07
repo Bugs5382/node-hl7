@@ -131,6 +131,25 @@ export type HL7Version =
   | "2.8";
 
 /**
+ * Runtime list of the HL7 v2 spec versions recognized by this library, in
+ * ascending order. Used to validate a client/listener `version` at runtime.
+ * @since 4.0.0
+ */
+export const KNOWN_VERSIONS: readonly HL7Version[] = [
+  "2.1",
+  "2.2",
+  "2.3",
+  "2.3.1",
+  "2.4",
+  "2.5",
+  "2.5.1",
+  "2.6",
+  "2.7",
+  "2.7.1",
+  "2.8",
+];
+
+/**
  * Description of an HL7 segment, with per-version availability and field set.
  * @since 4.0.0
  */
@@ -146,4 +165,15 @@ export interface SegmentSpec {
    * not in this list must reject calls to build the segment.
    */
   versions: readonly HL7Version[];
+}
+
+/**
+ * Runtime guard for {@link HL7Version}. Returns `true` when `v` is one of the
+ * {@link KNOWN_VERSIONS}.
+ * @since 4.0.0
+ */
+export function isKnownVersion(v: unknown): v is HL7Version {
+  return (
+    typeof v === "string" && (KNOWN_VERSIONS as readonly string[]).includes(v)
+  );
 }

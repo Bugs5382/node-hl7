@@ -26,6 +26,7 @@ import { TcpSocketConnectOpts } from "node:net";
 
 import { InboundResponse } from "@/client/inboundResponse";
 import { MSH } from "@/hl7/headers";
+import { HL7Version } from "@/hl7/metadata/types";
 
 import { Batch, FileBatch, Message } from "../builder";
 
@@ -241,6 +242,13 @@ export interface ClientOptions {
   /** Enable TLS, or set TLS specific options like overriding the CA for
    * self-signed certificates. */
   tls?: boolean | TLSOptions;
+  /** The HL7 version this client pins. Required. Every message (or every
+   * message contained in a batch/file) sent through a connection must carry a
+   * matching `MSH.12`, or the send is rejected before it is queued.
+   * Must be one of the known HL7 versions
+   * (2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1, 2.6, 2.7, 2.7.1, 2.8).
+   * @since 4.0.0 */
+  version: HL7Version;
 }
 
 export type FallBackHandler = (message: MessageItem) => void;
