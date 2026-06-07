@@ -111,7 +111,7 @@ export class BaseSendResponse extends EventEmitter implements ISendRequest {
    * @param encoding Encoding to use when writing to the socket.
    * @example
    * ```ts
-   * server.createInbound({ port }, async (req, res) => {
+   * server.createInbound({ port, version: "2.7" }, async (req, res) => {
    *   const ack = new Message({
    *     text: `MSH|^~\\&|MY_APP|MY_FAC|...|...|${createHL7Date(new Date())}||ACK|123|P|2.5\rMSA|AA|${req.getMessage().get("MSH.10").toString()}|All good|`,
    *   });

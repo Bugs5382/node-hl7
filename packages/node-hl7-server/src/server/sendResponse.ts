@@ -46,7 +46,7 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
    * (Application Error) to tell the client your overall application had an error.
    * ```ts
    * const server = new Server({bindAddress: '0.0.0.0'})
-   * const IB_ADT = server.createInbound({port: LISTEN_PORT}, async (req, res) => {
+   * const IB_ADT = server.createInbound({port: LISTEN_PORT, version: '2.7'}, async (req, res) => {
    *  const messageReq = req.getMessage()
    *  await res.sendResponse("AA")
    * })
@@ -54,7 +54,7 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
    * or
    *
    * const server = new Server({bindAddress: '0.0.0.0'})
-   * const IB_ADT = server.createInbound({port: LISTEN_PORT}, async (req, res) => {
+   * const IB_ADT = server.createInbound({port: LISTEN_PORT, version: '2.7'}, async (req, res) => {
    *  const messageReq = req.getMessage()
    *  await res.sendResponse("AR")
    * })
@@ -62,7 +62,7 @@ export class SendResponse extends BaseSendResponse implements ISendRequest {
    * or
    *
    * const server = new Server({bindAddress: '0.0.0.0'})
-   * const IB_ADT = server.createInbound({port: LISTEN_PORT}, async (req, res) => {
+   * const IB_ADT = server.createInbound({port: LISTEN_PORT, version: '2.7'}, async (req, res) => {
    *  const messageReq = req.getMessage()
    *  await res.sendResponse("AE")
    * })

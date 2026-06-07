@@ -45,7 +45,7 @@ Every TCP connection on the server side gets its **own** `MLLPCodec` instance so
 import { Server } from "node-hl7-server";
 
 const server = new Server({ bindAddress: "0.0.0.0" });
-server.createInbound({ port: 3000 }, async (req, res) => {
+server.createInbound({ port: 3000, version: "2.5" }, async (req, res) => {
   console.log("⬅️", req.getMessage().get("MSH.10").toString());
   await res.sendResponse("AA");
 });
@@ -58,11 +58,11 @@ import Client, { HL7_2_5 } from "node-hl7-client";
 
 // Chained build: every build* returns the builder, so you can compose top-to-bottom.
 const builder = new HL7_2_5()
-  .buildMSH({ msh_9: "ADT^A01", msh_10: "MSG00001", msh_11: "P" })
+  .buildMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_10: "MSG00001", msh_11_1: "P" })
   .buildEVN({ evn_1: "A01" })
   .buildPID({ pid_3: "MRN12345", pid_5: "DOE^JANE^A", pid_8: "F" });
 
-const client = new Client({ host: "127.0.0.1" });
+const client = new Client({ host: "127.0.0.1", version: "2.5" });
 const conn = client.createConnection({ port: 3000 }, async (res) => {
   console.log("✅", res.getMessage().get("MSA.1").toString()); // AA
 });

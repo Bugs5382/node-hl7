@@ -89,19 +89,20 @@ builder.buildMSH({
   msh_5: "RECEIVING_APP",       // Receiving application
   msh_6: "RECEIVING_FAC",       // Receiving facility
   // msh_7 (date) is auto‑set to "now" if you omit it
-  msh_9: "ADT^A01",             // Composite (2.4+) or "ACK" / "ADT" (2.1)
+  msh_9_1: "ADT",               // Message code (MSH.9.1) — required
+  msh_9_2: "A01",               // Trigger event (MSH.9.2) — required on 2.2+
   msh_10: "MSG00001",           // Auto-randomized if omitted
-  msh_11: "P",                  // P=production, T=test
+  msh_11_1: "P",                // Processing ID (MSH.11.1) — P=production, T=test
 });
 ```
 
 Resulting MSH (HL7 2.5):
 
 ```text
-MSH|^~\&|SENDING_APP|SENDING_FAC|RECEIVING_APP|RECEIVING_FAC|20240101000000||ADT^A01|MSG00001|P|2.5
+MSH|^~\&|SENDING_APP|SENDING_FAC|RECEIVING_APP|RECEIVING_FAC|20240101000000||ADT^A01^ADT_A01|MSG00001|P|2.5
 ```
 
-> ⚠️ **2.1 quirk.** `MSH.9.3` (composite event code) is forbidden in 2.1. The library throws if you try.
+> ⚠️ **MSH.9 / MSH.11 are keyed by component.** On **2.1**, `MSH.9` is a single field (`msh_9: "ACK"`, from the 2.1 message-type table) and `MSH.11` is simple (`msh_11: "P"`). On **2.2+**, `MSH.9` is a composite — pass `msh_9_1` (message code) and `msh_9_2` (trigger event); the message-structure component (`MSH.9.3`, e.g. `ADT_A01`) is derived automatically. On **2.3+**, `MSH.11` is also composite — use `msh_11_1`. Passing the whole `msh_9: "ADT^A01"` string does **not** populate the required `9.1`/`9.2` components and will throw.
 
 > 💡 Friendly aliases. Most builders accept either positional names (`msh_3`) or human aliases (`sendingApplication`). Use whichever reads better — both produce the same output.
 
@@ -195,7 +196,7 @@ The canonical example — `ECD.4 Requested Completion Time`:
 const b = new HL7_2_8();
 b.on("warning", (m) => console.warn("⚠️", m));
 
-b.buildMSH({ msh_9: "ADT^A01", msh_10: "X", msh_11: "P" });
+b.buildMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_10: "X", msh_11_1: "P" });
 
 // ✅ ok — ECD.1, ECD.2 are R, ECD.3 is O.
 b.buildECD({ ecd_1: "1", ecd_2: "RC^Pause^HL70368", ecd_3: "Y" });
@@ -257,7 +258,7 @@ For every composite HL7 data type the library generates a TypeScript interface �
 import { HL7_2_8, HL7_XAD, HL7_XPN } from "node-hl7-client";
 
 const builder = new HL7_2_8();
-builder.buildMSH({ msh_9: "ADT^A01", msh_10: "X", msh_11: "P" });
+builder.buildMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_10: "X", msh_11_1: "P" });
 
 // Style A — typed object (composer handles the `^` joining + validation)
 builder.buildPID({
@@ -321,8 +322,8 @@ Every `build*` method returns the builder itself, so you can chain or stay imper
 ```ts
 // Chained — concise, reads top-to-bottom.
 const wire = new HL7_2_8()
-  .buildMSH({ msh_9: "ADT^A01", msh_10: "MSG1", msh_11: "P" })
-  .buildEVN({ evn_1: "A01" })
+  .buildMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_10: "MSG1", msh_11_1: "P" })
+  .buildEVN({ evn_2: new Date() }) // EVN.1 (event type) is withdrawn in 2.7+; use EVN.2
   .buildPID({ pid_3: "MRN1", pid_5: "DOE^JANE" })
   .buildOBR({ obr_1: "1", obr_4: "GLU^Glucose^L" })
   .buildOBX({ obx_1: "1", obx_2: "NM", obx_3: "GLU^Glucose^L", obx_5: "98", obx_11: "F" })
@@ -330,8 +331,8 @@ const wire = new HL7_2_8()
 
 // Imperative — easier to interleave with branching/conditionals.
 const b = new HL7_2_8();
-b.buildMSH({ msh_9: "ADT^A01", msh_10: "MSG1", msh_11: "P" });
-if (event) b.buildEVN({ evn_1: event });
+b.buildMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_10: "MSG1", msh_11_1: "P" });
+if (recordedAt) b.buildEVN({ evn_2: recordedAt }); // EVN.1 withdrawn in 2.7+; use EVN.2
 b.buildPID({ pid_3: mrn, pid_5: name });
 const wire2 = b.toString();
 ```
@@ -346,7 +347,7 @@ The 80-or-so `build<NAME>` typed methods cover every segment with a hand-tuned i
 
 ```ts
 const b = new HL7_2_8()
-  .buildMSH({ msh_9: "ADT^A01", msh_10: "X", msh_11: "P" })
+  .buildMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_10: "X", msh_11_1: "P" })
   // Use the typed method when you have one — full IDE autocomplete on props.
   .buildPID({ pid_3: "MRN1", pid_5: "DOE^JANE" })
   // Fall back to the generic builder for segments without a typed method.
@@ -379,11 +380,14 @@ This is one of the **fun** parts of the builder format: every `build*` prop acce
 
 That means you can pre‑compose values — even from another data source, a template literal, or a CSV row — and just hand them to the builder.
 
+> ⚠️ **Exception: fields with required components.** The pass-the-whole-string trick works for fields whose components are optional (most of them — `PID.5`, `PID.11`, `OBX.3`, …). It does **not** work for `MSH.9` on 2.2+, whose `9.1`/`9.2` components are individually *required*: pass `msh_9_1`/`msh_9_2` (and `msh_11_1` on 2.3+) instead of `msh_9: "ADT^A01"`. See [Build the MSH](#-build-the-msh-always-first).
+
 ```ts
 builder.buildMSH({
-  msh_9: "ADT^A01",                            // ⬅️ composite "MessageType^TriggerEvent"
+  msh_9_1: "ADT",                              // ⬅️ 9.1/9.2 are keyed separately (required)
+  msh_9_2: "A01",
   msh_10: "MSG00001",
-  msh_11: "P",
+  msh_11_1: "P",
 });
 
 builder.buildPID({
@@ -570,9 +574,10 @@ const createADT_A01 = (mrn: string, name: string, ctrlId: string): Message => {
     msh_4: "MY_FAC",
     msh_5: "EPIC",
     msh_6: "HOSP",
-    msh_9: "ADT^A01",
+    msh_9_1: "ADT",
+    msh_9_2: "A01",
     msh_10: ctrlId,
-    msh_11: "P",
+    msh_11_1: "P",
   });
   b.buildEVN({ evn_1: "A01" });
   b.buildPID({ pid_3: mrn, pid_5: name, pid_8: "F" });
@@ -605,7 +610,7 @@ try {
 try {
   // ECD.4 is W (Withdrawn) in HL7 v2.8 — always throws, even with hardError: false.
   new HL7_2_8()
-    .buildMSH({ msh_9: "ADT^A01", msh_10: "X", msh_11: "P" })
+    .buildMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_10: "X", msh_11_1: "P" })
     .buildECD({ ecd_1: "1", ecd_2: "RC^Pause^HL70368", ecd_4: "20240101" });
 } catch (err) {
   console.error("🛑", err.message);

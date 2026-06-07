@@ -66,7 +66,7 @@ export interface IInbound extends EventEmitter {
  * @example
  * In this example, we are processing the results in an async handler.
  *```ts
- *  const IB_ADT = server.createInbound({port: 3000}, async (req, res) => {
+ *  const IB_ADT = server.createInbound({port: 3000, version: "2.7"}, async (req, res) => {
  *    const messageReq = req.getMessage()
  *    const messageRes = res.getAckMessage()
  *  })

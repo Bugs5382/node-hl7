@@ -49,7 +49,7 @@ setInterval(() => {
 Don't do heavy work in the handler. Pop the `Message` onto a queue and let a worker process it.
 
 ```ts
-server.createInbound({ port: 6661 }, async (req, res) => {
+server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => {
   await queue.publish(req.getMessage().toString()); // milliseconds
   await res.sendResponse("AA");                     // sender unblocked
 });
@@ -62,9 +62,9 @@ This minimizes back-pressure on the sender and keeps your event loop free.
 It's idiomatic for HL7 environments to dedicate a port per message type:
 
 ```ts
-server.createInbound({ port: 6661, name: "IB_ADT" }, handleADT);
-server.createInbound({ port: 6662, name: "IB_ORU" }, handleORU);
-server.createInbound({ port: 6663, name: "IB_SIU" }, handleSIU);
+server.createInbound({ port: 6661, version: "2.7", name: "IB_ADT" }, handleADT);
+server.createInbound({ port: 6662, version: "2.7", name: "IB_ORU" }, handleORU);
+server.createInbound({ port: 6663, version: "2.7", name: "IB_SIU" }, handleSIU);
 ```
 
 Each listener has its own handler, MSH overrides, and stats. Routing is implicit by port.
@@ -87,7 +87,7 @@ Log `inbound.on("data.error", ...)`. In healthy production you'll see effectivel
 
 ## 🧪 Benchmarks you can run yourself
 
-The repo's [`__tests__/server/hl7.issues.test.ts`](https://github.com/Bugs5382/node-hl7-server/blob/main/__tests__/server/hl7.issues.test.ts) includes:
+The repo's [`__tests__/server/hl7.issues.test.ts`](https://github.com/Bugs5382/node-hl7/blob/main/packages/node-hl7-server/__tests__/server/hl7.issues.test.ts) includes:
 
 - **Concurrent connections test** — two simultaneous senders pushing interleaved messages over the same listener (verifies the per-socket codec).
 - **TCP fragmentation test** — an 8 KB MLLP frame written in 64-byte chunks (simulates an Epic ADT^A08 over a slow link).

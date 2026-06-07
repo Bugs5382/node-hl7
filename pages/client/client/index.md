@@ -32,14 +32,14 @@ This library supports connections over IPv4, IPv6, or Fully Qualified Domain Nam
 ### Step 1: Create the Client
 
 ```ts
-// IPv4 only (default)
-const client = new Client({ host: "hl7.example.com" });
+// IPv4 only (default). `version` is required — there is no implicit default.
+const client = new Client({ host: "hl7.example.com", version: "2.7" });
 
 // Dual-stack with Happy-Eyeballs fallback (opt-in)
-const dual = new Client({ host: "hl7.example.com", ipv4: true, ipv6: true });
+const dual = new Client({ host: "hl7.example.com", version: "2.7", ipv4: true, ipv6: true });
 
 // Force IPv6 only (and validate the host against it):
-const v6Only = new Client({ host: "2001:db8::1", ipv6: true });
+const v6Only = new Client({ host: "2001:db8::1", version: "2.7", ipv6: true });
 ```
 
 This initializes a client targeting the host, but does not yet establish a connection.
@@ -98,7 +98,7 @@ If the remote HL7 server expects TLS, set `tls` on the `Client` constructor. Two
 **Shorthand** — use Node's default trust store (works for certs chained to public CAs):
 
 ```ts
-const client = new Client({ host: "hl7.example.com", tls: true });
+const client = new Client({ host: "hl7.example.com", version: "2.7", tls: true });
 ```
 
 **Full options** — anything from Node's [`tls.ConnectionOptions`](https://nodejs.org/api/tls.html#tlsconnectoptions-callback). Use this when the server uses a private/self‑signed CA or you need to tune `servername`, `minVersion`, etc.:
@@ -110,6 +110,7 @@ import Client from "node-hl7-client";
 
 const client = new Client({
   host: "hl7.example.local",
+  version: "2.7",
   tls: {
     // ✅ Always validate the server certificate in production.
     rejectUnauthorized: true,
@@ -132,6 +133,7 @@ import Client from "node-hl7-client";
 
 const client = new Client({
   host: "hl7.example.local",
+  version: "2.7",
   tls: {
     // 🔑 The client's own identity (this is the cert the server validates).
     key: fs.readFileSync(path.join("certs", "client-key.pem")),
@@ -282,7 +284,7 @@ const flushQueue = async (
   }
 };
 
-const client = new Client({ host: "0.0.0.0" });
+const client = new Client({ host: "0.0.0.0", version: "2.7" });
 
 // Create connection without auto-connecting
 const outbound = client.createConnection(
