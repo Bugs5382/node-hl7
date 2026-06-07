@@ -18,7 +18,7 @@
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-name: Release and Publish
+name: Publish node-hl7-client
 on:
   workflow_dispatch:
   workflow_call:
@@ -41,8 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: ['Test']
     # id-token: write (declared at workflow scope) is what lets npm verify
-    # the OIDC token issued by GitHub against the trusted-publisher config
-    # registered on npmjs.com for each package.
+    # the OIDC token issued by GitHub against the node-hl7-client trusted
+    # publisher registered on npmjs.com. node-hl7-server publishes from its
+    # own workflow (action-deploy-npm-server.yaml).
     steps:
       - name: Download the build artifact
         uses: actions/download-artifact@v8
@@ -64,12 +65,11 @@ jobs:
           npm install -g npm@latest
           npm --version
 
-      # Publish client first because node-hl7-server peer-depends on it (^4.0.0).
       # No `--token` / NODE_AUTH_TOKEN — npm authenticates to the registry via
       # the OIDC token issued by GitHub Actions, matched against the trusted
       # publisher configured on npmjs.com.
-      # Each publish is idempotent: if that exact version is already on the
-      # registry (e.g. a partial-publish retry), skip it instead of failing.
+      # Idempotent: if that exact version is already on the registry (e.g. a
+      # partial-publish retry), skip it instead of failing.
       - name: Publish node-hl7-client
         working-directory: packages/node-hl7-client
         run: |
@@ -79,28 +79,3 @@ jobs:
           else
             npm publish --provenance --access public --ignore-scripts
           fi
-
-      # node-hl7-server peer-depends on node-hl7-client (^4.0.0). Give the
-      # registry a moment to make the just-published client resolvable before
-      # publishing the server.
-      - name: Pause for registry propagation
-        run: sleep 45
-
-      - name: Publish node-hl7-server
-        working-directory: packages/node-hl7-server
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          if npm view "node-hl7-server@${VERSION}" version >/dev/null 2>&1; then
-            echo "node-hl7-server@${VERSION} already published — skipping."
-            exit 0
-          fi
-          for attempt in 1 2 3; do
-            if npm publish --provenance --access public --ignore-scripts; then
-              echo "published on attempt ${attempt}"
-              exit 0
-            fi
-            echo "attempt ${attempt} failed; waiting 30s before retry..."
-            sleep 30
-          done
-          echo "node-hl7-server publish failed after 3 attempts"
-          exit 1
