@@ -38,7 +38,7 @@ jobs:
     steps:
       - name: Create GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@v3.1.1
+        uses: actions/create-github-app-token@v3.2.0
         with:
           client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
@@ -63,7 +63,7 @@ jobs:
 
       - name: 📝 Release Drafter (Anticipate Version)
         id: drafter
-        uses: release-drafter/release-drafter@v6
+        uses: release-drafter/release-drafter@v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -106,7 +106,7 @@ jobs:
 
       - name: 🏷️ Publish Release
         if: contains(github.event.head_commit.author.name, 'dependabot') || contains(github.event.head_commit.message, 'dependabot')
-        uses: release-drafter/release-drafter@v6
+        uses: release-drafter/release-drafter@v7
         with:
           publish: true
           commitish: main
