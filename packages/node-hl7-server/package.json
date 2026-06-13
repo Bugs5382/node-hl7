@@ -70,7 +70,7 @@
     "node-hl7-client": "^4.0.0"
   },
   "devDependencies": {
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.9.3",
     "node-hl7-client": "*"
   }
 }
