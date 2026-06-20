@@ -1,5 +1,23 @@
 # Node HL7 Client
 
+## v4.0.1 - 2026-06-20
+
+### What Changed 👀
+
+- chore(governance): sync shared governance from project-template @Bugs5382 (#25)
+- ci: finish per-package publish split, drop v4.0.0 seed @Bugs5382 (#24)
+- ci: dedicated dispatch-only publish workflow for node-hl7-server @Bugs5382 (#23)
+- ci: idempotent npm publish with propagation pause and server retry @Bugs5382 (#22)
+
+#### 🧩 Dependency Updates
+
+- chore(deps): bump the github-actions group with 9 updates @[dependabot[bot]](https://github.com/apps/dependabot) (#27)
+- chore(deps-dev): bump the development-dependencies group across 3 directories with 15 updates @[dependabot[bot]](https://github.com/apps/dependabot) (#28)
+
+### Extra
+
+**Full Changelog**: https://github.com/Bugs5382/node-hl7/compare/v4.0.0...v4.0.1
+
 ## v4.0.0 - 2026-06-07
 
 ### What Changed 👀
