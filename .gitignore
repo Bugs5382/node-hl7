@@ -16,7 +16,7 @@
 !/README.md
 !/__tests__/
 !/docker/
-!/eslint.config.base.mjs
+!/eslint.config.mjs
 !/package.json
 !/packages/
 !/pages/

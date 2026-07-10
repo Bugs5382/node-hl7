@@ -232,9 +232,8 @@ export class Inbound extends EventEmitter implements IInbound {
       const errorHandler = (error: NodeJS.ErrnoException) => {
         if (
           dualStack &&
-          (error.code === "EAFNOSUPPORT" ||
-            error.code === "EADDRNOTAVAIL" ||
-            error.code === "EINVAL")
+          error.code !== undefined &&
+          ["EADDRNOTAVAIL", "EAFNOSUPPORT", "EINVAL"].includes(error.code)
         ) {
           socket.removeListener("error", errorHandler);
           onError();

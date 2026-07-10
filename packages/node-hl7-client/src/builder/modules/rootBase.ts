@@ -88,6 +88,8 @@ export class RootBase extends NodeBase {
   }
   /** @internal */
   protected static _makeMatchUnescape(delimiters: string): RegExp {
+    // Reference URL to an external article, preserved verbatim as published.
+    // eslint-disable-next-line unicorn/prefer-https
     // setup regular expression for matching escape sequences, see http://www.hl7standards.com/blog/2006/11/02/hl7-escape-sequences/
     const matchEscape = escapeForRegExp(delimiters[Delimiters.Escape]);
     return new RegExp(
