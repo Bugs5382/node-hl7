@@ -1800,6 +1800,9 @@ export class HL7_BASE extends EventEmitter implements HL7_SPEC {
   ): void {
     if (
       rules.required &&
+      // The empty-value set includes `null`, which unicorn/no-null forbids as
+      // an array element; the explicit comparisons are kept here.
+      // eslint-disable-next-line unicorn/prefer-includes-over-repeated-comparisons
       (value === undefined || value === null || value === "")
     ) {
       this._validatorThrowError(errors, `Field ${fieldPath} is required`, true);

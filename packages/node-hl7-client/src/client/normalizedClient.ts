@@ -55,10 +55,7 @@ const DEFAULT_LISTEN_CLIENT_OPTS = {
 type ValidatedClientKeys = "connectionTimeout" | "host";
 
 type ValidatedClientListenerKeys =
-  | "autoConnect"
-  | "maxAttempts"
-  | "maxConnectionAttempts"
-  | "port";
+  "autoConnect" | "maxAttempts" | "maxConnectionAttempts" | "port";
 
 interface ValidatedClientListenerOptions extends Pick<
   Required<ClientListenerOptions>,
