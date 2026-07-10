@@ -6,6 +6,7 @@
 
 #### 🧩 Dependency Updates
 
+- chore(deps): bump github actions @Bugs5382 (#43)
 - chore(deps-dev): upgrade eslint-config to 0.6 and restore clean lint @Bugs5382 (#41)
 - chore(deps-dev): update development dependencies @Bugs5382 (#38)
 - chore(deps): bump the github-actions group with 9 updates @[dependabot[bot]](https://github.com/apps/dependabot) (#27)
