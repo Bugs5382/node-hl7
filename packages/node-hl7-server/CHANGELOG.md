@@ -1,5 +1,25 @@
 # Node HL7 Server
 
+## v4.1.0 - 2026-07-10
+
+### What Changed 👀
+
+#### 🚀 Features
+
+- feat(server): relax inbound version constraint @Bugs5382 (#44)
+
+#### 🧩 Dependency Updates
+
+- chore(deps): bump github actions @Bugs5382 (#43)
+- chore(deps-dev): upgrade eslint-config to 0.6 and restore clean lint @Bugs5382 (#41)
+- chore(deps-dev): update development dependencies @Bugs5382 (#38)
+- chore(deps): bump the github-actions group with 9 updates @[dependabot[bot]](https://github.com/apps/dependabot) (#27)
+- chore(deps-dev): bump the development-dependencies group across 3 directories with 15 updates @[dependabot[bot]](https://github.com/apps/dependabot) (#28)
+
+### Extra
+
+**Full Changelog**: https://github.com/Bugs5382/node-hl7/compare/v4.0.0...v4.1.0
+
 ## v4.0.1 - 2026-07-10
 
 ### What Changed 👀
