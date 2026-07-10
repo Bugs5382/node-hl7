@@ -58,8 +58,9 @@ import { Server } from "node-hl7-server";
 
 const server = new Server({ bindAddress: "0.0.0.0" });
 
-// The listener version is required. Any inbound whose MSH.12 differs is
-// rejected with an "AR" and the handler never runs.
+// Pin the listener to an HL7 version. Any inbound whose MSH.12 differs is
+// rejected with an "AR" and the handler never runs. (Use a version array or
+// `acceptAnyVersion: true` to accept more than one — see below.)
 const IB_ADT = server.createInbound(
   { port: 3000, version: "2.7" },
   async (req, res) => {
@@ -72,6 +73,21 @@ const IB_ADT = server.createInbound(
 );
 
 IB_ADT.on("listen", () => console.log("🎧 listening on :3000"));
+```
+
+A listener can accept **more than one** version, or **any known** version, so a
+single port can serve partners on different HL7 releases:
+
+```ts
+// Accept an allow-list — MSH.12 must be one of these, else "AR".
+server.createInbound(
+  { port: 3000, version: ["2.3.1", "2.4", "2.5"] },
+  handler,
+);
+
+// Accept any known HL7 version (2.1–2.8). Must be opted into explicitly;
+// an unknown/garbage MSH.12 is still rejected with "AR".
+server.createInbound({ port: 3000, acceptAnyVersion: true }, handler);
 ```
 
 A minimal **incoming** ADT^A01 looks like this on the wire (MLLP framing characters shown as `<VT>` / `<FS>` / `<CR>`):
@@ -164,10 +180,17 @@ server.createInbound(props: ListenerOptions, handler: InboundHandler): Inbound;
 interface ListenerOptions {
   /** Required. 0 < port < 65353. */
   port: number;
-  /** Required. The HL7 version this listener pins (2.1, 2.2, 2.3, 2.3.1, 2.4,
-   *  2.5, 2.5.1, 2.6, 2.7, 2.7.1, 2.8). Inbound messages whose MSH.12 differs
-   *  are rejected with an "AR" and the handler is not invoked. */
-  version: HL7Version;
+  /** The HL7 version(s) this listener accepts — a single version or an
+   *  allow-list (2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1, 2.6, 2.7, 2.7.1, 2.8).
+   *  Inbound messages whose MSH.12 is not in the set are rejected with an "AR"
+   *  and the handler is not invoked. Exactly one of `version` or
+   *  `acceptAnyVersion` must be provided; they are mutually exclusive. */
+  version?: HL7Version | HL7Version[];
+  /** Accept any *known* HL7 version instead of pinning a fixed set. Must be set
+   *  explicitly — omitting `version` alone is still an error. An inbound message
+   *  whose MSH.12 is not a known HL7 version is still rejected with an "AR".
+   *  Mutually exclusive with `version`. */
+  acceptAnyVersion?: boolean;
   /** Optional human‑readable name for logging. */
   name?: string;
   /** Encoding for inbound bytes. Default: utf-8 */

@@ -51,6 +51,12 @@ const DEFAULT_LISTENER_OPTS: Partial<ListenerOptions> = {
  * @since 1.0.0
  */
 export interface ListenerOptions {
+  /** Accept any *known* HL7 version instead of pinning to a fixed set. Must be
+   * set explicitly — omitting {@link version} alone is still an error. An
+   * inbound message whose `MSH.12` is not a known HL7 version is still rejected
+   * with an `AR` acknowledgement. Mutually exclusive with {@link version}.
+   * @since 4.1.0 */
+  acceptAnyVersion?: boolean;
   /** Encoding of the messages we expect from the HL7 message.
    * @default "utf8"
    */
@@ -68,12 +74,17 @@ export interface ListenerOptions {
    * you need to extend the base BaseSendResponse class from
    *  **/
   responseClass?: typeof BaseSendResponse;
-  /** The HL7 version this listener pins. Required. Any inbound message whose
-   * `MSH.12` does not match is rejected with an `AR` acknowledgement and the
-   * handler is not invoked. Must be one of the known HL7 versions
-   * (2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1, 2.6, 2.7, 2.7.1, 2.8).
+  /** The HL7 version(s) this listener accepts — a single version or an
+   * allow-list. Any inbound message whose `MSH.12` is not in the set is
+   * rejected with an `AR` acknowledgement and the handler is not invoked. Each
+   * value must be a known HL7 version (2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1,
+   * 2.6, 2.7, 2.7.1, 2.8).
+   *
+   * Optional at the type level, but exactly one of `version` or
+   * {@link acceptAnyVersion} must be provided. Mutually exclusive with
+   * `acceptAnyVersion`.
    * @since 4.0.0 */
-  version: HL7Version;
+  version?: HL7Version | HL7Version[];
 }
 
 /**
@@ -146,11 +157,16 @@ interface ValidatedOptions extends Pick<
   Required<ListenerOptions>,
   ValidatedKeys
 > {
+  /** Resolved from {@link ListenerOptions.acceptAnyVersion}. When `true`,
+   * `versions` is empty and any known HL7 version is accepted. */
+  acceptAnyVersion: boolean;
   mshOverrides?: Record<string, ((message: Message) => string) | string>;
   name?: string;
   port: number;
   responseClass?: typeof BaseSendResponse;
-  version: HL7Version;
+  /** The resolved, deduped set of accepted versions. Empty when
+   * `acceptAnyVersion` is `true`. */
+  versions: HL7Version[];
 }
 
 /** @internal */
@@ -184,14 +200,35 @@ export function normalizeListenerOptions(
     }
   }
 
-  if (merged.version === undefined) {
-    throw new HL7ListenerError("version is not defined.");
+  // Resolve the accepted version set. `acceptAnyVersion` opts into accepting
+  // any known HL7 version and must be set explicitly; it is mutually exclusive
+  // with a pinned `version`/version list. See issue #37.
+  const acceptAnyVersion = merged.acceptAnyVersion === true;
+  if (acceptAnyVersion && merged.version !== undefined) {
+    throw new HL7ListenerError(
+      "version and acceptAnyVersion are mutually exclusive.",
+    );
   }
 
-  if (!isKnownVersion(merged.version)) {
-    throw new HL7ListenerError(
-      `version "${merged.version}" is not a known HL7 version.`,
-    );
+  let versions: HL7Version[] = [];
+  if (!acceptAnyVersion) {
+    if (merged.version === undefined) {
+      throw new HL7ListenerError("version is not defined.");
+    }
+    const requested = Array.isArray(merged.version)
+      ? merged.version
+      : [merged.version];
+    if (requested.length === 0) {
+      throw new HL7ListenerError("version must not be an empty array.");
+    }
+    for (const candidate of requested) {
+      if (!isKnownVersion(candidate)) {
+        throw new HL7ListenerError(
+          `version "${candidate}" is not a known HL7 version.`,
+        );
+      }
+    }
+    versions = [...new Set(requested)];
   }
 
   if (merged.port === undefined) {
@@ -205,7 +242,7 @@ export function normalizeListenerOptions(
 
   assertNumber({ port: merged.port }, "port", 0, 65_353);
 
-  return merged;
+  return { ...merged, acceptAnyVersion, versions };
 }
 
 /** @internal */
