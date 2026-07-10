@@ -25,6 +25,7 @@ import {
   FileBatch,
   isBatch,
   isFile,
+  isKnownVersion,
   Message,
   MLLPCodec,
 } from "node-hl7-client";
@@ -176,24 +177,29 @@ export class Inbound extends EventEmitter implements IInbound {
 
       res.on("response.sent", () => this.emit("response.sent"));
 
-      // Enforce the listener-pinned HL7 version. On a mismatch, reject the
-      // message with an "AR" acknowledgement, surface the error, and skip the
-      // user handler.
+      // Enforce the listener's accepted HL7 version(s). On a non-match, reject
+      // the message with an "AR" acknowledgement, surface the error, and skip
+      // the user handler.
       const got = parsed.get("MSH.12").toString();
-      if (got !== this._opt.version) {
-        void res.sendResponse("AR");
-        this.emit(
-          "data.error",
-          new HL7ListenerError(
-            `message version "${got}" does not match the listener version "${this._opt.version}".`,
-          ),
-        );
+      if (!this._isVersionAccepted(got)) {
+        this._rejectVersionMismatch(got, res);
         continue;
       }
 
       void this._handler(request, res);
     }
   };
+
+  /** Whether an inbound message's `MSH.12` is accepted by this listener.
+   * When `acceptAnyVersion` is set, any known HL7 version passes; otherwise the
+   * version must be a member of the resolved accepted set.
+   * @internal */
+  private _isVersionAccepted(got: string): boolean {
+    if (this._opt.acceptAnyVersion) {
+      return isKnownVersion(got);
+    }
+    return (this._opt.versions as readonly string[]).includes(got);
+  }
 
   /** @internal */
   private _listen(): net.Server | tls.Server {
@@ -326,18 +332,12 @@ export class Inbound extends EventEmitter implements IInbound {
 
             res.on("response.sent", () => this.emit("response.sent"));
 
-            // Enforce the listener-pinned HL7 version. On a mismatch, reject
-            // the message with an "AR" acknowledgement, surface the error, and
-            // skip the user handler.
+            // Enforce the listener's accepted HL7 version(s). On a non-match,
+            // reject the message with an "AR" acknowledgement, surface the
+            // error, and skip the user handler.
             const got = parsed.get("MSH.12").toString();
-            if (got !== this._opt.version) {
-              void res.sendResponse("AR");
-              this.emit(
-                "data.error",
-                new HL7ListenerError(
-                  `message version "${got}" does not match the listener version "${this._opt.version}".`,
-                ),
-              );
+            if (!this._isVersionAccepted(got)) {
+              this._rejectVersionMismatch(got, res);
               return;
             }
 
@@ -360,5 +360,29 @@ export class Inbound extends EventEmitter implements IInbound {
     });
 
     this.emit("client.connect", socket);
+  }
+
+  /** Reject a message whose version is not accepted: send an `AR`
+   * acknowledgement and surface the reason on the `data.error` event.
+   * @internal */
+  private _rejectVersionMismatch(got: string, res: BaseSendResponse): void {
+    void res.sendResponse("AR");
+    this.emit(
+      "data.error",
+      new HL7ListenerError(this._versionMismatchMessage(got)),
+    );
+  }
+
+  /** Build the `data.error` message for a rejected version, worded for the
+   * listener's configuration (single version, allow-list, or accept-any).
+   * @internal */
+  private _versionMismatchMessage(got: string): string {
+    if (this._opt.acceptAnyVersion) {
+      return `message version "${got}" is not a known HL7 version.`;
+    }
+    if (this._opt.versions.length === 1) {
+      return `message version "${got}" does not match the listener version "${this._opt.versions[0]}".`;
+    }
+    return `message version "${got}" is not one of the listener versions "${this._opt.versions.join(", ")}".`;
   }
 }
