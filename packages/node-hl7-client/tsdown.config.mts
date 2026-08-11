@@ -24,11 +24,18 @@ import { defineConfig } from "tsdown";
 
 const sourcemap = process.env.NODE_ENV === "development";
 
+// `index` and `hl7` are built together per format rather than one config per
+// entry. `index.ts` does `export * from "./hl7"`, so building them separately
+// embedded a second copy of the multi-megabyte generated HL7 catalogue in each
+// bundle; sharing one config lets rolldown hoist the common code into a chunk
+// both entries import. See issue #47.
+const entry = ["src/index.ts", "src/hl7.ts"];
+
 export default defineConfig([
   {
     clean: true,
     dts: false,
-    entry: ["src/index.ts"],
+    entry,
     format: ["cjs"],
     minify: !sourcemap,
     outDir: "lib/cjs",
@@ -38,7 +45,7 @@ export default defineConfig([
   },
   {
     dts: false,
-    entry: ["src/index.ts"],
+    entry,
     format: ["esm"],
     minify: !sourcemap,
     outDir: "lib/esm",
@@ -47,32 +54,16 @@ export default defineConfig([
     target: "esnext",
   },
   {
-    clean: false,
-    dts: false,
-    entry: ["src/hl7.ts"],
-    format: ["cjs"],
-    minify: !sourcemap,
-    outDir: "lib/cjs",
-    outputOptions: { exports: "named" },
-    sourcemap: sourcemap,
-    target: "esnext",
-  },
-  {
-    dts: false,
-    entry: ["src/hl7.ts"],
-    format: ["esm"],
-    minify: !sourcemap,
-    outDir: "lib/esm",
-    outputOptions: { exports: "named" },
-    sourcemap: sourcemap,
-    target: "esnext",
-  },
-  {
-    entry: ["src/index.ts"],
+    // Declarations only. Without `emitDtsOnly` tsdown also emits a runtime
+    // bundle here, and `sourcemap` must be pinned off because it silently
+    // defaults to `true` whenever `declarationMap` is set in tsconfig — that
+    // pair shipped ~29 MB of duplicate JS and maps in v4.x (issue #47).
+    // Declaration maps stay off as well: they reference `src/`, which the
+    // `files` allowlist does not publish.
+    dts: { emitDtsOnly: true, sourcemap: false },
+    entry,
     outDir: "lib/types",
-  },
-  {
-    entry: ["src/hl7.ts"],
-    outDir: "lib/types",
+    sourcemap: false,
+    target: "esnext",
   },
 ]);
