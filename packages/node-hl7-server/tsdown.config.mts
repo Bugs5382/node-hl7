@@ -47,7 +47,15 @@ export default defineConfig([
     target: "esnext",
   },
   {
+    // Declarations only. Without `emitDtsOnly` tsdown also emits a runtime
+    // bundle here, and `sourcemap` must be pinned off because it silently
+    // defaults to `true` whenever `declarationMap` is set in tsconfig (issue
+    // #47). Declaration maps stay off as well: they reference `src/`, which
+    // the `files` allowlist does not publish.
+    dts: { emitDtsOnly: true, sourcemap: false },
     entry: ["src/index.ts"],
     outDir: "lib/types",
+    sourcemap: false,
+    target: "esnext",
   },
 ]);

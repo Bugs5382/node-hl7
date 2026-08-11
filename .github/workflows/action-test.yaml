@@ -62,6 +62,14 @@ jobs:
         run: |
           npm run build
 
+      # Guards the size and layout of what actually gets published. The publish
+      # workflows run `npm publish --ignore-scripts` against the artifact
+      # uploaded below, so this is the last point where a bloated tarball can
+      # be caught before it reaches the registry. See issue #47.
+      - name: Check published package size
+        run: |
+          npm run check:dist
+
       - name: Upload build artifact
         if: matrix.node-version == 'lts/*'
         uses: actions/upload-artifact@v7
