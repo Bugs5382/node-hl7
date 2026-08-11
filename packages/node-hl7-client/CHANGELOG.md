@@ -1,5 +1,21 @@
 # Node HL7 Client
 
+## v4.1.1 - 2026-08-11
+
+### What Changed 👀
+
+#### 🐛 Bug Fixes
+
+- fix(build): emit declarations only into lib/types and share the HL7 catalogue chunk @Bugs5382 (#48)
+
+#### 🔐 Security
+
+- fix(build): emit declarations only into lib/types and share the HL7 catalogue chunk @Bugs5382 (#48)
+
+### Extra
+
+**Full Changelog**: https://github.com/Bugs5382/node-hl7/compare/v4.1.0...v4.1.1
+
 ## v4.1.0 - 2026-07-10
 
 ### What Changed 👀
