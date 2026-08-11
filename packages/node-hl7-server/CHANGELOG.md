@@ -12,6 +12,10 @@
 
 - fix(build): emit declarations only into lib/types and share the HL7 catalogue chunk @Bugs5382 (#48)
 
+#### 📄 Documentation
+
+- docs(changelog): rewrite the v4.0.0 entries in conventional-commit form @Bugs5382 (#49)
+
 ### Extra
 
 **Full Changelog**: https://github.com/Bugs5382/node-hl7/compare/v4.1.0...v4.1.1
