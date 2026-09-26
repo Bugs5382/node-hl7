@@ -42,6 +42,12 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  * Raise a budget deliberately, in the same commit as the change that needs the
  * headroom, so the increase shows up in review.
+ *
+ * A third check covers issue #51: node-hl7-server's `node-hl7-client` peer
+ * range must be `^<client version>`. The two packages version in lockstep and
+ * `task update-version` rewrites the range on every release, so a stale floor
+ * means that rewrite regressed. A floor left at `^4.0.0` let the server
+ * resolve to the ~44 MB 4.0.0 and 4.1.0 clients.
  */
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -97,6 +103,19 @@ const packSummary = (packageDir) => {
   return { entryCount: result.entryCount, unpackedSize: result.unpackedSize };
 };
 
+/**
+ * Read a workspace package's manifest.
+ * @param {string} packageName
+ * @returns {{version: string, peerDependencies?: Record<string, string>}}
+ */
+const readManifest = (packageName) =>
+  JSON.parse(
+    fs.readFileSync(
+      path.join(packagesDir, packageName, "package.json"),
+      "utf8",
+    ),
+  );
+
 /** @type {string[]} */
 const failures = [];
 
@@ -146,6 +165,23 @@ for (const packageName of fs.readdirSync(packagesDir).toSorted()) {
         `${formatBytes(budget)} budget.`,
     );
   }
+}
+
+const clientManifest = readManifest("node-hl7-client");
+const serverManifest = readManifest("node-hl7-server");
+const expectedPeer = `^${clientManifest.version}`;
+const actualPeer = serverManifest.peerDependencies?.["node-hl7-client"];
+process.stdout.write(
+  `node-hl7-server: node-hl7-client peer range ${actualPeer ?? "(missing)"} ` +
+    `(expected ${expectedPeer}) — ${actualPeer === expectedPeer ? "ok" : "STALE"}\n`,
+);
+if (actualPeer !== expectedPeer) {
+  failures.push(
+    `node-hl7-server: peerDependencies["node-hl7-client"] is ` +
+      `${actualPeer ?? "missing"}, expected ${expectedPeer} to match the ` +
+      `client version in this workspace. \`task update-version\` sets it on ` +
+      `release; set it by hand if it drifted.`,
+  );
 }
 
 if (failures.length > 0) {
