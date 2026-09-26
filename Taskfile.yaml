@@ -49,7 +49,7 @@ tasks:
     cmds:
       - yq -i '.version = "{{.NEW_VERSION}}"' "{{.TASKFILE_DIR}}/technitium/Chart.yaml"
   update-version:
-    desc: Updates the version in both workspace package.json files (strips leading 'v')
+    desc: Updates the version in both workspace package.json files (strips leading 'v') and the server's node-hl7-client peer floor
     vars:
       NEW_VERSION: '{{ default "0.0.0" .NEW_VERSION }}'
     cmds:
@@ -57,7 +57,10 @@ tasks:
         VERSION="{{.NEW_VERSION}}"
         VERSION="${VERSION#v}"
         npm pkg set version="$VERSION" --workspace=packages/node-hl7-client --workspace=packages/node-hl7-server
-        echo "Updated both workspaces to $VERSION"
+        # Keep the server's peer floor on the client it ships with, so it can
+        # never resolve to an older client (issue #51). check:dist asserts it.
+        npm pkg set "peerDependencies.node-hl7-client=^$VERSION" --workspace=packages/node-hl7-server
+        echo "Updated both workspaces to $VERSION (server peer node-hl7-client ^$VERSION)"
   golic-inject-run:
     internal: true
     cmds:
