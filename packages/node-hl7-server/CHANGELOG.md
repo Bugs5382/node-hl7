@@ -1,5 +1,17 @@
 # Node HL7 Server
 
+## v4.1.2 - 2026-09-26
+
+### What Changed 👀
+
+#### 🐛 Bug Fixes
+
+- fix(server): raise the node-hl7-client peer range so it cannot resolve to the 44 MB versions @Bugs5382 (#52)
+
+### Extra
+
+**Full Changelog**: https://github.com/Bugs5382/node-hl7/compare/v4.1.1...v4.1.2
+
 ## v4.1.1 - 2026-08-11
 
 ### What Changed 👀
