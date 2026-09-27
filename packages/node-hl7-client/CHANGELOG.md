@@ -1,6 +1,6 @@
 # Node HL7 Client
 
-## v4.1.2 - 2026-09-26
+## v4.1.2 - 2026-09-27
 
 ### What Changed 👀
 
