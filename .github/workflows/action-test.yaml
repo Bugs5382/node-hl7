@@ -19,6 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 name: Test
+# Draft PRs are skipped; the run happens when the PR is marked ready. The job
+# still runs for workflow_dispatch and when the publish workflows call it.
 on:
   workflow_dispatch:
   workflow_call:
@@ -31,11 +33,13 @@ on:
       - ready_for_review
       - synchronize
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
   Build:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       matrix:
         node-version: [24.x, 'lts/*', 'latest']
