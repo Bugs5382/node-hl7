@@ -39,6 +39,7 @@ jobs:
   Publish:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'release'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: ['Test']
     # id-token: write (declared at workflow scope) is what lets npm verify
     # the OIDC token issued by GitHub against the node-hl7-client trusted
