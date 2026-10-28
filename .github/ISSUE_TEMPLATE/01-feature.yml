@@ -18,6 +18,18 @@ body:
     validations:
       required: true
   - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks
+      description: >-
+        For sequential / multi-step work, list the ordered units of work. Convert each to a
+        sub-issue of this one (this issue becomes the parent). One task per line.
+      value: |
+        - [ ] Task 1
+        - [ ] Task 2
+    validations:
+      required: false
+  - type: textarea
     id: notes
     attributes:
       label: Notes
