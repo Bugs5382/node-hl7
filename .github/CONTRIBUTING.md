@@ -15,8 +15,14 @@ This repository follows the Bugs5382 standard workflow.
 5. PRs merge by squash. On merge, release-drafter drafts the next notes and the changelog
    updates on `main`; the maintainer publishes releases manually.
 
+Keep one concern per PR, even small ones. When editing GitHub Actions workflows, a job id must be a
+plain identifier (a letter or `_`, then alphanumerics/`-`/`_`); put emoji and display text in the
+job's `name:`. The Actionlint check enforces this.
+
 ## Local setup
 
 Install the governance hooks once per clone: `bash .claude/hooks/install.sh`. They
 enforce Conventional Commits and the no-tell/no-emoji rules before you push; CI enforces
-the same. See `CLAUDE.md` for the full working agreement.
+the same. In a Linux-only repo (one with a `.claude/linux-only` marker) the pre-push
+build/lint/test gate is not installed and CI is the gate. See `CLAUDE.md` for the full working
+agreement.

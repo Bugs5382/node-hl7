@@ -1,4 +1,4 @@
-# Canonical label set for every Bugs5382 repo. job-label-sync.yaml reconciles a
+# Canonical label set for every governed repo. job-label-sync.yaml reconciles a
 # repo to exactly this set (it also deletes labels not listed here). Aligned to
 # the release-drafter categories + version-resolver and the conventional-commit
 # prefixes the autolabeler maps from PR titles.
@@ -35,9 +35,15 @@
 - name: documentation
   color: "0075ca"
   description: "Documentation only (docs)."
+- name: design
+  color: "9c27b0"
+  description: "UI or visual design work."
 - name: dependencies
   color: "0366d6"
   description: "Dependency updates."
 - name: skip-changelog
   color: "ededed"
   description: "Excluded from release notes (chore/ci/test/style)."
+- name: pack-size-approved
+  color: "5319e7"
+  description: "Intended npm package growth past the size gate (say why in the PR)."

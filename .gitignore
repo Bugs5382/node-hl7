@@ -1,49 +1,32 @@
-# Whitelist-style .gitignore.
-# Everything at the repo root is ignored by default; only the entries
-# explicitly re-included below are tracked. Inside the re-included
-# directories, the always-ignored patterns at the bottom still apply.
-
-# Ignore everything at the top level.
-/*
-
-# Re-include tracked top-level entries.
-!/.github/
-!/.gitignore
-!/.husky/
-!/.npmpackagejsonlintrc.json
-!/Dockerfile
-!/LICENSE
-!/README.md
-!/__tests__/
-!/docker/
-!/eslint.config.mjs
-!/package.json
-!/packages/
-!/pages/
-!/scripts/
-!/tsconfig.base.json
-!/tsconfig.json
-!/vitest.config.base.mts
-!/vitest.config.ts
-!/vitest.workspace.ts
-
-# Always-ignored artifacts, anywhere in the tree.
+# Dependencies and the lockfile (CI generates it with `npm install --package-lock-only`).
 node_modules/
+package-lock.json
+
+# Build output, coverage and caches, anywhere in the tree.
 lib/
 dist/
 coverage/
 .nyc_output/
 temp/
-package-lock.json
+docs/
+*.tsbuildinfo
 *.log
 *.tgz
-.DS_Store
 
-# Track the shared governance (hooks + settings); other .claude stays local.
-!/.claude/
+# Local design notes (non-tracked).
+plan/
+
+# Editors and OS files. .idea/.gitignore stays tracked.
+.DS_Store
+.idea/*
+!.idea/.gitignore
+.vscode/
+
+# Local environment: copy .env.example to .env.
+.env
+
+# Track the shared governance (hooks and settings); other .claude files stay local.
 /.claude/*
 !/.claude/hooks/
 !/.claude/settings.json
-
-# Track shared governance file.
-!/CLAUDE.md
+!/.claude/linux-only
