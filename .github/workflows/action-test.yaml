@@ -25,18 +25,16 @@ on:
   workflow_dispatch:
   workflow_call:
   pull_request:
-    branches:
-      - "**"
-    types:
-      - opened
-      - reopened
-      - ready_for_review
-      - synchronize
+    branches: ["**"]
+    types: [opened, reopened, ready_for_review, synchronize]
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+permissions:
+  contents: read
 jobs:
-  Build:
+  build:
+    name: 🧪 Build
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -44,15 +42,19 @@ jobs:
       matrix:
         node-version: [24.x, 'lts/*', 'latest']
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout
+        uses: actions/checkout@v7
 
+      # Generate the lockfile BEFORE setup-node so its npm cache has something to
+      # key on. --legacy-peer-deps keeps CI in parity with local installs that
+      # rely on overrides / peer-dep workarounds.
       - name: Generate lockfile
         run: npm install --package-lock-only --ignore-scripts --legacy-peer-deps
 
-      - name: Test with Node ${{matrix.node-version}}
+      - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v6
         with:
-          node-version: ${{matrix.node-version}}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Install dependencies
@@ -61,36 +63,46 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Run Tests
-        run: |
-          npm test
+      - name: Test
+        run: npm test
 
-      - name: Run Build
-        run: |
-          npm run build
+      - name: Build
+        run: npm run build
 
-      # Guards the size and layout of what actually gets published. The publish
-      # workflows run `npm publish --ignore-scripts` against the artifact
-      # uploaded below, so this is the last point where a bloated tarball can
-      # be caught before it reaches the registry. See issue #47.
+      # Guards the size and layout of what actually gets published: declarations
+      # only under lib/types, each package under its unpacked-size budget, and
+      # the server's node-hl7-client peer floor on the client it ships with. The
+      # publish workflows run `npm publish --ignore-scripts` against the artifact
+      # uploaded below, so this is the last point where a bloated tarball can be
+      # caught before it reaches the registry. See issue #47.
       - name: Check published package size
+        run: npm run check:dist
+
+      # Each workspace publishes its package.json plus whatever its `files`
+      # lists. Derived from the manifests, never hardcoded.
+      - name: Resolve published files
+        id: pkg
         run: |
-          npm run check:dist
+          {
+            echo 'paths<<EOF'
+            node -e '
+              const fs = require("node:fs");
+              const path = require("node:path");
+              const out = ["package.json"];
+              for (const name of fs.readdirSync("packages").sort()) {
+                const manifest = path.join("packages", name, "package.json");
+                if (!fs.existsSync(manifest)) continue;
+                const files = JSON.parse(fs.readFileSync(manifest, "utf8")).files || ["dist"];
+                out.push(manifest, ...files.map((f) => path.join("packages", name, f)));
+              }
+              console.log(out.join("\n"));
+            '
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
       - name: Upload build artifact
         if: matrix.node-version == 'lts/*'
         uses: actions/upload-artifact@v7
         with:
-          name: cache
-          path: |
-            package.json
-            README.md
-            LICENSE
-            packages/node-hl7-client/package.json
-            packages/node-hl7-client/README.md
-            packages/node-hl7-client/LICENSE
-            packages/node-hl7-client/lib
-            packages/node-hl7-server/package.json
-            packages/node-hl7-server/README.md
-            packages/node-hl7-server/LICENSE
-            packages/node-hl7-server/lib
+          name: dist
+          path: ${{ steps.pkg.outputs.paths }}

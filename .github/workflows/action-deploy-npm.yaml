@@ -19,64 +19,65 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 name: Publish node-hl7-client
+# Publishes node-hl7-client when a GitHub Release is published. node-hl7-server
+# publishes from its own workflow (action-deploy-npm-server.yaml). The npm
+# trusted publisher entry for each package matches on its workflow file name,
+# so neither file may be renamed.
 on:
   workflow_dispatch:
   workflow_call:
   release:
-    types:
-      - released
+    types: [released]
 
 permissions:
-  contents: write
-  actions: write
-  checks: write
+  contents: read
   id-token: write
 
 jobs:
-  Test:
+  test:
+    name: 🧪 Test
     uses: ./.github/workflows/action-test.yaml
 
-  Publish:
+  publish:
+    name: 🚀 Publish
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'release'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: ['Test']
-    # id-token: write (declared at workflow scope) is what lets npm verify
-    # the OIDC token issued by GitHub against the node-hl7-client trusted
-    # publisher registered on npmjs.com. node-hl7-server publishes from its
-    # own workflow (action-deploy-npm-server.yaml).
+    needs: [test]
+    # id-token: write (workflow scope) lets npm verify the OIDC token GitHub
+    # issues against the node-hl7-client trusted publisher on npmjs.com.
     steps:
       - name: Download the build artifact
         uses: actions/download-artifact@v8
         with:
-          name: cache
+          name: dist
           path: ./
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
           registry-url: 'https://registry.npmjs.org/'
 
-      # OIDC trusted publishing requires npm >= 11.5.1 (the Node 22 LTS image
-      # ships with npm 10.x). Provenance and trusted-publisher auth both
-      # depend on this client.
+      # OIDC trusted publishing and provenance need npm >= 11.5.1; the LTS image
+      # can ship an older npm. Pinned so a new npm release cannot change the
+      # publish without a PR.
       - name: Upgrade npm
+        env:
+          NPM_VERSION: 12.2.1
         run: |
-          npm install -g npm@latest
+          npm install -g "npm@${NPM_VERSION}"
           npm --version
 
-      # No `--token` / NODE_AUTH_TOKEN — npm authenticates to the registry via
-      # the OIDC token issued by GitHub Actions, matched against the trusted
-      # publisher configured on npmjs.com.
-      # Idempotent: if that exact version is already on the registry (e.g. a
-      # partial-publish retry), skip it instead of failing.
+      # No --token / NODE_AUTH_TOKEN: npm authenticates via the GitHub OIDC token
+      # matched against the trusted publisher on npmjs.com. Idempotent: skip if
+      # that exact version is already on the registry (partial-publish retry).
       - name: Publish node-hl7-client
         working-directory: packages/node-hl7-client
         run: |
           VERSION=$(node -p "require('./package.json').version")
           if npm view "node-hl7-client@${VERSION}" version >/dev/null 2>&1; then
-            echo "node-hl7-client@${VERSION} already published — skipping."
+            echo "node-hl7-client@${VERSION} already published -- skipping."
           else
             npm publish --provenance --access public --ignore-scripts
           fi

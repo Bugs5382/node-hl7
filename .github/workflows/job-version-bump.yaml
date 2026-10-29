@@ -19,7 +19,11 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 name: Release Manager
-
+# On every push to main: release-drafter anticipates the next version, both
+# workspace versions and the server's node-hl7-client peer floor are bumped,
+# each package's CHANGELOG.md is updated, and a pre-release commit is pushed back
+# to main through the release App. Nothing tags automatically; publishing the
+# GitHub Release by hand creates the tag and fires the two publish workflows.
 on:
   push:
     branches:
@@ -28,8 +32,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  packages: write
-  id-token: write
 
 jobs:
   Update_Version:
@@ -37,11 +39,28 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Check release prerequisites
+        shell: bash
+        env:
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+        run: |
+          if [ -z "$APP_PRIVATE_KEY" ]; then
+            echo "::error title=Release setup required::APP_PRIVATE_KEY is not set."
+            echo "One-time setup required before the Release Manager works (per repo):"
+            echo "  1. Install the Bugs5382 release GitHub App on this repository."
+            echo "  2. Add the APP_PRIVATE_KEY secret (the App private key), org or repo level."
+            echo "  3. Add the release App as a bypass actor on the branch ruleset, so the"
+            echo "     pre-release changelog push to main is not blocked."
+            echo "  The App Client ID is hard-coded in this workflow; only the above are manual."
+            exit 1
+          fi
+          echo "Release prerequisites present."
+
       - name: Create GitHub App token
         id: app-token
         uses: actions/create-github-app-token@v3.2.0
         with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
+          client-id: "Iv23ligVrrLzGPXe28dn"
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: 📂 Checkout Code
@@ -50,57 +69,71 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
 
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.26.x'
-
-      - name: Install Task
-        uses: arduino/setup-task@v3
-        with:
-          version: 3.x
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      # The categories, version resolver and autolabeler come from
+      # Bugs5382/.github through `extends`; there is no local config file.
       - name: 📝 Release Drafter (Anticipate Version)
         id: drafter
-        uses: release-drafter/release-drafter@v7
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: Bugs5382/release-drafter-action@de0c4559d69039b8b371ef951b62a2532ad3593f  # v1.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config: ${{ vars.RELEASE_DRAFTER_CONFIG }}
+          extends: ${{ github.repository_owner == 'Bugs5382' && 'Bugs5382/.github@main' || '' }}
 
-      - name: Set Release Version
+      - name: 🔎 Detect releasable changes
+        id: releasable
+        env:
+          BODY: ${{ steps.drafter.outputs.body }}
         run: |
-          task update-version NEW_VERSION=v${{ steps.drafter.outputs.resolved_version }}
+          # release-drafter's body lists the categorized PRs since the last
+          # release. With nothing to release (every change excluded, e.g.
+          # skip-changelog), it carries no PR entries -- skip the bump/changelog/
+          # commit so the manifests stay at the published version instead of
+          # drifting ahead.
+          if printf '%s' "$BODY" | grep -qE '\(#[0-9]+\)'; then
+            echo "yes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No releasable changes since the last release; skipping the prep commit."
+            echo "yes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Both packages share one version line. The server's peer floor follows the
+      # client it ships with, so it can never resolve to an older client (issue
+      # #51); check:dist asserts it.
+      - name: 🔢 Bump Package Versions
+        if: steps.releasable.outputs.yes == 'true'
+        env:
+          RESOLVED: ${{ steps.drafter.outputs.resolved_version }}
+        run: |
+          VERSION="${RESOLVED#v}"
+          npm pkg set version="$VERSION" --workspace=packages/node-hl7-client --workspace=packages/node-hl7-server
+          npm pkg set "peerDependencies.node-hl7-client=^$VERSION" --workspace=packages/node-hl7-server
+          echo "Both workspaces at $VERSION (server peer node-hl7-client ^$VERSION)"
 
       - name: 📤 Run Changelog Action (client)
-        env:
-          LOG_LEVEL: debug
-          LOG_FORMAT: text
-          RELEASE_NOTES: >-
-            ${{ steps.drafter.outputs.body }}
-          RELEASE_VERSION: v${{ steps.drafter.outputs.resolved_version }}
-        uses: bugs5382/changelog-updater-action@v0.4.0
+        if: steps.releasable.outputs.yes == 'true'
+        uses: bugs5382/changelog-updater-action@v1
         with:
-          tag: ${{ env.RELEASE_VERSION }}
-          notes: ${{ env.RELEASE_NOTES }}
+          tag: v${{ steps.drafter.outputs.resolved_version }}
+          notes: ${{ steps.drafter.outputs.body }}
           path: packages/node-hl7-client
           diff: 'true'
 
       - name: 📤 Run Changelog Action (server)
-        env:
-          LOG_LEVEL: debug
-          LOG_FORMAT: text
-          RELEASE_NOTES: >-
-            ${{ steps.drafter.outputs.body }}
-          RELEASE_VERSION: v${{ steps.drafter.outputs.resolved_version }}
-        uses: bugs5382/changelog-updater-action@v0.4.0
+        if: steps.releasable.outputs.yes == 'true'
+        uses: bugs5382/changelog-updater-action@v1
         with:
-          tag: ${{ env.RELEASE_VERSION }}
-          notes: ${{ env.RELEASE_NOTES }}
+          tag: v${{ steps.drafter.outputs.resolved_version }}
+          notes: ${{ steps.drafter.outputs.body }}
           path: packages/node-hl7-server
           diff: 'true'
 
       - name: 📤 Commit and Push Version Update
+        if: steps.releasable.outputs.yes == 'true'
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore(pre-release): v${{ steps.drafter.outputs.resolved_version }} [skip ci]"
+          # Commit as the triggering owner, not github-actions[bot]; the push
+          # still uses the release App token to bypass the [skip ci] rule.
+          commit_user_name: ${{ github.actor }}
+          commit_user_email: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
+          commit_author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
