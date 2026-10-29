@@ -27,55 +27,58 @@ on:
   workflow_dispatch:
   workflow_call:
   release:
-    types:
-      - released
+    types: [released]
 
 permissions:
-  contents: write
-  actions: write
-  checks: write
+  contents: read
   id-token: write
 
 jobs:
-  Test:
+  test:
+    name: 🧪 Test
     uses: ./.github/workflows/action-test.yaml
 
-  Publish:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || github.event_name == 'release'
+  publish:
+    name: 🚀 Publish
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'release'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: ['Test']
-    # id-token: write (declared at workflow scope) is what lets npm verify
-    # the OIDC token issued by GitHub against the trusted-publisher config
-    # registered on npmjs.com for node-hl7-server. That entry's "Workflow
-    # filename" must be action-deploy-npm-server.yaml for the claim to match.
+    needs: [test]
+    # id-token: write (workflow scope) lets npm verify the OIDC token GitHub
+    # issues against the trusted publisher registered on npmjs.com for
+    # node-hl7-server. That entry's "Workflow filename" must be
+    # action-deploy-npm-server.yaml for the claim to match.
     steps:
       - name: Download the build artifact
         uses: actions/download-artifact@v8
         with:
-          name: cache
+          name: dist
           path: ./
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
           registry-url: 'https://registry.npmjs.org/'
 
-      # OIDC trusted publishing requires npm >= 11.5.1 (the Node 22 LTS image
-      # ships with npm 10.x). Provenance and trusted-publisher auth both
-      # depend on this client.
+      # OIDC trusted publishing and provenance need npm >= 11.5.1; the LTS image
+      # can ship an older npm. Pinned so a new npm release cannot change the
+      # publish without a PR.
       - name: Upgrade npm
+        env:
+          NPM_VERSION: 12.2.1
         run: |
-          npm install -g npm@latest
+          npm install -g "npm@${NPM_VERSION}"
           npm --version
 
+      # No --token / NODE_AUTH_TOKEN, as for the client. Idempotent: skip if that
+      # exact version is already on the registry; otherwise up to three attempts.
       - name: Publish node-hl7-server
         working-directory: packages/node-hl7-server
         run: |
           VERSION=$(node -p "require('./package.json').version")
           if npm view "node-hl7-server@${VERSION}" version >/dev/null 2>&1; then
-            echo "node-hl7-server@${VERSION} already published — skipping."
+            echo "node-hl7-server@${VERSION} already published -- skipping."
             exit 0
           fi
           for attempt in 1 2 3; do

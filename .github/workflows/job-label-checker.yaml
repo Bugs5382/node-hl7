@@ -9,10 +9,14 @@ name: Label Checker
 # failed on a fresh PR. Running the check as a job that `needs` the autolabel job
 # guarantees the label is applied in the same run.
 #
-# The label is applied deterministically with `gh` rather than relying on
-# release-drafter's autolabeler, which does not reliably apply labels in this
-# configuration. The release-drafter.yml autolabeler block is still used at draft
-# time; this job is what guarantees a categorizing label on every PR.
+# The label is applied deterministically rather than relying on release-drafter's
+# autolabeler, which does not reliably apply labels in this configuration. The
+# release-drafter.yml autolabeler block is still used at draft time; this job is
+# what guarantees a categorizing label on every PR.
+#
+# Both jobs call the Issues API through actions/github-script rather than the gh
+# CLI: github-script carries its own GitHub client, so the jobs don't depend on
+# what the runner image ships.
 #
 # Draft PRs are skipped; the label is applied when the PR is marked ready. The
 # label comes from the title, so this workflow keeps `edited` (a retitled PR is
@@ -25,43 +29,64 @@ concurrency:
   cancel-in-progress: true
 permissions:
   contents: read
-  pull-requests: write
 jobs:
   autolabel:
     name: 🏷️ Autolabel
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # The addLabels call below targets the Issues API (a PR's labels live under
+    # /issues/{number}/labels), so this needs issues:write. On a PR, GitHub's own
+    # x-accepted-github-permissions response header says that alone is still not
+    # enough: it also requires pull-requests:write, together, for the same call.
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
     steps:
       # Map the conventional-commit prefix in the PR title to a categorizing
       # label and apply it. Best-effort (continue-on-error): the
       # categorizing-label job below is the authoritative check.
       - name: Apply label from PR title
         continue-on-error: true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ github.event.pull_request.number }}
-          REPO: ${{ github.repository }}
-          TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          # Derive the label from the conventional-commit type/prefix. The first
-          # pattern already covers every `<type>!:` and `<type>(scope)!:` title,
-          # feat included, so there is no separate feat-breaking arm.
-          label=""
-          case "$TITLE" in
-            *"!:"*|*"BREAKING CHANGE"*|*"BREAKING-CHANGE"*) label="breaking" ;;
-            feat:*|feat\(*\):*)                              label="enhancement" ;;
-            fix:*|fix\(*\):*)                                label="fix" ;;
-            perf:*|perf\(*\):*)                              label="performance" ;;
-            refactor:*|refactor\(*\):*)                      label="refactor" ;;
-            docs:*|docs\(*\):*)                              label="documentation" ;;
-            security:*|security\(*\):*)                      label="security" ;;
-            build:*|build\(*\):*|chore\(deps*\):*)           label="dependencies" ;;
-            ci:*|ci\(*\):*|test:*|test\(*\):*|style:*|style\(*\):*|chore:*|chore\(*\):*) label="skip-changelog" ;;
-            *) echo "PR title is not a recognized conventional-commit type; leaving labels alone."; exit 0 ;;
-          esac
-          echo "Applying label: $label"
-          gh api -X POST "repos/$REPO/issues/$PR/labels" -f "labels[]=$label" >/dev/null
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            // Derive the label from the conventional-commit type/prefix. The
+            // first pattern already covers every `<type>!:` and
+            // `<type>(scope)!:` title, feat included, so there is no separate
+            // feat-breaking arm.
+            const title = context.payload.pull_request.title;
+            let label = "";
+            if (/!:/.test(title) || /BREAKING[ -]CHANGE/.test(title)) {
+              label = "breaking";
+            } else if (/^feat(\(.*\))?:/.test(title)) {
+              label = "enhancement";
+            } else if (/^fix(\(.*\))?:/.test(title)) {
+              label = "fix";
+            } else if (/^perf(\(.*\))?:/.test(title)) {
+              label = "performance";
+            } else if (/^refactor(\(.*\))?:/.test(title)) {
+              label = "refactor";
+            } else if (/^docs(\(.*\))?:/.test(title)) {
+              label = "documentation";
+            } else if (/^security(\(.*\))?:/.test(title)) {
+              label = "security";
+            } else if (/^build(\(.*\))?:/.test(title) || /^chore\(deps.*\):/.test(title)) {
+              label = "dependencies";
+            } else if (/^(ci|test|style|chore)(\(.*\))?:/.test(title)) {
+              label = "skip-changelog";
+            } else {
+              core.info("PR title is not a recognized conventional-commit type; leaving labels alone.");
+              return;
+            }
+            core.info(`Applying label: ${label}`);
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              labels: [label],
+            });
 
   categorizing-label:
     name: ✅ Categorizing label present
@@ -71,7 +96,15 @@ jobs:
     if: always() && github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Reading labels is the Issues API (a PR's labels live under
+    # /issues/{number}/labels), so this needs issues:read. On a PR, GitHub's own
+    # x-accepted-github-permissions response header says that alone is still not
+    # enough: it also requires pull-requests:read, together, for the same call.
+    # On a private repo the API call 403s without both, and that used to be
+    # hidden by a swallowed error, which made a permissions bug look like "no
+    # label".
     permissions:
+      issues: read
       pull-requests: read
     steps:
       # Poll the LIVE labels via the API rather than the trigger payload. The
@@ -80,21 +113,38 @@ jobs:
       # run was triggered with never carries it. Retrying against the API closes
       # that race so a fresh PR passes on the first run instead of needing a rerun.
       - name: Verify a categorizing label is present
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ github.event.pull_request.number }}
-          REPO: ${{ github.repository }}
-        run: |
-          allowed="breaking enhancement bug fix performance refactor changed deprecated removed security documentation dependencies skip-changelog"
-          for attempt in 1 2 3 4 5 6; do
-            labels="$(gh api "repos/$REPO/issues/$PR/labels" --jq '.[].name' 2>/dev/null || true)"
-            for l in $labels; do
-              for a in $allowed; do
-                if [ "$l" = "$a" ]; then echo "Found categorizing label: $l"; exit 0; fi
-              done
-            done
-            echo "No categorizing label yet (attempt $attempt/6); waiting for the autolabeler..."
-            sleep 10
-          done
-          echo "No categorizing label present. Add one of: $allowed"
-          exit 1
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const allowed = new Set([
+              "breaking", "enhancement", "bug", "fix", "performance", "refactor",
+              "changed", "deprecated", "removed", "security", "documentation",
+              "dependencies", "skip-changelog",
+            ]);
+            const pr = context.payload.pull_request.number;
+            for (let attempt = 1; attempt <= 6; attempt++) {
+              // Only retry when the call itself succeeds but the label isn't
+              // visible yet (the autolabel race). A failed call (bad
+              // permissions, 403/404, etc.) is a real error, not a race, so it
+              // fails the job immediately instead of being retried.
+              let names;
+              try {
+                const res = await github.rest.issues.listLabelsOnIssue({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr,
+                });
+                names = res.data.map((l) => l.name);
+              } catch (err) {
+                core.setFailed(`listLabelsOnIssue for PR #${pr} failed: ${err.message}`);
+                return;
+              }
+              const found = names.find((n) => allowed.has(n));
+              if (found) {
+                core.info(`Found categorizing label: ${found}`);
+                return;
+              }
+              core.info(`No categorizing label yet (attempt ${attempt}/6); waiting for the autolabeler...`);
+              if (attempt < 6) await new Promise((r) => setTimeout(r, 10000));
+            }
+            core.setFailed(`No categorizing label present. Add one of: ${[...allowed].join(" ")}`);

@@ -1,11 +1,12 @@
 name: GoLic
-# Verify every source file carries the MIT license header. golic (Bugs5382's own
+# Verify every source file carries the repo's license header. golic (Bugs5382's own
 # tool) is run through go-task (`task license`) -- the standard runner for every
 # project. `golic inject --dry -x` fails the check if a header is missing; it never
 # modifies files.
 #
 # Pull requests only, and not while the PR is a draft. There is no rerun on push
-# to main: the PR run already checked the tree being merged.
+# to main: the PR run already checked the tree being merged (see "CI and Actions
+# minutes" in CLAUDE.md for the ruleset setting that keeps that true).
 on:
   pull_request:
     branches: [main]
@@ -35,7 +36,7 @@ jobs:
           # setup-task reads its token from this input, not env. Without it
           # the release lookup hits the anonymous rate limit.
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Verify MIT headers
+      - name: Verify license headers
         run: |
           # Assign first, then export, so a failing `go env` is not masked.
           gobin="$(go env GOPATH)/bin"
