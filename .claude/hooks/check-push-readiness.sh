@@ -21,7 +21,9 @@ print(json.dumps({"hookSpecificOutput":{"hookEventName":"PreToolUse","permission
 if ! git diff --quiet --exit-code 2>/dev/null; then
   deny "Uncommitted changes present. Commit or stash before pushing."
 fi
-if [ -f go.mod ]; then
+# A Linux-only repo can't run its tests here; CI is its gate.
+root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+if [ -f go.mod ] && [ ! -f "$root/.claude/linux-only" ]; then
   if ! go test -short ./... >/dev/null 2>&1; then
     deny "Quick test pass failed (go test -short ./...). Fix before pushing."
   fi

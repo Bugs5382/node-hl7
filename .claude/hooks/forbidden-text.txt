@@ -49,6 +49,14 @@ as (mentioned|noted|stated|described) (earlier|above|previously|below)
 per (your|our) (request|discussion|conversation)
 in the previous (turn|message|response|step)
 based on (your|the) (request|previous)
+co-design(ed|ing)? with (the )?(operator|user|you)
+co-designed with the
+# Third-person "owner" framing (describing the person the assistant works for).
+# The bare word stays allowed: "owner" is a real role in several products.
+(the|per the) owner('s)? (decision|decided|call|answer|answered|choice|chose|picked|asked|request|requested|said|approved|confirmed|wants|prefers|rejected)
+owner[- ](approved|decided|confirmed|requested)
+(per|from) (the )?owner('s)? (word|direction|instruction|go-ahead)
+(^|[^a-z-])owner (decided|decision|chose|picked|answered|asked|said|wants|prefers|rejected|requested|confirmed)
 
 # --- LLM hedging / filler cliches ---
 It('?s| is) important to (note|remember|understand|keep in mind)

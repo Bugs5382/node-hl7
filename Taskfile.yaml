@@ -1,53 +1,22 @@
 version: '3'
+# go-task is the standard runner for every project (regardless of ecosystem).
+# It drives golic, the MIT license-header tool. golic ships built-in license
+# types; .golic.yaml adds the comment rules for TypeScript sources.
 vars:
-  GOLIC_VERSION: v0.2.0
-  COMMON_LIC: "2026 Shane"
+  GOLIC_VERSION: v0.3.0
   TEMPLATE_LIC: "mit"
+  COMMON_LIC: "2026 Shane"
 tasks:
-  default:
-    cmds:
-      - task: lint
-  lint-init:
-    desc: Install linting tools via Brew
-    cmds:
-      - brew install golangci-lint gitleaks yamllint
-      - go install golang.org/x/tools/cmd/goimports@latest
-  lint:
-    desc: Run all linters and formatters
-    deps: [license]
-    cmds:
-      - goimports -w ./
-      - yamllint .
-      - gitleaks detect . --no-git --verbose --config=.gitleaks.toml
   license:
-    desc: License injection
+    desc: Verify every source file carries the MIT license header (CI; never writes).
     cmds:
-      - task: golic-inject-run
-        vars: { ARGS: '-t {{.TEMPLATE_LIC}} -c "{{.COMMON_LIC}}"' }
-  license-dry:
-    desc: Dry run for license injection
+      - go install github.com/Bugs5382/golic/cmd/golic@{{.GOLIC_VERSION}}
+      - golic inject -t {{.TEMPLATE_LIC}} -c "{{.COMMON_LIC}}" --dry -x
+  license:fix:
+    desc: Inject the MIT header into any source file missing it.
     cmds:
-      - task: golic-inject-run
-        vars: { ARGS: '-d -t {{.TEMPLATE_LIC}} -c "{{.COMMON_LIC}}"' }
-  license-remove:
-    desc: License remove
-    cmds:
-      - task: golic-remove-run
-        vars: { ARGS: '-t {{.TEMPLATE_LIC}} -c "{{.COMMON_LIC}}"' }
-  license-remove-dry:
-    desc: Dry run for license remove
-    cmds:
-      - task: golic-remove-run
-        vars: { ARGS: '-d -t {{.TEMPLATE_LIC}} -c "{{.COMMON_LIC}}"' }
-  update-helm-version:
-    desc: Updates the Helm chart version in Chart.yaml
-    vars:
-      NEW_VERSION: '{{ default "0.0.0" .NEW_VERSION }}'
-    preconditions:
-      - sh: command -v yq
-        msg: "yq is not installed. Install it via 'brew install yq' or the GitHub Action."
-    cmds:
-      - yq -i '.version = "{{.NEW_VERSION}}"' "{{.TASKFILE_DIR}}/technitium/Chart.yaml"
+      - go install github.com/Bugs5382/golic/cmd/golic@{{.GOLIC_VERSION}}
+      - golic inject -t {{.TEMPLATE_LIC}} -c "{{.COMMON_LIC}}"
   update-version:
     desc: Updates the version in both workspace package.json files (strips leading 'v') and the server's node-hl7-client peer floor
     vars:
@@ -61,13 +30,3 @@ tasks:
         # never resolve to an older client (issue #51). check:dist asserts it.
         npm pkg set "peerDependencies.node-hl7-client=^$VERSION" --workspace=packages/node-hl7-server
         echo "Updated both workspaces to $VERSION (server peer node-hl7-client ^$VERSION)"
-  golic-inject-run:
-    internal: true
-    cmds:
-      - go install github.com/Bugs5382/golic/cmd/golic@{{.GOLIC_VERSION}}
-      - "golic inject {{.ARGS}}"
-  golic-remove-run:
-    internal: true
-    cmds:
-      - go install github.com/Bugs5382/golic/cmd/golic@{{.GOLIC_VERSION}}
-      - "golic remove {{.ARGS}}"

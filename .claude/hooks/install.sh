@@ -17,12 +17,23 @@ if [ "$SRC" != "$DEST" ]; then
 fi
 chmod +x "$DEST/"*.sh
 
-for h in pre-commit commit-msg pre-push; do
+# A Linux-only repo (its build or tests can't run on macOS) has no local
+# build/lint/test gate: CI is its gate. The commit hooks still install, and a
+# gate installed earlier is removed; a pre-push hook that isn't ours is left alone.
+hooks="pre-commit commit-msg pre-push"
+if [ -f "$ROOT/.claude/linux-only" ]; then
+  hooks="pre-commit commit-msg"
+  if grep -qs '^# Git pre-push hook (enforcement)' "$ROOT/.git/hooks/pre-push"; then
+    rm -f "$ROOT/.git/hooks/pre-push"
+  fi
+  echo "Skipped the pre-push gate: .claude/linux-only marks this repo as Linux-only (CI is its gate)."
+fi
+for h in $hooks; do
   cp "$SRC/$h" "$ROOT/.git/hooks/$h"
   chmod +x "$ROOT/.git/hooks/$h"
 done
 
 echo "Installed:"
 echo "  Claude Code hooks -> $ROOT/.claude/hooks/ (wire them in .claude/settings.json)"
-echo "  git hooks         -> $ROOT/.git/hooks/ (pre-commit, commit-msg, pre-push)"
-echo "Add the PreToolUse entries from .claude/settings.json (see governance settings.template.json)."
+echo "  git hooks         -> $ROOT/.git/hooks/ (${hooks// /, })"
+echo "Add the PreToolUse entries from .claude/settings.json to your Claude Code settings."
