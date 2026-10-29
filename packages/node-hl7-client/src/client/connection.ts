@@ -440,15 +440,8 @@ export class Connection extends EventEmitter implements IConnection {
     socket.on("close", () => {
       if (this._readyState === ReadyState.CLOSING) {
         this._readyState = ReadyState.CLOSED;
-      } else if (
-        !(
-          this._readyState === ReadyState.CLOSED &&
-          this._connectionTimer != undefined &&
-          (this._connectionTimer as unknown as { _destroyed: boolean })
-            ._destroyed
-        ) &&
-        this._main._opt.connectionTimeout > 0
-      ) {
+      } else if (this._readyState !== ReadyState.CLOSED) {
+        // close() already set CLOSED; anything else is a drop, whatever connectionTimeout is.
         connectionError =
           connectionError == undefined
             ? new HL7FatalError("Socket closed unexpectedly by server.")
@@ -474,6 +467,9 @@ export class Connection extends EventEmitter implements IConnection {
     });
 
     socket.on("connect", () => {
+      // connectionTimeout limits the connection attempt only, so an open connection is never timed out
+      clearTimeout(this._connectionTimer);
+      this._connectionTimer = undefined;
       // accepting connections
       this._readyState = ReadyState.CONNECTED;
       // reset retryCount count
