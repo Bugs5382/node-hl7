@@ -32,12 +32,13 @@ import Client, {
   ReadyState,
 } from "node-hl7-client/src";
 import { Server } from "node-hl7-server";
+import net from "node:net";
 import portfinder from "portfinder";
 import { RedisMemoryServer } from "redis-memory-server";
 import { describe, expect, test, vi } from "vitest";
 
 import { tlsTestCerts } from "../__utils__/tls";
-import { expectEvent } from "./__utils__";
+import { expectEvent, sleep } from "./__utils__";
 
 /** Minimal valid HL7 2.7 ADT^A01 message for test use. */
 function makeTestMessage(controlId: string = "CONTROL_ID"): Message {
@@ -305,6 +306,108 @@ describe("node hl7 end to end - client", () => {
 
       outbound.removeAllListeners();
       client.closeAll();
+    });
+  });
+
+  describe("server/client connection drops and timeouts", () => {
+    /** A bare TCP server that hands each accepted socket to the test. */
+    async function rawServer(
+      onSocket: (socket: net.Socket) => void = () => {},
+    ): Promise<{ accepted: () => number; port: number; server: net.Server }> {
+      const port = await portfinder.getPortPromise();
+      let count = 0;
+      const server = net.createServer((socket) => {
+        ++count;
+        onSocket(socket);
+      });
+      await new Promise<void>((resolve) =>
+        server.listen(port, "127.0.0.1", resolve),
+      );
+      return { accepted: () => count, port, server };
+    }
+
+    test("...connectionTimeout 0, the server drops the connection, client.error fires and it reconnects", async () => {
+      let first = true;
+      const raw = await rawServer((socket) => {
+        if (first) {
+          first = false;
+          setTimeout(() => socket.destroy(), 50);
+        }
+      });
+
+      const client = new Client({
+        connectionTimeout: 0,
+        host: "127.0.0.1",
+        version: "2.7",
+      });
+      const outbound = client.createConnection(
+        { port: raw.port, retryHigh: 100, retryLow: 10 },
+        async () => {},
+      );
+
+      const error = await expectEvent(outbound, "client.error");
+      expect(error.message).toBe("Socket closed unexpectedly by server.");
+      await expectEvent(outbound, "connect");
+      // the server side of the accept can land just after the client's connect
+      for (let tries = 0; raw.accepted() < 2 && tries < 20; tries++) {
+        await sleep(10);
+      }
+      expect(raw.accepted()).toBe(2);
+
+      await outbound.close();
+      raw.server.close();
+    });
+
+    test("...connectionTimeout 0, close() does not reconnect", async () => {
+      const raw = await rawServer();
+
+      const client = new Client({
+        connectionTimeout: 0,
+        host: "127.0.0.1",
+        version: "2.7",
+      });
+      const outbound = client.createConnection(
+        { port: raw.port, retryHigh: 100, retryLow: 10 },
+        async () => {},
+      );
+      await expectEvent(outbound, "connect");
+
+      const errors: unknown[] = [];
+      outbound.on("client.error", (error) => errors.push(error));
+      await outbound.close();
+      await sleep(300);
+
+      expect(errors).toEqual([]);
+      expect(raw.accepted()).toBe(1);
+      expect((outbound as any)._readyState).toBe(ReadyState.CLOSED);
+      raw.server.close();
+    });
+
+    test("...connectionTimeout set, an open connection is not reset when the timeout passes", async () => {
+      const raw = await rawServer();
+
+      const client = new Client({
+        connectionTimeout: 200,
+        host: "127.0.0.1",
+        version: "2.7",
+      });
+      const outbound = client.createConnection(
+        { port: raw.port, retryHigh: 100, retryLow: 10 },
+        async () => {},
+      );
+      await expectEvent(outbound, "connect");
+
+      const events: string[] = [];
+      outbound.on("client.timeout", () => events.push("client.timeout"));
+      outbound.on("client.error", () => events.push("client.error"));
+      await sleep(700);
+
+      expect(events).toEqual([]);
+      expect(raw.accepted()).toBe(1);
+      expect((outbound as any)._readyState).toBe(ReadyState.CONNECTED);
+
+      await outbound.close();
+      raw.server.close();
     });
   });
 
