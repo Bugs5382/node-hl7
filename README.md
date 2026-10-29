@@ -73,7 +73,7 @@ await conn.sendMessage(builder.toMessage());
 
 - 🧱 **Typed builders** for HL7 2.1 → 2.8 (`HL7_2_5`, `HL7_2_7`, `HL7_2_8`, …) with field validation against HL7 tables.
 - 🧮 **Per-version field availability** — every segment is backed by a `SegmentSpec` (auto-generated from the [Caristix HL7 Definition API](https://hl7-definition.caristix.com/v2/)) carrying R/O/B/W/D/X usage codes per HL7 version. The builder rejects withdrawn fields, warns on backward-compatibility ones, and refuses segments that didn't exist in the chosen version (e.g. `ECD` before v2.4).
-- 🔗 **Chainable build methods** — every `build*` returns the builder, so `new HL7_2_8().buildMSH(...).buildPID(...).buildECD(...).toString()` Just Works™.
+- 🔗 **Chainable build methods** — every `build*` returns the builder, so `new HL7_2_8().buildMSH(...).buildPID(...).buildECD(...).toString()` Just Works.
 - 🧰 **`buildSegment(name, props)`** — universal spec-driven builder for the long tail of ~187 segments (ABS, ADJ, AFF, …) when a hand-tuned typed method isn't available.
 - 🧬 **Typed composite inputs** — composite fields like `PID.11` (Patient Address) accept either a `^`-delimited string *or* a typed object (`HL7_XAD = { streetAddress?, city?, stateOrProvince?, … }`). The runtime composer joins components with `^`, trims trailing empties, and validates each piece (R/W/X/length) per the spec.
 - 📦 **Batches & file batches** with BHS/FHS framing.

@@ -6,7 +6,12 @@
 
 #### 🐛 Bug Fixes
 
+- fix(client): emit client.error on a dropped connection and stop timing out open ones @Bugs5382 (#65)
 - fix(server): raise the node-hl7-client peer range so it cannot resolve to the 44 MB versions @Bugs5382 (#52)
+
+#### 🧩 Dependency Updates
+
+- chore(deps): update dependencies and clear npm audit for v4.1.2 @Bugs5382 (#67)
 
 ### Extra
 

@@ -193,9 +193,11 @@ export interface ClientOptions {
    */
   autoSelectFamilyAttemptTimeout?: number;
   /**
-   * How long a connection attempt checked before ending the socket and attempting again.
-   * If this is set to zero, the client will stay connected.
-   * Min. is 0 (Stay Connected), and Max. is 60000 (60 seconds.)
+   * How long a connection attempt may take before the socket is ended and the attempt is tried again.
+   * It applies only while connecting: once connected, the connection stays open.
+   * If this is set to zero, an attempt has no time limit.
+   * Either way, a dropped connection emits `client.error` and reconnects.
+   * Min. is 0 (no limit), and Max. is 60000 (60 seconds.)
    * Use with caution.
    * @default 0
    */
