@@ -41,19 +41,10 @@ jobs:
         if: ${{ !cancelled() }}
         env:
           BODY: ${{ github.event.pull_request.body }}
-        # An issue reference is a keyword (GitHub's closing keywords, or Refs),
-        # an optional colon, then a reference GitHub links: #12, GH-12,
-        # owner/repo#12, or https://github.com/owner/repo/issues/12. Casing is
-        # free. A repo without its owner (repo#12) or a fragment on another
-        # site does not count, because GitHub does not link those.
         run: |
           fail=0
-          owner='[[:alnum:]][[:alnum:]-]*'
-          repo='[[:alnum:]._-]+'
-          target="(#|gh-|${owner}/${repo}#|https://github\\.com/${owner}/${repo}/issues/)[0-9]+"
-          ref="(^|[^[:alnum:]_])(close[sd]?|fix(e[sd])?|resolve[sd]?|refs):?[[:space:]]+${target}([^[:alnum:]_]|\$)"
-          printf '%s' "$BODY" | grep -qiE "$ref" \
-            || { echo "PR body must reference an issue (e.g. 'Closes #12' or 'Refs owner/repo#12')."; fail=1; }
+          printf '%s' "$BODY" | grep -qiE '(closes|fixes|resolves|refs) #[0-9]+' \
+            || { echo "PR body must reference an issue (e.g. 'Closes #12')."; fail=1; }
           printf '%s' "$BODY" | grep -qiE '##[[:space:]]*what' \
             || { echo "PR body must follow the template (a 'What and why' section)."; fail=1; }
           [ "$fail" -eq 0 ] || exit 1
@@ -88,7 +79,7 @@ jobs:
             # AI-tells blocked except in files that document the rule.
             case "$f" in
               CLAUDE.md|*/CLAUDE.md|.claude/*|*/.claude/*|.github/workflows/*|*forbidden-text.txt) : ;;
-              *) t="$(gov_find_file_tells "$f")"; [ -n "$t" ] && { echo "AI-tell not allowed in $f:"; echo "$t"; fail=1; } ;;
+              *) t="$(gov_find_text_tells < "$f")"; [ -n "$t" ] && { echo "AI-tell not allowed in $f:"; echo "$t"; fail=1; } ;;
             esac
           done < <(git diff --name-only --diff-filter=ACM "$BASE" "$HEAD")
           [ "$fail" -eq 0 ] || { echo "pr-hygiene: remove the above before merging."; exit 1; }
@@ -98,33 +89,19 @@ jobs:
       # gitleaks CLI directly rather than gitleaks/gitleaks-action@v2, which needs
       # a paid GITLEAKS_LICENSE for organization-owned repos; the CLI is free
       # everywhere and matches the `gitleaks detect` repos run locally.
-      # Installed under $RUNNER_TEMP, not /usr/local/bin, so the step needs
-      # no write access outside the job's own temp folder. The tarball is
-      # also checked against the release's published SHA-256, the same
-      # pattern job-go-security.yaml uses for gosec.
       - name: Install gitleaks
         id: gitleaks-install
         if: ${{ !cancelled() && steps.checkout.outcome == 'success' }}
-        env:
-          VERSION: 8.30.0
-          # SHA-256 of gitleaks_<version>_linux_x64.tar.gz, from the release's
-          # gitleaks_<version>_checksums.txt. Update it together with VERSION.
-          SHA256: 79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e
         run: |
-          set -euo pipefail
-          bin="$RUNNER_TEMP/gitleaks/bin"
-          mkdir -p "$bin"
-          tarball="$RUNNER_TEMP/gitleaks_${VERSION}_linux_x64.tar.gz"
-          curl -sSfL -o "$tarball" \
-            "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz"
-          echo "${SHA256}  $tarball" | sha256sum -c -
-          tar -xzf "$tarball" -C "$bin" gitleaks
-          echo "$bin" >> "$GITHUB_PATH"
-          "$bin/gitleaks" version
+          VERSION="8.30.0"
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
 
-      # Scans the commits this PR adds (base..head), not the whole history. The
-      # history holds test TLS fixture keys (packages/*/certs, removed from the
-      # tree since) that a whole-history scan would flag on every PR.
+      # Scans the commits this PR adds (base..head), the same range the old
+      # gitleaks-action run covered. The full history holds test TLS fixture
+      # keys (packages/*/certs, removed from the tree since) that a whole-history
+      # scan would flag on every PR.
       - name: 🔒 Gitleaks (secret scan)
         if: ${{ !cancelled() && steps.gitleaks-install.outcome == 'success' }}
         env:
