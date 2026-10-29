@@ -8,6 +8,10 @@
 
 - fix(server): raise the node-hl7-client peer range so it cannot resolve to the 44 MB versions @Bugs5382 (#52)
 
+#### 🧩 Dependency Updates
+
+- chore(deps): update dependencies and clear npm audit for v4.1.2 @Bugs5382 (#67)
+
 ### Extra
 
 **Full Changelog**: https://github.com/Bugs5382/node-hl7/compare/v4.1.1...v4.1.2
