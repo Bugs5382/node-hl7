@@ -99,7 +99,10 @@ const packSummary = (packageDir) => {
     ["pack", "--dry-run", "--json", "--ignore-scripts"],
     { cwd: packageDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
   );
-  const [result] = JSON.parse(raw);
+  // npm 11 and earlier print an array of results; npm 12 prints an object
+  // keyed by package name.
+  const parsed = JSON.parse(raw);
+  const [result] = Array.isArray(parsed) ? parsed : Object.values(parsed);
   return { entryCount: result.entryCount, unpackedSize: result.unpackedSize };
 };
 
