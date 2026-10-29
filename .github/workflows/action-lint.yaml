@@ -1,0 +1,47 @@
+name: Actionlint
+# Validate the GitHub Actions workflow files. The other PR checks don't verify
+# that a workflow is actually runnable, so a malformed one (e.g. an invalid job
+# id) can merge green and only fail at startup on main. actionlint catches that
+# class at PR time. shellcheck integration is disabled (-shellcheck=) to keep
+# the gate focused on workflow validity; drop that flag to also lint run: shell.
+#
+# Pull requests only, and not while the PR is a draft; the PR run covers what
+# merges, so nothing reruns on push to main.
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  actionlint:
+    name: 🧹 Actionlint
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v7
+      # The pinned release binary, checked against the release's published
+      # SHA-256, instead of building actionlint from source on every run.
+      - name: 📦 Install actionlint
+        env:
+          VERSION: 1.7.12
+          # SHA-256 of actionlint_<version>_linux_amd64.tar.gz, from the
+          # release's actionlint_<version>_checksums.txt. Update it with VERSION.
+          SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+        run: |
+          set -euo pipefail
+          bin="$RUNNER_TEMP/actionlint/bin"
+          mkdir -p "$bin"
+          tarball="$RUNNER_TEMP/actionlint_${VERSION}_linux_amd64.tar.gz"
+          curl -sSfL -o "$tarball" \
+            "https://github.com/rhysd/actionlint/releases/download/v${VERSION}/actionlint_${VERSION}_linux_amd64.tar.gz"
+          echo "${SHA256}  $tarball" | sha256sum -c -
+          tar -xzf "$tarball" -C "$bin" actionlint
+          echo "$bin" >> "$GITHUB_PATH"
+      - name: 🧹 Run actionlint
+        run: actionlint -color -shellcheck=

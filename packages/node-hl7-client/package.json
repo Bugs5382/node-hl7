@@ -75,9 +75,9 @@
     "update:post-update": "rm -f package-lock.json && rm -rf node_modules && npm install && npm run test"
   },
   "devDependencies": {
-    "@redis/client": "^6.1.0",
+    "@redis/client": "^6.3.1",
     "node-hl7-server": "^4.0.0",
-    "redis-memory-server": "^0.17.0"
+    "redis-memory-server": "^0.17.1"
   },
   "engines": {
     "node": ">=22.0.0"
