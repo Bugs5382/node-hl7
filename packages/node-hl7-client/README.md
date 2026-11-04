@@ -513,7 +513,7 @@ Contributions are welcome — bug fixes, new HL7 version coverage, more detailed
 
 1. 🍴 Fork the repo and create a topic branch off `main`.
 2. ✅ Add or update tests under `__tests__/client/` for any behavior change. The full suite runs with `npx vitest run`.
-3. 🧹 Lint with `npm run lint` from the repo root and format with the existing eslint config.
+3. 🧹 Lint with `npm run lint` from the repo root and format with `npm run format`.
 4. 📝 Use one of the [issue templates](https://github.com/Bugs5382/node-hl7-client/issues/new/choose) when opening an issue, and reference the issue number in your PR description.
 5. 🚀 Open a PR against `main`. CI will run lint + tests on every push.
 
