@@ -14,7 +14,7 @@ When a patient is admitted in Epic, an ADT^A01 needs to flow to the radiology sy
 
 `node-hl7-client` is the **client side** of that conversation — built so a TypeScript / Node.js application can produce well-formed messages and exchange them with a remote HL7 broker.
 
-> ⚠️ **Note**: This library is *not* the world's authority on HL7. For the canonical specification, see [hl7.org](https://www.hl7.org/implement/standards/index.cfm?ref=nav).
+> ⚠️ **Note**: This library is _not_ the world's authority on HL7. For the canonical specification, see [hl7.org](https://www.hl7.org/implement/standards/index.cfm?ref=nav).
 
 ## 🧾 Table of Contents
 
@@ -30,13 +30,13 @@ When a patient is admitted in Epic, an ADT^A01 needs to flow to the radiology sy
 
 This library exists to make HL7 a first-class citizen of the Node.js ecosystem — strongly typed, well documented, and free of unnecessary dependencies.
 
-| 🎯 What | 🤔 Why |
-|---|---|
-| Pure TypeScript | Compile-time safety against bad segment paths and wrong types. |
-| **Zero runtime dependencies** | Faster cold starts, smaller container images, easier audits. |
-| Typed segment builders (HL7 2.1 → 2.8) | No more hand-typed `MSH|^~\&|...` strings. |
-| Built-in MLLP framing & TLS | Production-ready transport without bolting on a third library. |
-| Pluggable outbound queue | In-memory by default; swap in Redis for k8s deployments. |
+| 🎯 What                                | 🤔 Why                                                         |
+| -------------------------------------- | -------------------------------------------------------------- |
+| Pure TypeScript                        | Compile-time safety against bad segment paths and wrong types. |
+| **Zero runtime dependencies**          | Faster cold starts, smaller container images, easier audits.   |
+| Typed segment builders (HL7 2.1 → 2.8) | No more hand-typed `MSH                                        | ^~\& | ...` strings. |
+| Built-in MLLP framing & TLS            | Production-ready transport without bolting on a third library. |
+| Pluggable outbound queue               | In-memory by default; swap in Redis for k8s deployments.       |
 
 ---
 
@@ -49,13 +49,13 @@ flowchart LR
     A --> D[client/parser/index.md]
 ```
 
-| Section | Purpose |
-|---|---|
-| [🧱 Builder](builder/index.md) | Construct standardized HL7 messages with the new class‑based `HL7_2_x` builders. |
-| [🧬 Segment reference](segments/index.md) | Full compatibility matrix of every supported segment across HL7 v2.1 → v2.8. |
-| [🔌 Client](client/index.md) | Connect to a remote HL7 server, send messages, handle ACKs, customize the queue. |
-| [🔍 Parser](parser/index.md) | Turn raw HL7 strings (single message, batch, or file) back into `Message` objects. |
-| [🏥 Server docs](../server/index.md) | If you also need to **receive** HL7, jump to the server pages. |
+| Section                                   | Purpose                                                                            |
+| ----------------------------------------- | ---------------------------------------------------------------------------------- |
+| [🧱 Builder](builder/index.md)            | Construct standardized HL7 messages with the new class‑based `HL7_2_x` builders.   |
+| [🧬 Segment reference](segments/index.md) | Full compatibility matrix of every supported segment across HL7 v2.1 → v2.8.       |
+| [🔌 Client](client/index.md)              | Connect to a remote HL7 server, send messages, handle ACKs, customize the queue.   |
+| [🔍 Parser](parser/index.md)              | Turn raw HL7 strings (single message, batch, or file) back into `Message` objects. |
+| [🏥 Server docs](../server/index.md)      | If you also need to **receive** HL7, jump to the server pages.                     |
 
 ---
 

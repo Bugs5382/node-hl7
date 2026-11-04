@@ -80,10 +80,7 @@ single port can serve partners on different HL7 releases:
 
 ```ts
 // Accept an allow-list — MSH.12 must be one of these, else "AR".
-server.createInbound(
-  { port: 3000, version: ["2.3.1", "2.4", "2.5"] },
-  handler,
-);
+server.createInbound({ port: 3000, version: ["2.3.1", "2.4", "2.5"] }, handler);
 
 // Accept any known HL7 version (2.1–2.8). Must be opted into explicitly;
 // an unknown/garbage MSH.12 is still rejected with "AR".
@@ -157,7 +154,7 @@ const server = new Server();
 const dual = new Server({ ipv4: true, ipv6: true });
 
 // IPv6 only
-const v6 = new Server({ ipv6: true });          // bindAddress defaults to ::, ipv6Only=true
+const v6 = new Server({ ipv6: true }); // bindAddress defaults to ::, ipv6Only=true
 
 // Pin a specific address when the host has multiple
 const onMgmt = new Server({ bindAddress: "10.50.0.4", ipv4: true });
@@ -212,26 +209,26 @@ The handler gets called **once per parsed message**, even when the inbound frame
 
 ```ts
 server.createInbound({ port: 3000, version: "2.7" }, async (req, res) => {
-  const msg = req.getMessage();           // Message from node-hl7-client
-  const type = req.getType();             // 'message' | 'batch' | 'file'
-  const sock = req.getSocket();           // 🔌 the underlying net.Socket
+  const msg = req.getMessage(); // Message from node-hl7-client
+  const type = req.getType(); // 'message' | 'batch' | 'file'
+  const sock = req.getSocket(); // 🔌 the underlying net.Socket
 
   // Inspect any field, sub-field, or sub-sub-field:
-  const mrn       = msg.get("PID.3").toString();
-  const lastName  = msg.get("PID.5.1").toString();
+  const mrn = msg.get("PID.3").toString();
+  const lastName = msg.get("PID.5.1").toString();
   const firstName = msg.get("PID.5.2").toString();
-  const version   = msg.get("MSH.12").toString(); // 2.5, 2.7, …
+  const version = msg.get("MSH.12").toString(); // 2.5, 2.7, …
 
   // Use the socket for connection‑aware logic:
   console.log(`📨 ${mrn} from ${sock.remoteAddress} on :${sock.localPort}`);
 });
 ```
 
-| Method | Returns | Notes |
-|---|---|---|
-| `req.getMessage()` | `Message` | Full parsed message. Throws `HL7ListenerError` if missing. |
-| `req.getType()` | `'message' \| 'batch' \| 'file'` | Tells you whether the frame was a single MSH, a BHS batch, or an FHS file. |
-| `req.getSocket()` | `net.Socket` | Throws `HL7ListenerError` if the request was created without one. |
+| Method             | Returns                          | Notes                                                                      |
+| ------------------ | -------------------------------- | -------------------------------------------------------------------------- |
+| `req.getMessage()` | `Message`                        | Full parsed message. Throws `HL7ListenerError` if missing.                 |
+| `req.getType()`    | `'message' \| 'batch' \| 'file'` | Tells you whether the frame was a single MSH, a BHS batch, or an FHS file. |
+| `req.getSocket()`  | `net.Socket`                     | Throws `HL7ListenerError` if the request was created without one.          |
 
 See the [parser docs](../../pages/client/parser/index.md) for the full Message / Batch / FileBatch reading API.
 
@@ -277,9 +274,9 @@ server.createInbound({ port: 3000, version: "2.7" }, async (req, res) => {
     ].join("\r"),
   });
 
-  await res.sendCustomResponse(ack);     // Message instance
+  await res.sendCustomResponse(ack); // Message instance
   // -- or --
-  await res.sendCustomResponse(rawHl7);  // raw string
+  await res.sendCustomResponse(rawHl7); // raw string
 });
 ```
 
@@ -287,9 +284,9 @@ server.createInbound({ port: 3000, version: "2.7" }, async (req, res) => {
 
 ### MSH Field Overrides
 
-When the auto‑ACK is *almost* right but a couple of MSH fields need tweaking (a different `MSH.3`, a calculated timestamp, a vendor‑specific `MSH.18`), set `mshOverrides`. Each entry is either a literal value or a callback that receives the inbound `Message`:
+When the auto‑ACK is _almost_ right but a couple of MSH fields need tweaking (a different `MSH.3`, a calculated timestamp, a vendor‑specific `MSH.18`), set `mshOverrides`. Each entry is either a literal value or a callback that receives the inbound `Message`:
 
-> Overrides are applied **after** the echoed values, so they win — including `MSH.12`. The listener's pinned `version` only validates the *inbound* message; an `MSH.12` override therefore makes the ACK declare a different HL7 version. That is intentional (an escape hatch, matching go-hl7), so override `MSH.12` only when you mean it.
+> Overrides are applied **after** the echoed values, so they win — including `MSH.12`. The listener's pinned `version` only validates the _inbound_ message; an `MSH.12` override therefore makes the ACK declare a different HL7 version. That is intentional (an escape hatch, matching go-hl7), so override `MSH.12` only when you mean it.
 
 ```ts
 import { format } from "date-fns";
@@ -299,11 +296,11 @@ server.createInbound(
     port: 3000,
     version: "2.7",
     mshOverrides: {
-      "3": "MY_APP",                                              // literal
-      "7": () => format(new Date(), "yyyyMMddHHmmssxx"),          // callback
-      "9.3": "ACK",                                               // literal
-      "12": (msg) => msg.get("MSH.12").toString(),                // copy from inbound
-      "18": "UNICODE UTF-8",                                      // literal
+      "3": "MY_APP", // literal
+      "7": () => format(new Date(), "yyyyMMddHHmmssxx"), // callback
+      "9.3": "ACK", // literal
+      "12": (msg) => msg.get("MSH.12").toString(), // copy from inbound
+      "18": "UNICODE UTF-8", // literal
     },
   },
   async (req, res) => {
@@ -378,22 +375,25 @@ const server = new Server({
   },
 });
 
-const IB = server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => {
-  // The TLS handshake has already enforced the client cert.
-  // You can still inspect peer details via the socket:
-  const sock = req.getSocket() as import("tls").TLSSocket;
-  const peer = sock.getPeerCertificate();
-  console.log("🤝 mTLS peer:", peer.subject?.CN);
+const IB = server.createInbound(
+  { port: 6661, version: "2.7" },
+  async (req, res) => {
+    // The TLS handshake has already enforced the client cert.
+    // You can still inspect peer details via the socket:
+    const sock = req.getSocket() as import("tls").TLSSocket;
+    const peer = sock.getPeerCertificate();
+    console.log("🤝 mTLS peer:", peer.subject?.CN);
 
-  await res.sendResponse("AA");
-});
+    await res.sendResponse("AA");
+  },
+);
 ```
 
-| Option | What it does |
-|---|---|
-| `requestCert: true` | The server asks the client to present a certificate during the handshake. |
+| Option                     | What it does                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------ |
+| `requestCert: true`        | The server asks the client to present a certificate during the handshake.            |
 | `rejectUnauthorized: true` | Connections are dropped if the client's cert isn't signed by one of the trusted CAs. |
-| `ca: Buffer[]` | The set of trusted client‑CA certificates. |
+| `ca: Buffer[]`             | The set of trusted client‑CA certificates.                                           |
 
 > 🚨 **Don't** set `rejectUnauthorized: false` in production. That's `requestCert` without enforcement and is functionally equivalent to "anyone can connect." Use it only for local development.
 
@@ -409,8 +409,8 @@ Every connection gets its own `MLLPCodec`. That matters because:
 You normally never touch the codec — but if you need to write back through the same socket from a custom handler, both the codec and the socket are exposed on `res`:
 
 ```ts
-const codec = res.getCodec();   // MLLPCodec on the BaseSendResponse
-const sock  = res.getSocket();  // net.Socket / tls.TLSSocket
+const codec = res.getCodec(); // MLLPCodec on the BaseSendResponse
+const sock = res.getSocket(); // net.Socket / tls.TLSSocket
 codec.sendMessage(sock, customString, "utf-8");
 ```
 
@@ -435,22 +435,22 @@ Recommendations for higher‑throughput deployments:
 
 The `Inbound` class extends `EventEmitter`. The events worth listening to:
 
-| Event | Payload | When |
-|---|---|---|
-| `listen` | _none_ | The TCP/TLS server has bound and is accepting connections. |
-| `client.connect` | `socket: Socket` | A new client connected. |
-| `client.close` | `hadError: boolean` | A client disconnected. |
-| `client.error` | `err: Error` | Per‑connection error (will close the socket). |
-| `error` | `err: Error` | The underlying TCP/TLS server emitted an error. |
-| `data.raw` | `string` | The full MLLP message payload, just before parsing. Useful for debug logging / capture. |
-| `data.error` | `err: Error` | A frame couldn't be parsed (malformed HL7, unexpected bytes, etc.). |
-| `response.sent` | _none_ | An ACK was just written to the socket. |
+| Event            | Payload             | When                                                                                    |
+| ---------------- | ------------------- | --------------------------------------------------------------------------------------- |
+| `listen`         | _none_              | The TCP/TLS server has bound and is accepting connections.                              |
+| `client.connect` | `socket: Socket`    | A new client connected.                                                                 |
+| `client.close`   | `hadError: boolean` | A client disconnected.                                                                  |
+| `client.error`   | `err: Error`        | Per‑connection error (will close the socket).                                           |
+| `error`          | `err: Error`        | The underlying TCP/TLS server emitted an error.                                         |
+| `data.raw`       | `string`            | The full MLLP message payload, just before parsing. Useful for debug logging / capture. |
+| `data.error`     | `err: Error`        | A frame couldn't be parsed (malformed HL7, unexpected bytes, etc.).                     |
+| `response.sent`  | _none_              | An ACK was just written to the socket.                                                  |
 
 ```ts
 IB_ADT.on("client.connect", (s) => console.log("🤝", s.remoteAddress));
-IB_ADT.on("data.raw",       (raw) => console.log("📥", raw.length, "bytes"));
-IB_ADT.on("response.sent",  () => console.log("✅ ACK sent"));
-IB_ADT.on("data.error",     (err) => console.error("💥 parse error", err));
+IB_ADT.on("data.raw", (raw) => console.log("📥", raw.length, "bytes"));
+IB_ADT.on("response.sent", () => console.log("✅ ACK sent"));
+IB_ADT.on("data.error", (err) => console.error("💥 parse error", err));
 ```
 
 ---
@@ -459,10 +459,10 @@ IB_ADT.on("data.error",     (err) => console.error("💥 parse error", err));
 
 The repo ships with a minimal `Dockerfile` (Node 22 alpine, runs as the unprivileged `node` user, no certs baked in) and two example servers:
 
-| File | Purpose |
-|---|---|
-| `docker/server.js` | Plain MLLP listener — responds `AA` to every well‑formed message, with JSON logging and graceful shutdown on `SIGTERM`. |
-| `docker/tls.server.js` | TLS / mTLS listener — reads cert paths from `TLS_KEY` / `TLS_CERT` / `TLS_CA` env vars (mount as a Kubernetes Secret). |
+| File                   | Purpose                                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `docker/server.js`     | Plain MLLP listener — responds `AA` to every well‑formed message, with JSON logging and graceful shutdown on `SIGTERM`. |
+| `docker/tls.server.js` | TLS / mTLS listener — reads cert paths from `TLS_KEY` / `TLS_CERT` / `TLS_CA` env vars (mount as a Kubernetes Secret).  |
 
 ```bash
 # Build
@@ -483,13 +483,13 @@ docker run --rm -p 3000:3000 \
 
 The image accepts these environment variables:
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `HL7_PORT` | `3000` | TCP/MLLP listen port |
-| `BIND_ADDRESS` | `0.0.0.0` | Interface to bind to |
-| `TLS_KEY` / `TLS_CERT` | — | (TLS variant) PEM paths for the server identity |
-| `TLS_CA` | — | (TLS variant) trusted CA bundle; presence enables mTLS |
-| `TLS_REQUEST_CLIENT_CERT` | `false` | (TLS variant) demand a client certificate |
+| Variable                  | Default   | Purpose                                                |
+| ------------------------- | --------- | ------------------------------------------------------ |
+| `HL7_PORT`                | `3000`    | TCP/MLLP listen port                                   |
+| `BIND_ADDRESS`            | `0.0.0.0` | Interface to bind to                                   |
+| `TLS_KEY` / `TLS_CERT`    | —         | (TLS variant) PEM paths for the server identity        |
+| `TLS_CA`                  | —         | (TLS variant) trusted CA bundle; presence enables mTLS |
+| `TLS_REQUEST_CLIENT_CERT` | `false`   | (TLS variant) demand a client certificate              |
 
 ### Kubernetes
 
@@ -536,7 +536,7 @@ Contributions are welcome — bug fixes, new features, more detailed docs, addit
 
 1. 🍴 Fork the repo and create a topic branch off `main`.
 2. ✅ Add or update tests under `__tests__/server/` for any behavior change. The full suite runs with `npx vitest run`.
-3. 🧹 Lint with `npm run lint` from the repo root and format with the existing eslint config.
+3. 🧹 Lint with `npm run lint` from the repo root and format with `npm run format`.
 4. 📝 Use one of the [issue templates](https://github.com/Bugs5382/node-hl7-server/issues/new/choose) when opening an issue, and reference the issue number in your PR description.
 5. 🚀 Open a PR against `main`. CI will run lint + tests on every push.
 

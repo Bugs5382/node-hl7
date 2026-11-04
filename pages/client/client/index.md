@@ -36,7 +36,12 @@ This library supports connections over IPv4, IPv6, or Fully Qualified Domain Nam
 const client = new Client({ host: "hl7.example.com", version: "2.7" });
 
 // Dual-stack with Happy-Eyeballs fallback (opt-in)
-const dual = new Client({ host: "hl7.example.com", version: "2.7", ipv4: true, ipv6: true });
+const dual = new Client({
+  host: "hl7.example.com",
+  version: "2.7",
+  ipv4: true,
+  ipv6: true,
+});
 
 // Force IPv6 only (and validate the host against it):
 const v6Only = new Client({ host: "2001:db8::1", version: "2.7", ipv6: true });
@@ -46,12 +51,12 @@ This initializes a client targeting the host, but does not yet establish a conne
 
 #### Address-family options
 
-| Option | Meaning |
-|---|---|
-| (defaults) | IPv4 only — host literal must be IPv4 |
-| `ipv4: true, ipv6: true` | dual-stack with Happy-Eyeballs fallback |
-| `ipv6: true` only | force IPv6 — host literal must be IPv6 |
-| `autoSelectFamily: false` | disable Happy-Eyeballs (use the OS-default order) |
+| Option                           | Meaning                                                   |
+| -------------------------------- | --------------------------------------------------------- |
+| (defaults)                       | IPv4 only — host literal must be IPv4                     |
+| `ipv4: true, ipv6: true`         | dual-stack with Happy-Eyeballs fallback                   |
+| `ipv6: true` only                | force IPv6 — host literal must be IPv6                    |
+| `autoSelectFamily: false`        | disable Happy-Eyeballs (use the OS-default order)         |
 | `autoSelectFamilyAttemptTimeout` | ms to wait before racing the other family (default `250`) |
 
 If a host has multiple IPv4 / IPv6 addresses and you need to terminate on a specific one, pass the literal as `host` — the literal pins the family for you.
@@ -98,7 +103,11 @@ If the remote HL7 server expects TLS, set `tls` on the `Client` constructor. Two
 **Shorthand** — use Node's default trust store (works for certs chained to public CAs):
 
 ```ts
-const client = new Client({ host: "hl7.example.com", version: "2.7", tls: true });
+const client = new Client({
+  host: "hl7.example.com",
+  version: "2.7",
+  tls: true,
+});
 ```
 
 **Full options** — anything from Node's [`tls.ConnectionOptions`](https://nodejs.org/api/tls.html#tlsconnectoptions-callback). Use this when the server uses a private/self‑signed CA or you need to tune `servername`, `minVersion`, etc.:
@@ -158,13 +167,13 @@ const OB_ADT = client.createConnection({ port: 6661 }, async (res) => {
 });
 ```
 
-| Field | Purpose |
-|---|---|
-| `key` + `cert` | Your client identity. The server checks these against its `ca` allow-list. |
-| `ca` | Trusted issuer(s) for the **server**'s certificate. |
+| Field                | Purpose                                                                        |
+| -------------------- | ------------------------------------------------------------------------------ |
+| `key` + `cert`       | Your client identity. The server checks these against its `ca` allow-list.     |
+| `ca`                 | Trusted issuer(s) for the **server**'s certificate.                            |
 | `rejectUnauthorized` | `true` in production, always. Drops the connection on cert validation failure. |
-| `servername` | SNI / expected server hostname when it differs from `host`. |
-| `passphrase` | Decrypts the private key when it was generated with a passphrase. |
+| `servername`         | SNI / expected server hostname when it differs from `host`.                    |
+| `passphrase`         | Decrypts the private key when it was encrypted with a passphrase.              |
 
 > 🤝 The matching server-side mTLS configuration is documented in the [server's TLS pages](../../server/tls/index.md). The two ends MUST agree on which CA(s) issue valid certs in each direction.
 

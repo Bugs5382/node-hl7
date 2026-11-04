@@ -47,7 +47,7 @@ runs husky, which resets `core.hooksPath`.
 - Test: `npm test` (Vitest, both projects). The tests bind local TCP ports and generate their own
   TLS material; no external service is needed. The Redis queue test in `hl7.end2end.test.ts` is
   skipped (its in-memory Redis is flaky on CI runners).
-- Lint: `npm run lint` (ESLint, then `npm-package-json-lint` in each workspace).
+- Lint: `npm run lint` (Oxlint, then `npm-package-json-lint` in each workspace).
 - Package checks, after a build: `npm run check:dist`. It fails if a `lib/types` folder holds
   anything but declarations, if either package goes over its unpacked-size budget, or if the
   server's client peer floor drifts. This repo uses `check:dist` in place of the template's

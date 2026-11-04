@@ -1,0 +1,59 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "extends": ["./node_modules/@bugs5382/node-oxlint-config/configs/base.json"],
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/lib/**",
+    "**/coverage/**",
+    "**/docs/**",
+    "**/temp/**",
+    "**/hl7/tables/registry.data.js"
+  ],
+  "rules": {
+    "typescript/no-explicit-any": "off",
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "func-style": "off",
+    "unicorn/number-literal-case": "off",
+    "unicorn/prefer-event-target": "off",
+    "unicorn/filename-case": "off",
+    "unicorn-js/prevent-abbreviations": "off",
+    "unicorn-js/better-dom-traversing": "off",
+    "unicorn-js/consistent-compound-words": "off",
+    "import/no-default-export": "off",
+    "unicorn/prefer-module": "off",
+    "unicorn/prefer-string-replace-all": "off",
+    "unicorn-js/prefer-https": "off",
+    "unicorn-js/prefer-includes-over-repeated-comparisons": "off"
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**/*"],
+      "rules": {
+        "unicorn/no-process-exit": "off"
+      }
+    },
+    {
+      "files": ["docker/**/*.{js,mjs,cjs}"],
+      "rules": {
+        "typescript/no-require-imports": "off",
+        "unicorn/no-process-exit": "off"
+      }
+    },
+    {
+      "files": ["__tests__/**/*"],
+      "rules": {
+        "typescript/no-explicit-any": "off",
+        "unicorn/consistent-function-scoping": "off",
+        "unicorn/no-array-for-each": "off"
+      }
+    }
+  ]
+}

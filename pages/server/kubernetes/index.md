@@ -34,13 +34,13 @@ The pattern is always the same:
 
 ## 🧩 Why split listener and worker?
 
-| Concern | Listener pod | Worker pod |
-|---|---|---|
-| Goal | ACK fast (sub‑second). | Do the actual work (transform, persist, forward). |
-| State | Stateless except for in-flight TCP buffers. | Stateless; idempotent over the queue. |
-| Scaling trigger | Inbound connection count / CPU. | Queue depth. |
-| Restart cost | Drops in-flight TCP frames (sender retries). | Drops nothing — message stays on the queue. |
-| TLS | Yes (or terminated at Service). | No (talks Redis/RabbitMQ over the cluster network). |
+| Concern         | Listener pod                                 | Worker pod                                          |
+| --------------- | -------------------------------------------- | --------------------------------------------------- |
+| Goal            | ACK fast (sub‑second).                       | Do the actual work (transform, persist, forward).   |
+| State           | Stateless except for in-flight TCP buffers.  | Stateless; idempotent over the queue.               |
+| Scaling trigger | Inbound connection count / CPU.              | Queue depth.                                        |
+| Restart cost    | Drops in-flight TCP frames (sender retries). | Drops nothing — message stays on the queue.         |
+| TLS             | Yes (or terminated at Service).              | No (talks Redis/RabbitMQ over the cluster network). |
 
 Putting heavy work in the listener handler means a downstream FHIR slowdown back-pressures the sender — and an HL7 sender that gets stuck retrying for 30 seconds tends to flood you with duplicates. The "ACK first, queue, work later" pattern is the most important architectural decision in this whole document.
 
@@ -63,13 +63,13 @@ flowchart LR
     end
 ```
 
-| | **A · Terminate at LB / Service** | **B · Terminate in the Node app** |
-|---|---|---|
-| Cert lives on | The load balancer (cloud LB, envoy, nginx, etc.) | Each listener pod (mounted secret) |
-| mTLS supported | Often, depending on LB | Yes, natively via the `tls` option |
-| Easier ops | ✅ One cert renewal point | ❌ Cert distributed to every pod |
-| Sees plaintext on the wire inside the cluster | ✅ Yes | ❌ No (encrypted right up to Node) |
-| Good fit for | Public-facing, simple TLS | Hospital integrations requiring mTLS / strict cert pinning |
+|                                               | **A · Terminate at LB / Service**                | **B · Terminate in the Node app**                          |
+| --------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------- |
+| Cert lives on                                 | The load balancer (cloud LB, envoy, nginx, etc.) | Each listener pod (mounted secret)                         |
+| mTLS supported                                | Often, depending on LB                           | Yes, natively via the `tls` option                         |
+| Easier ops                                    | ✅ One cert renewal point                        | ❌ Cert distributed to every pod                           |
+| Sees plaintext on the wire inside the cluster | ✅ Yes                                           | ❌ No (encrypted right up to Node)                         |
+| Good fit for                                  | Public-facing, simple TLS                        | Hospital integrations requiring mTLS / strict cert pinning |
 
 > 🛡️ **mTLS in hospital networks.** Many hospital integration teams insist on **client-cert auth all the way to the application** (no TLS-stripping load balancers in between). That points you at Pattern B even if Pattern A would otherwise be operationally easier.
 
@@ -105,7 +105,11 @@ spec:
             - { name: oru, containerPort: 6662 }
           env:
             - { name: NODE_ENV, value: "production" }
-            - { name: REDIS_URL, valueFrom: { secretKeyRef: { name: hl7-secrets, key: redis-url } } }
+            - {
+                name: REDIS_URL,
+                valueFrom:
+                  { secretKeyRef: { name: hl7-secrets, key: redis-url } },
+              }
             # For Pattern B (mTLS in the Node app), also mount certs.
           readinessProbe:
             tcpSocket: { port: 6661 }
@@ -117,7 +121,7 @@ spec:
             periodSeconds: 30
           resources:
             requests: { cpu: "200m", memory: "256Mi" }
-            limits:   { cpu: "1000m", memory: "512Mi" }
+            limits: { cpu: "1000m", memory: "512Mi" }
 ```
 
 > ✅ Use **`tcpSocket`** probes, not `httpGet` — the listener doesn't speak HTTP. The MLLP framing makes a real "is the app accepting connections?" probe trivial: if the TCP handshake completes, the pod is healthy.
@@ -131,14 +135,14 @@ metadata:
   name: hl7-listener
   labels: { app: hl7-listener }
 spec:
-  type: LoadBalancer            # or ClusterIP behind an Ingress / Gateway API.
+  type: LoadBalancer # or ClusterIP behind an Ingress / Gateway API.
   selector: { app: hl7-listener }
   ports:
     - { name: adt, port: 6661, targetPort: adt, protocol: TCP }
     - { name: oru, port: 6662, targetPort: oru, protocol: TCP }
   # 🪝 Sticky sessions: keep one TCP connection on one pod for its lifetime.
   sessionAffinity: ClientIP
-  externalTrafficPolicy: Local  # preserves the sender's IP for logging / mTLS CN checks
+  externalTrafficPolicy: Local # preserves the sender's IP for logging / mTLS CN checks
 ```
 
 > 🪝 **`sessionAffinity: ClientIP`** matters more than you'd think: HL7 senders typically open one TCP connection per shift and reuse it for thousands of messages. Affinity keeps that connection on a single pod, which means the per-socket `MLLPCodec` buffer state stays consistent.
@@ -225,7 +229,7 @@ import { Server } from "node-hl7-server";
 const server = new Server({
   bindAddress: "0.0.0.0",
   tls: {
-    key:  fs.readFileSync("/etc/hl7/tls/tls.key"),
+    key: fs.readFileSync("/etc/hl7/tls/tls.key"),
     cert: fs.readFileSync("/etc/hl7/tls/tls.crt"),
 
     // 🤝 mTLS: demand a client cert from every sender.
@@ -278,20 +282,26 @@ await redis.connect();
 
 const server = new Server({ bindAddress: "0.0.0.0" });
 
-server.createInbound({ port: 6661, version: "2.7", name: "IB_ADT" }, async (req, res) => {
-  const msg = req.getMessage();
+server.createInbound(
+  { port: 6661, version: "2.7", name: "IB_ADT" },
+  async (req, res) => {
+    const msg = req.getMessage();
 
-  // 1️⃣  Push the parsed message onto the queue. Sub-millisecond.
-  await redis.lPush("hl7:adt", JSON.stringify({
-    receivedAt: new Date().toISOString(),
-    sourceIp:   req.getSocket().remoteAddress,
-    controlId:  msg.get("MSH.10").toString(),
-    raw:        msg.toString(),
-  }));
+    // 1️⃣  Push the parsed message onto the queue. Sub-millisecond.
+    await redis.lPush(
+      "hl7:adt",
+      JSON.stringify({
+        receivedAt: new Date().toISOString(),
+        sourceIp: req.getSocket().remoteAddress,
+        controlId: msg.get("MSH.10").toString(),
+        raw: msg.toString(),
+      }),
+    );
 
-  // 2️⃣  ACK the sender. They unblock immediately.
-  await res.sendResponse("AA");
-});
+    // 2️⃣  ACK the sender. They unblock immediately.
+    await res.sendResponse("AA");
+  },
+);
 ```
 
 > 💡 **Use a separate list per workflow** (`hl7:adt`, `hl7:oru`, `hl7:siu`) so workers can scale independently.
@@ -312,12 +322,16 @@ spec:
       containers:
         - name: redis
           image: redis:7-alpine
-          args: ["--appendonly", "yes"]   # 🪛 enable AOF for durability
+          args: ["--appendonly", "yes"] # 🪛 enable AOF for durability
           ports: [{ containerPort: 6379 }]
           volumeMounts: [{ name: data, mountPath: /data }]
   volumeClaimTemplates:
     - metadata: { name: data }
-      spec: { accessModes: [ReadWriteOnce], resources: { requests: { storage: 5Gi } } }
+      spec:
+        {
+          accessModes: [ReadWriteOnce],
+          resources: { requests: { storage: 5Gi } },
+        }
 ---
 apiVersion: v1
 kind: Service
@@ -340,7 +354,7 @@ import amqp from "amqplib";
 import { Server } from "node-hl7-server";
 
 const conn = await amqp.connect(process.env.RABBITMQ_URL!);
-const ch   = await conn.createConfirmChannel();
+const ch = await conn.createConfirmChannel();
 await ch.assertQueue("hl7.adt", { durable: true });
 
 const server = new Server({ bindAddress: "0.0.0.0" });
@@ -382,10 +396,14 @@ spec:
         - name: worker
           image: ghcr.io/your-org/hl7-worker:1.0.0
           env:
-            - { name: REDIS_URL, valueFrom: { secretKeyRef: { name: hl7-secrets, key: redis-url } } }
+            - {
+                name: REDIS_URL,
+                valueFrom:
+                  { secretKeyRef: { name: hl7-secrets, key: redis-url } },
+              }
           resources:
             requests: { cpu: "200m", memory: "256Mi" }
-            limits:   { cpu: "1000m", memory: "1Gi" }
+            limits: { cpu: "1000m", memory: "1Gi" }
 ```
 
 …and a minimal Redis worker:
@@ -405,8 +423,8 @@ while (true) {
   const env = JSON.parse(popped.element);
   const msg = new Message({ text: env.raw });
 
-  await persistAdmission(msg, env);              // 🩺 the actual work
-  await forwardToFhir(msg);                      // 🌐 downstream system
+  await persistAdmission(msg, env); // 🩺 the actual work
+  await forwardToFhir(msg); // 🌐 downstream system
 }
 ```
 
@@ -416,14 +434,14 @@ Scale workers based on **queue depth** (e.g. with KEDA) rather than CPU — if F
 
 ## ❤️ Health checks, sticky sessions, scaling
 
-| Concern | Recipe |
-|---|---|
-| Probes | `tcpSocket` on the HL7 port. The MLLP listener doesn't speak HTTP. |
-| Sticky sessions | `sessionAffinity: ClientIP` on the `Service`. Keeps a sender's connection on one pod (and so its MLLPCodec buffer) for the connection's lifetime. |
-| Pod restarts | Use `terminationGracePeriodSeconds: 60` and a `preStop` that calls your shutdown hook (`await IB.close()`) so in-flight ACKs finish before the pod dies. |
-| HPA on the listener | Scale on **`net_connection_count`** if you can; CPU is a poor proxy for "I'm overloaded with senders". |
-| HPA on the worker | Scale on **queue depth** (KEDA Redis or RabbitMQ scaler). |
-| TLS rotation (Pattern B) | `cert-manager` + [Reloader](https://github.com/stakater/Reloader) to roll pods on Secret change. |
+| Concern                  | Recipe                                                                                                                                                   |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Probes                   | `tcpSocket` on the HL7 port. The MLLP listener doesn't speak HTTP.                                                                                       |
+| Sticky sessions          | `sessionAffinity: ClientIP` on the `Service`. Keeps a sender's connection on one pod (and so its MLLPCodec buffer) for the connection's lifetime.        |
+| Pod restarts             | Use `terminationGracePeriodSeconds: 60` and a `preStop` that calls your shutdown hook (`await IB.close()`) so in-flight ACKs finish before the pod dies. |
+| HPA on the listener      | Scale on **`net_connection_count`** if you can; CPU is a poor proxy for "I'm overloaded with senders".                                                   |
+| HPA on the worker        | Scale on **queue depth** (KEDA Redis or RabbitMQ scaler).                                                                                                |
+| TLS rotation (Pattern B) | `cert-manager` + [Reloader](https://github.com/stakater/Reloader) to roll pods on Secret change.                                                         |
 
 ---
 
@@ -431,11 +449,11 @@ Scale workers based on **queue depth** (e.g. with KEDA) rather than CPU — if F
 
 For the typical hospital workload (~60K ADT/day with bursts to a few hundred per minute) a starter shape is:
 
-| Workload | Replicas | CPU | Memory |
-|---|---|---|---|
-| `hl7-listener` | 2–3 | 200m / 1 CPU | 256Mi / 512Mi |
-| `hl7-worker` | 2–4 | 200m / 1 CPU | 256Mi / 1 GiB |
-| Redis (single, AOF) | 1 (managed/HA in prod) | 100m / 500m | 256Mi / 1 GiB |
+| Workload            | Replicas               | CPU          | Memory        |
+| ------------------- | ---------------------- | ------------ | ------------- |
+| `hl7-listener`      | 2–3                    | 200m / 1 CPU | 256Mi / 512Mi |
+| `hl7-worker`        | 2–4                    | 200m / 1 CPU | 256Mi / 1 GiB |
+| Redis (single, AOF) | 1 (managed/HA in prod) | 100m / 500m  | 256Mi / 1 GiB |
 
 If you exceed those numbers comfortably, the bottleneck is almost always downstream (FHIR / DB) rather than the HL7 listener — `node-hl7-server` itself moves messages at hundreds-per-second on a single pod. See [`pages/server/performance/index.md`](../performance/index.md) for the full throughput notes.
 

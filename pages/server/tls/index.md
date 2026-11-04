@@ -23,7 +23,7 @@ flowchart LR
 
 ## 🔐 Server-auth TLS
 
-The client validates *your* certificate; you don't ask for theirs.
+The client validates _your_ certificate; you don't ask for theirs.
 
 ```ts
 import fs from "node:fs";
@@ -34,7 +34,7 @@ const server = new Server({
   tls: {
     key: fs.readFileSync(path.join("certs", "server-key.pem")),
     cert: fs.readFileSync(path.join("certs", "server-crt.pem")),
-    rejectUnauthorized: false,                        // dev only
+    rejectUnauthorized: false, // dev only
   },
 });
 
@@ -78,11 +78,11 @@ server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => {
 });
 ```
 
-| Option | Effect |
-|---|---|
-| `requestCert: true` | Server asks for a client cert during the handshake. |
+| Option                     | Effect                                                                   |
+| -------------------------- | ------------------------------------------------------------------------ |
+| `requestCert: true`        | Server asks for a client cert during the handshake.                      |
 | `rejectUnauthorized: true` | Drop the connection if the client cert isn't signed by an entry in `ca`. |
-| `ca: Buffer[]` | The set of trusted client-CA certificates. Multiple CAs are fine. |
+| `ca: Buffer[]`             | The set of trusted client-CA certificates. Multiple CAs are fine.        |
 
 > 🚨 **Production**: never set `rejectUnauthorized: false` for mTLS — that's "request a cert and accept anything". Use it only for local development.
 
@@ -100,7 +100,12 @@ server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => {
 
   if (typeof sock.getPeerCertificate === "function") {
     const peer = sock.getPeerCertificate();
-    console.log("🤝 mTLS peer:", peer.subject?.CN, "issued by", peer.issuer?.CN);
+    console.log(
+      "🤝 mTLS peer:",
+      peer.subject?.CN,
+      "issued by",
+      peer.issuer?.CN,
+    );
 
     // Reject programmatically (in addition to rejectUnauthorized) if you
     // need fine-grained checks like CN allow-listing:
@@ -151,12 +156,12 @@ In production these come from your hospital PKI / a real CA — never commit pri
 
 ## ⚠️ Common pitfalls
 
-| Symptom | Likely cause |
-|---|---|
-| `TLS handshake aborted` | `requestCert: true` but client didn't present one. |
+| Symptom                                  | Likely cause                                                                           |
+| ---------------------------------------- | -------------------------------------------------------------------------------------- |
+| `TLS handshake aborted`                  | `requestCert: true` but client didn't present one.                                     |
 | `unable to verify the first certificate` | Client/server cert chain isn't fully presented; concatenate intermediates into `cert`. |
-| Connections closed immediately | Wrong CA in `ca`, or client's CA isn't in the bundle you provided. |
-| Works locally, fails in prod | `rejectUnauthorized: false` masking a real cert problem in dev. |
-| `getPeerCertificate()` returns `{}` | `requestCert: true` was missing — you can't read what you never asked for. |
+| Connections closed immediately           | Wrong CA in `ca`, or client's CA isn't in the bundle you provided.                     |
+| Works locally, fails in prod             | `rejectUnauthorized: false` masking a real cert problem in dev.                        |
+| `getPeerCertificate()` returns `{}`      | `requestCert: true` was missing — you can't read what you never asked for.             |
 
 > 💡 Capture the raw frame on `data.raw` and the parse error on `data.error` while debugging — they often reveal a TLS misconfiguration before the HL7 layer even sees a frame.

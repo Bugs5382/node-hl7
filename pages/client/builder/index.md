@@ -69,14 +69,14 @@ const builder = new HL7_2_5({
 });
 ```
 
-| Version | Class | Notable additions |
-|---|---|---|
-| 2.1 | `HL7_2_1` | The minimal baseline. Composite `MSH.9.3` is **not** allowed. |
-| 2.2 | `HL7_2_2` | Adds AL1 (allergy) and other segments. |
-| 2.3 | `HL7_2_3` | Adds DG1, IN2, GT1 enhancements, ROL, etc. |
-| 2.3.1 / 2.4 | `HL7_2_3_1`, `HL7_2_4` | `MSH.9.3` becomes optional / composite‑allowed. |
-| 2.5 → 2.7.1 | `HL7_2_5`, `HL7_2_5_1`, `HL7_2_6`, `HL7_2_7`, `HL7_2_7_1` | Adds SFT, SPM, and many other segments. |
-| 2.8 | `HL7_2_8` | Latest supported. Inherits from `HL7_2_7_1`. |
+| Version     | Class                                                     | Notable additions                                             |
+| ----------- | --------------------------------------------------------- | ------------------------------------------------------------- |
+| 2.1         | `HL7_2_1`                                                 | The minimal baseline. Composite `MSH.9.3` is **not** allowed. |
+| 2.2         | `HL7_2_2`                                                 | Adds AL1 (allergy) and other segments.                        |
+| 2.3         | `HL7_2_3`                                                 | Adds DG1, IN2, GT1 enhancements, ROL, etc.                    |
+| 2.3.1 / 2.4 | `HL7_2_3_1`, `HL7_2_4`                                    | `MSH.9.3` becomes optional / composite‑allowed.               |
+| 2.5 → 2.7.1 | `HL7_2_5`, `HL7_2_5_1`, `HL7_2_6`, `HL7_2_7`, `HL7_2_7_1` | Adds SFT, SPM, and many other segments.                       |
+| 2.8         | `HL7_2_8`                                                 | Latest supported. Inherits from `HL7_2_7_1`.                  |
 
 ---
 
@@ -84,15 +84,15 @@ const builder = new HL7_2_5({
 
 ```ts
 builder.buildMSH({
-  msh_3: "SENDING_APP",         // Sending application
-  msh_4: "SENDING_FAC",         // Sending facility
-  msh_5: "RECEIVING_APP",       // Receiving application
-  msh_6: "RECEIVING_FAC",       // Receiving facility
+  msh_3: "SENDING_APP", // Sending application
+  msh_4: "SENDING_FAC", // Sending facility
+  msh_5: "RECEIVING_APP", // Receiving application
+  msh_6: "RECEIVING_FAC", // Receiving facility
   // msh_7 (date) is auto‑set to "now" if you omit it
-  msh_9_1: "ADT",               // Message code (MSH.9.1) — required
-  msh_9_2: "A01",               // Trigger event (MSH.9.2) — required on 2.2+
-  msh_10: "MSG00001",           // Auto-randomized if omitted
-  msh_11_1: "P",                // Processing ID (MSH.11.1) — P=production, T=test
+  msh_9_1: "ADT", // Message code (MSH.9.1) — required
+  msh_9_2: "A01", // Trigger event (MSH.9.2) — required on 2.2+
+  msh_10: "MSG00001", // Auto-randomized if omitted
+  msh_11_1: "P", // Processing ID (MSH.11.1) — P=production, T=test
 });
 ```
 
@@ -116,8 +116,8 @@ Every version exposes typed builders for the segments it supports. Common exampl
 
 ```ts
 builder.buildEVN({
-  evn_1: "A01",                  // event type code
-  evn_2: new Date(),             // recorded date (Date is auto‑formatted)
+  evn_1: "A01", // event type code
+  evn_2: new Date(), // recorded date (Date is auto‑formatted)
 });
 ```
 
@@ -125,12 +125,12 @@ builder.buildEVN({
 
 ```ts
 builder.buildPID({
-  pid_3: "MRN12345",                              // patient id (often the MRN)
-  pid_5: "DOE^JANE^A",                            // last^first^middle
-  pid_7: new Date("1980-01-01"),                  // DOB
-  pid_8: "F",                                     // sex (validated, TABLE_0001)
-  pid_11: "123 ELM ST^^SPRINGFIELD^IL^62701",     // address
-  pid_13: "555-0100",                             // home phone
+  pid_3: "MRN12345", // patient id (often the MRN)
+  pid_5: "DOE^JANE^A", // last^first^middle
+  pid_7: new Date("1980-01-01"), // DOB
+  pid_8: "F", // sex (validated, TABLE_0001)
+  pid_11: "123 ELM ST^^SPRINGFIELD^IL^62701", // address
+  pid_13: "555-0100", // home phone
 });
 ```
 
@@ -145,10 +145,10 @@ PID|||MRN12345||DOE^JANE^A||19800101|F|||123 ELM ST^^SPRINGFIELD^IL^62701||555-0
 ```ts
 builder.buildOBX({
   obx_1: "1",
-  obx_2: "TX",                                    // value type, TABLE_0125
-  obx_3: "NOTE^Discharge Note^L",                 // observation identifier
-  obx_5: "Patient stable, discharged home.",      // value
-  obx_11: "F",                                    // status, TABLE_0085 (F = Final)
+  obx_2: "TX", // value type, TABLE_0125
+  obx_3: "NOTE^Discharge Note^L", // observation identifier
+  obx_5: "Patient stable, discharged home.", // value
+  obx_11: "F", // status, TABLE_0085 (F = Final)
 });
 ```
 
@@ -156,8 +156,8 @@ builder.buildOBX({
 
 ```ts
 builder.buildMSA({
-  msa_1: "AA",                                    // TABLE_0008
-  msa_2: "MSG00001",                              // echoed control id
+  msa_1: "AA", // TABLE_0008
+  msa_2: "MSG00001", // echoed control id
   msa_3: "All good",
 });
 ```
@@ -174,23 +174,23 @@ builder.buildMSA({
 
 Every segment is backed by a `SegmentSpec` derived directly from the [Caristix HL7 Definition API](https://hl7-definition.caristix.com/v2/), one per segment, covering every version from 2.1 → 2.8. Each field carries an HL7 **usage code** per version, and the builder enforces them at runtime — so you cannot, for example, accidentally set `ECD.4` on a v2.8 message (it was withdrawn).
 
-| Code | Meaning | What the builder does when a value is provided |
-|:---:|---|---|
-| **R** | Required | Field MUST be populated. Missing => `HL7ValidationError`. |
-| **O** | Optional | No constraint. |
-| **B** | Backward Compatibility | Emits a deprecation warning on the `warning` event; value still serializes. |
-| **W** | Withdrawn | `HL7ValidationError` — always, regardless of `hardError`. |
-| **X** | Not Supported | `HL7ValidationError` — always. |
-| **D** | Dependent / Conditional | Value is allowed; if the spec carries a machine-readable `dependsOn`, it is enforced. Most published `D` fields have prose-only conditions and are accepted as-is. |
-| _(missing)_ | Field not in this version | `HL7ValidationError` — the field doesn't exist in the chosen HL7 version. |
+|    Code     | Meaning                   | What the builder does when a value is provided                                                                                                                     |
+| :---------: | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|    **R**    | Required                  | Field MUST be populated. Missing => `HL7ValidationError`.                                                                                                          |
+|    **O**    | Optional                  | No constraint.                                                                                                                                                     |
+|    **B**    | Backward Compatibility    | Emits a deprecation warning on the `warning` event; value still serializes.                                                                                        |
+|    **W**    | Withdrawn                 | `HL7ValidationError` — always, regardless of `hardError`.                                                                                                          |
+|    **X**    | Not Supported             | `HL7ValidationError` — always.                                                                                                                                     |
+|    **D**    | Dependent / Conditional   | Value is allowed; if the spec carries a machine-readable `dependsOn`, it is enforced. Most published `D` fields have prose-only conditions and are accepted as-is. |
+| _(missing)_ | Field not in this version | `HL7ValidationError` — the field doesn't exist in the chosen HL7 version.                                                                                          |
 
 The canonical example — `ECD.4 Requested Completion Time`:
 
-| Version | Usage | Behavior |
-|:---:|:---:|---|
-| 2.4 | O | Settable. |
-| 2.5 / 2.5.1 / 2.6 | B | Settable, emits `"warning"`. |
-| 2.7 / 2.7.1 / 2.8 | W | `HL7ValidationError("Field ECD.4 is withdrawn in HL7 v2.7…")`. |
+|      Version      | Usage | Behavior                                                       |
+| :---------------: | :---: | -------------------------------------------------------------- |
+|        2.4        |   O   | Settable.                                                      |
+| 2.5 / 2.5.1 / 2.6 |   B   | Settable, emits `"warning"`.                                   |
+| 2.7 / 2.7.1 / 2.8 |   W   | `HL7ValidationError("Field ECD.4 is withdrawn in HL7 v2.7…")`. |
 
 ```ts
 const b = new HL7_2_8();
@@ -258,7 +258,12 @@ For every composite HL7 data type the library generates a TypeScript interface �
 import { HL7_2_8, HL7_XAD, HL7_XPN } from "node-hl7-client";
 
 const builder = new HL7_2_8();
-builder.buildMSH({ msh_9_1: "ADT", msh_9_2: "A01", msh_10: "X", msh_11_1: "P" });
+builder.buildMSH({
+  msh_9_1: "ADT",
+  msh_9_2: "A01",
+  msh_10: "X",
+  msh_11_1: "P",
+});
 
 // Style A — typed object (composer handles the `^` joining + validation)
 builder.buildPID({
@@ -326,7 +331,13 @@ const wire = new HL7_2_8()
   .buildEVN({ evn_2: new Date() }) // EVN.1 (event type) is withdrawn in 2.7+; use EVN.2
   .buildPID({ pid_3: "MRN1", pid_5: "DOE^JANE" })
   .buildOBR({ obr_1: "1", obr_4: "GLU^Glucose^L" })
-  .buildOBX({ obx_1: "1", obx_2: "NM", obx_3: "GLU^Glucose^L", obx_5: "98", obx_11: "F" })
+  .buildOBX({
+    obx_1: "1",
+    obx_2: "NM",
+    obx_3: "GLU^Glucose^L",
+    obx_5: "98",
+    obx_11: "F",
+  })
   .toString();
 
 // Imperative — easier to interleave with branching/conditionals.
@@ -352,9 +363,9 @@ const b = new HL7_2_8()
   .buildPID({ pid_3: "MRN1", pid_5: "DOE^JANE" })
   // Fall back to the generic builder for segments without a typed method.
   .buildSegment("ABS", {
-    abs_1: "DOC1^Smith^John",       // Discharge Care Provider
+    abs_1: "DOC1^Smith^John", // Discharge Care Provider
     abs_2: "MED^Internal Medicine", // Transfer Medical Service Code
-    abs_4: "20240101120000",        // Date/Time of Attestation
+    abs_4: "20240101120000", // Date/Time of Attestation
   });
 
 console.log(b.toString());
@@ -363,9 +374,9 @@ console.log(b.toString());
 `buildSegment` accepts field values keyed three different ways — pick whichever feels natural:
 
 ```ts
-b.buildSegment("ABS", { abs_1: "DOC1^Smith^John" });   // <segname>_<num>
-b.buildSegment("ABS", { 1: "DOC1^Smith^John" });       // numeric
-b.buildSegment("ABS", { "1": "DOC1^Smith^John" });     // numeric-as-string
+b.buildSegment("ABS", { abs_1: "DOC1^Smith^John" }); // <segname>_<num>
+b.buildSegment("ABS", { 1: "DOC1^Smith^John" }); // numeric
+b.buildSegment("ABS", { "1": "DOC1^Smith^John" }); // numeric-as-string
 ```
 
 > 🚫 `buildSegment("MSH", …)` is intentionally rejected — use `buildMSH()` for MSH framing (separator characters and single-occurrence guard live there).
@@ -380,11 +391,11 @@ This is one of the **fun** parts of the builder format: every `build*` prop acce
 
 That means you can pre‑compose values — even from another data source, a template literal, or a CSV row — and just hand them to the builder.
 
-> ⚠️ **Exception: fields with required components.** The pass-the-whole-string trick works for fields whose components are optional (most of them — `PID.5`, `PID.11`, `OBX.3`, …). It does **not** work for `MSH.9` on 2.2+, whose `9.1`/`9.2` components are individually *required*: pass `msh_9_1`/`msh_9_2` (and `msh_11_1` on 2.3+) instead of `msh_9: "ADT^A01"`. See [Build the MSH](#-build-the-msh-always-first).
+> ⚠️ **Exception: fields with required components.** The pass-the-whole-string trick works for fields whose components are optional (most of them — `PID.5`, `PID.11`, `OBX.3`, …). It does **not** work for `MSH.9` on 2.2+, whose `9.1`/`9.2` components are individually _required_: pass `msh_9_1`/`msh_9_2` (and `msh_11_1` on 2.3+) instead of `msh_9: "ADT^A01"`. See [Build the MSH](#-build-the-msh-always-first).
 
 ```ts
 builder.buildMSH({
-  msh_9_1: "ADT",                              // ⬅️ 9.1/9.2 are keyed separately (required)
+  msh_9_1: "ADT", // ⬅️ 9.1/9.2 are keyed separately (required)
   msh_9_2: "A01",
   msh_10: "MSG00001",
   msh_11_1: "P",
@@ -392,13 +403,13 @@ builder.buildMSH({
 
 builder.buildPID({
   pid_3: "MRN12345",
-  pid_5: "DOE^JANE^A",                         // ⬅️ "Last^First^Middle"
-  pid_11: "123 ELM ST^^SPRINGFIELD^IL^62701",  // ⬅️ "Street^^City^State^ZIP" (skipped subfield = ^^)
-  pid_13: "555-0100~555-0200",                 // ⬅️ repetitions joined with ~
+  pid_5: "DOE^JANE^A", // ⬅️ "Last^First^Middle"
+  pid_11: "123 ELM ST^^SPRINGFIELD^IL^62701", // ⬅️ "Street^^City^State^ZIP" (skipped subfield = ^^)
+  pid_13: "555-0100~555-0200", // ⬅️ repetitions joined with ~
 });
 
 builder.buildOBX({
-  obx_3: "NOTE^Discharge Note^L",              // ⬅️ "Identifier^Text^CodingSystem"
+  obx_3: "NOTE^Discharge Note^L", // ⬅️ "Identifier^Text^CodingSystem"
   obx_5: "Stable",
   obx_11: "F",
 });
@@ -406,21 +417,23 @@ builder.buildOBX({
 
 A quick map of the HL7 delimiters you'll most often use inside these strings:
 
-| Delimiter | Means | Example value |
-|:---:|---|---|
-| `^` | next component (sub‑field) | `"DOE^JANE^A"` |
-| `&` | next sub‑component | `"123 ELM ST&APT 4^^SPRINGFIELD"` |
-| `~` | repetition (next occurrence of the same field) | `"555-0100~555-0200"` |
-| `^^` | leave a component empty | `"123 ELM ST^^SPRINGFIELD^IL"` |
+| Delimiter | Means                                          | Example value                     |
+| :-------: | ---------------------------------------------- | --------------------------------- |
+|    `^`    | next component (sub‑field)                     | `"DOE^JANE^A"`                    |
+|    `&`    | next sub‑component                             | `"123 ELM ST&APT 4^^SPRINGFIELD"` |
+|    `~`    | repetition (next occurrence of the same field) | `"555-0100~555-0200"`             |
+|   `^^`    | leave a component empty                        | `"123 ELM ST^^SPRINGFIELD^IL"`    |
 
 > 💡 Two equivalent ways to set `PV1.7` (attending doctor) with two repetitions:
 >
 > **Composite‑string style** — short and obvious:
+>
 > ```ts
 > builder.buildPV1({ pv1_2: "I", pv1_7: "1234^Jones^John~5678^Smith^Bob" });
 > ```
 >
 > **Chained `set()` style** — verbose but programmatic:
+>
 > ```ts
 > const msg = builder.toMessage();
 > msg.set("PV1.7").set(0).set(1, "Jones").set(2, "John");
@@ -437,10 +450,10 @@ A quick map of the HL7 delimiters you'll most often use inside these strings:
 
 Pass a `Date` (or omit and let the builder pick "now"). The builder formats it according to the `date` option set on the constructor:
 
-| `date` | Output | Example |
-|---|---|---|
-| `"8"` | `YYYYMMDD` | `20240101` |
-| `"12"` | `YYYYMMDDHHMM` | `202401010930` |
+| `date`           | Output           | Example          |
+| ---------------- | ---------------- | ---------------- |
+| `"8"`            | `YYYYMMDD`       | `20240101`       |
+| `"12"`           | `YYYYMMDDHHMM`   | `202401010930`   |
 | `"14"` (default) | `YYYYMMDDHHMMSS` | `20240101093015` |
 
 ```ts
@@ -455,13 +468,13 @@ builder.buildEVN({ evn_1: "A01", evn_2: new Date() });
 
 Defaults — the HL7 standard:
 
-| Character | Role |
-|:---:|---|
-| `\|` | Field separator |
-| `^` | Component separator |
-| `&` | Subcomponent separator |
-| `~` | Repetition separator |
-| `\\` | Escape character |
+| Character | Role                   |
+| :-------: | ---------------------- |
+|   `\|`    | Field separator        |
+|    `^`    | Component separator    |
+|    `&`    | Subcomponent separator |
+|    `~`    | Repetition separator   |
+|   `\\`    | Escape character       |
 
 Override on the builder constructor (they're embedded in `MSH.1`/`MSH.2` and **cannot** be changed via `set()`):
 
@@ -483,7 +496,7 @@ const builder = new HL7_2_5({
 
 `toMessage()` returns a real `Message` you can keep mutating after the builder is done. This is essential for fields the typed builders don't surface (e.g. obscure repetitions or custom Z‑segments).
 
-> 💡 If you only need composites or repetitions on a field the builder *does* surface, you can usually skip `set(...)` chains entirely and pass an HL7 composite string straight to the builder prop — see [Composite values inline](#-composite-values-inline--pass-the-whole-string).
+> 💡 If you only need composites or repetitions on a field the builder _does_ surface, you can usually skip `set(...)` chains entirely and pass an HL7 composite string straight to the builder prop — see [Composite values inline](#-composite-values-inline--pass-the-whole-string).
 
 ```ts
 const msg = builder.toMessage();
@@ -618,9 +631,9 @@ try {
 }
 ```
 
-| Mode | Behavior |
-|---|---|
+| Mode                         | Behavior                                                                                                                                  |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Default (`hardError: false`) | R/length/table violations emit a `"error"` event and collect into the return array. **W / X / "field not in this version" always throw.** |
-| `hardError: true` | Every violation throws immediately. Recommended in dev & CI. |
+| `hardError: true`            | Every violation throws immediately. Recommended in dev & CI.                                                                              |
 
 > 💡 Subscribe to `"error"` and `"warning"` events on the builder to capture soft validation messages: `b.on("warning", (m) => log.warn(m))`.

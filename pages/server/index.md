@@ -25,13 +25,13 @@ flowchart LR
     A --> E[server/performance/index.md]
 ```
 
-| Section | Purpose |
-|---|---|
-| [🔌 Inbound listeners](inbound/index.md) | Server / Inbound options, request shape, events, multi‑port setups. |
-| [📬 Responses](responses/index.md) | Auto ACKs (`sendResponse`), MSH overrides, and **fully custom ACKs** (`sendCustomResponse`). |
-| [🔒 TLS & mTLS](tls/index.md) | Server‑auth and mutual‑auth setups, including the snippet hospitals usually want. |
-| [⚡ Performance](performance/index.md) | Throughput notes, scaling tips, and what `Inbound.stats` actually measures. |
-| [☸️ Kubernetes](kubernetes/index.md) | Horizontal listener + worker deployment, Redis / RabbitMQ wiring, TLS termination patterns. |
+| Section                                  | Purpose                                                                                      |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------- |
+| [🔌 Inbound listeners](inbound/index.md) | Server / Inbound options, request shape, events, multi‑port setups.                          |
+| [📬 Responses](responses/index.md)       | Auto ACKs (`sendResponse`), MSH overrides, and **fully custom ACKs** (`sendCustomResponse`). |
+| [🔒 TLS & mTLS](tls/index.md)            | Server‑auth and mutual‑auth setups, including the snippet hospitals usually want.            |
+| [⚡ Performance](performance/index.md)   | Throughput notes, scaling tips, and what `Inbound.stats` actually measures.                  |
+| [☸️ Kubernetes](kubernetes/index.md)     | Horizontal listener + worker deployment, Redis / RabbitMQ wiring, TLS termination patterns.  |
 
 ## 📚 Keyword definitions
 
