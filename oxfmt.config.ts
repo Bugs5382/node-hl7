@@ -32,6 +32,9 @@ export default {
     "**/coverage/**",
     "**/temp/**",
     "package-lock.json",
+    "CLAUDE.md",
+    ".github/**",
+    ".claude/**",
     "**/hl7/tables/registry.data.js",
   ],
 };

@@ -17,11 +17,11 @@ The golden rule: **acknowledge first, work later.**
 
 ## 📈 What "high throughput" usually looks like
 
-| Workload | Sustained rate | Burst rate |
-|---|---|---|
-| ~60,000 ADT/day | ~0.7 msg/s | a few hundred/min |
-| ORU result feed | varies | spiky around shift handoffs |
-| Discharge/admission audits | low/sustained | end-of-day spikes |
+| Workload                   | Sustained rate | Burst rate                  |
+| -------------------------- | -------------- | --------------------------- |
+| ~60,000 ADT/day            | ~0.7 msg/s     | a few hundred/min           |
+| ORU result feed            | varies         | spiky around shift handoffs |
+| Discharge/admission audits | low/sustained  | end-of-day spikes           |
 
 For these patterns `node-hl7-server` runs comfortably on a single Node process. The unit tests include a 200‑message burst that completes in well under a second on commodity hardware with zero drops.
 
@@ -51,7 +51,7 @@ Don't do heavy work in the handler. Pop the `Message` onto a queue and let a wor
 ```ts
 server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => {
   await queue.publish(req.getMessage().toString()); // milliseconds
-  await res.sendResponse("AA");                     // sender unblocked
+  await res.sendResponse("AA"); // sender unblocked
 });
 ```
 
@@ -105,7 +105,7 @@ npx vitest run __tests__/server/hl7.issues.test.ts
 
 `node-hl7-server` is a single-process Node application — you scale it horizontally with multiple pods/instances behind a TCP load balancer. Two notes:
 
-1. **MLLP is connection-oriented**, so the load balancer should distribute *connections*, not packets. Most TCP LBs do this by default.
+1. **MLLP is connection-oriented**, so the load balancer should distribute _connections_, not packets. Most TCP LBs do this by default.
 2. **Sticky sessions are good**. A sender often holds a single TCP connection for the whole shift; routing it to the same backend reduces handshake cost. AWS NLB and HAProxy both support this.
 
-For Kubernetes deployments, see the dedicated [☸️ Kubernetes deployment guide](../kubernetes/index.md) — it covers horizontal listener pods, Redis / RabbitMQ workers, sticky sessions, sizing, and the TLS-termination tradeoff (LB vs. in-app). The [client-side k8s notes](../../client/client/index.md#-scalability--message-reliability-in-kubernetes) cover the symmetric pattern when *sending* HL7 from a pod.
+For Kubernetes deployments, see the dedicated [☸️ Kubernetes deployment guide](../kubernetes/index.md) — it covers horizontal listener pods, Redis / RabbitMQ workers, sticky sessions, sizing, and the TLS-termination tradeoff (LB vs. in-app). The [client-side k8s notes](../../client/client/index.md#-scalability--message-reliability-in-kubernetes) cover the symmetric pattern when _sending_ HL7 from a pod.

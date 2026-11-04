@@ -97,7 +97,14 @@ flowchart LR
 ### Step 1 — Pick a version
 
 ```ts
-import { HL7_2_3, HL7_2_4, HL7_2_5, HL7_2_6, HL7_2_7, HL7_2_8 } from "node-hl7-client";
+import {
+  HL7_2_3,
+  HL7_2_4,
+  HL7_2_5,
+  HL7_2_6,
+  HL7_2_7,
+  HL7_2_8,
+} from "node-hl7-client";
 
 const builder = new HL7_2_5({
   // Optional: override the default date format.
@@ -116,10 +123,10 @@ builder.buildMSH({
   msh_4: "SENDING_FAC",
   msh_5: "RECEIVING_APP",
   msh_6: "RECEIVING_FAC",
-  msh_9_1: "ADT",          // message code (MSH.9.1) — required
-  msh_9_2: "A01",          // trigger event (MSH.9.2) — required on 2.2+
-  msh_10: "MSG00001",      // control id; auto‑randomized if omitted
-  msh_11_1: "P",           // processing ID (MSH.11.1) — P = production, T = test
+  msh_9_1: "ADT", // message code (MSH.9.1) — required
+  msh_9_2: "A01", // trigger event (MSH.9.2) — required on 2.2+
+  msh_10: "MSG00001", // control id; auto‑randomized if omitted
+  msh_11_1: "P", // processing ID (MSH.11.1) — P = production, T = test
 });
 ```
 
@@ -129,27 +136,27 @@ builder.buildMSH({
 
 Each version‑specific class exposes the segments that are valid for that version. Common ones include:
 
-| Builder | Segment | Notes |
-|---|---|---|
-| `buildEVN(props)` | EVN | Event type/timestamps for ADT messages. |
-| `buildPID(props)` | PID | Patient identification. |
-| `buildPV1(props)` | PV1 | Patient visit. |
-| `buildOBR(props)` | OBR | Observation request. |
-| `buildOBX(props)` | OBX | Observation result. |
-| `buildORC(props)` | ORC | Common order. |
-| `buildNTE(props)` | NTE | Notes & comments. |
-| `buildMSA(props)` | MSA | Used when **building** ACKs by hand. |
-| `buildERR(props)` | ERR | Error segment. |
+| Builder           | Segment | Notes                                   |
+| ----------------- | ------- | --------------------------------------- |
+| `buildEVN(props)` | EVN     | Event type/timestamps for ADT messages. |
+| `buildPID(props)` | PID     | Patient identification.                 |
+| `buildPV1(props)` | PV1     | Patient visit.                          |
+| `buildOBR(props)` | OBR     | Observation request.                    |
+| `buildOBX(props)` | OBX     | Observation result.                     |
+| `buildORC(props)` | ORC     | Common order.                           |
+| `buildNTE(props)` | NTE     | Notes & comments.                       |
+| `buildMSA(props)` | MSA     | Used when **building** ACKs by hand.    |
+| `buildERR(props)` | ERR     | Error segment.                          |
 
 ```ts
 builder.buildEVN({ evn_1: "A01", evn_2: new Date() });
 
 builder.buildPID({
-  pid_3: "MRN12345",                           // patient id
-  pid_5: "DOE^JANE^A",                         // last^first^middle
-  pid_7: new Date("1980-01-01"),               // DOB (Date or string)
-  pid_8: "F",                                  // sex (validated against TABLE_0001)
-  pid_11: "123 ELM ST^^SPRINGFIELD^IL^62701",  // address
+  pid_3: "MRN12345", // patient id
+  pid_5: "DOE^JANE^A", // last^first^middle
+  pid_7: new Date("1980-01-01"), // DOB (Date or string)
+  pid_8: "F", // sex (validated against TABLE_0001)
+  pid_11: "123 ELM ST^^SPRINGFIELD^IL^62701", // address
 });
 
 builder.buildOBX({
@@ -157,7 +164,7 @@ builder.buildOBX({
   obx_2: "TX",
   obx_3: "NOTE^Discharge Note^L",
   obx_5: "Patient stable, discharged home.",
-  obx_11: "F",                                  // status (validated against TABLE_0085)
+  obx_11: "F", // status (validated against TABLE_0085)
 });
 ```
 
@@ -165,34 +172,34 @@ builder.buildOBX({
 
 ### 🎨 Composite values: pass the whole HL7 string
 
-The builder treats every prop as a literal field value, so you can embed HL7 delimiters directly instead of building components piece‑by‑piece. This is what makes the typed builder feel *fun* — short, declarative, and easy to template from another data source.
+The builder treats every prop as a literal field value, so you can embed HL7 delimiters directly instead of building components piece‑by‑piece. This is what makes the typed builder feel _fun_ — short, declarative, and easy to template from another data source.
 
 ```ts
 builder.buildPID({
-  pid_3: "MRN12345",                                                     // patient id (required)
-  pid_5: "DOE^JANE^A",                                                   // last^first^middle
-  pid_11: "123 ELM ST^^SPRINGFIELD^IL^62701",                            // ^^ skips a component
-  pid_13: "555-0100~555-0200",                                           // ~ separates repetitions
+  pid_3: "MRN12345", // patient id (required)
+  pid_5: "DOE^JANE^A", // last^first^middle
+  pid_11: "123 ELM ST^^SPRINGFIELD^IL^62701", // ^^ skips a component
+  pid_13: "555-0100~555-0200", // ~ separates repetitions
 });
-builder.buildOBX({ obx_3: "NOTE^Discharge Note^L", obx_11: "F" });       // identifier^text^codingSystem (+ status)
+builder.buildOBX({ obx_3: "NOTE^Discharge Note^L", obx_11: "F" }); // identifier^text^codingSystem (+ status)
 ```
 
 > ⚠️ This works for fields whose components are optional. `MSH.9` is the exception — its `9.1`/`9.2` are individually required, so pass `msh_9_1`/`msh_9_2` (and `msh_11_1` on 2.3+), not `msh_9: "ADT^A01"`.
 
-| Delimiter | Means | Example |
-|:---:|---|---|
-| `^` | next component | `"DOE^JANE^A"` |
-| `&` | next sub‑component | `"123 ELM ST&APT 4^^CITY"` |
-| `~` | next repetition | `"555-0100~555-0200"` |
-| `^^` | leave a component empty | `"ST^^CITY^STATE^ZIP"` |
+| Delimiter | Means                   | Example                    |
+| :-------: | ----------------------- | -------------------------- |
+|    `^`    | next component          | `"DOE^JANE^A"`             |
+|    `&`    | next sub‑component      | `"123 ELM ST&APT 4^^CITY"` |
+|    `~`    | next repetition         | `"555-0100~555-0200"`      |
+|   `^^`    | leave a component empty | `"ST^^CITY^STATE^ZIP"`     |
 
 If you've changed the encoding characters via the builder constructor, use **those** characters in your composite strings instead — see [composite docs](../../pages/client/builder/index.md#-composite-values-inline--pass-the-whole-string).
 
 ### Step 4 — Convert
 
 ```ts
-const message = builder.toMessage();    // returns a Message
-const text    = builder.toString();     // returns the HL7 text
+const message = builder.toMessage(); // returns a Message
+const text = builder.toString(); // returns the HL7 text
 ```
 
 The resulting MSH for the example above:
@@ -210,7 +217,7 @@ OBX|1|TX|NOTE^Discharge Note^L||Patient stable, discharged home.||||||F
 
 ```ts
 const msg = builder.toMessage();
-msg.set("PID.13", "555-0100");                 // home phone
+msg.set("PID.13", "555-0100"); // home phone
 msg.set("PV1.7").set(0).set(1, "Jones").set(2, "John"); // chained repetitions
 ```
 
@@ -273,8 +280,8 @@ const client = new Client({
 const OB_ADT = client.createConnection(
   {
     port: 3000,
-    waitAck: true,                  // default: wait for ACK before next send
-    maxConnectionAttempts: 10,      // reconnect attempts before giving up
+    waitAck: true, // default: wait for ACK before next send
+    maxConnectionAttempts: 10, // reconnect attempts before giving up
   },
   async (res) => {
     const status = res.getMessage().get("MSA.1").toString();
@@ -316,16 +323,16 @@ const tuned = new Client({
   ipv4: true,
   ipv6: true,
   version: "2.7",
-  autoSelectFamily: true,             // default
+  autoSelectFamily: true, // default
   autoSelectFamilyAttemptTimeout: 250, // ms before racing the other family
 });
 ```
 
-| Option | Meaning |
-|---|---|
-| (defaults) | IPv4 only — host literal must be IPv4 |
-| `ipv4: true, ipv6: true` | dual-stack with Happy-Eyeballs fallback |
-| `ipv6: true` only | force IPv6 — host literal must be IPv6 |
+| Option                    | Meaning                                           |
+| ------------------------- | ------------------------------------------------- |
+| (defaults)                | IPv4 only — host literal must be IPv4             |
+| `ipv4: true, ipv6: true`  | dual-stack with Happy-Eyeballs fallback           |
+| `ipv6: true` only         | force IPv6 — host literal must be IPv6            |
 | `autoSelectFamily: false` | disable Happy-Eyeballs (use the OS-default order) |
 
 > 💡 Passing only **one** of `ipv4` / `ipv6` is treated as exclusive — IP literals are validated against that family. Setting both to `false` throws.
@@ -364,14 +371,18 @@ await OB_ADT.sendMessage(message);
 The shorthand `tls: true` is also accepted when the server uses a cert chained to a public CA already in Node's trust store:
 
 ```ts
-const client = new Client({ host: "hl7.example.com", tls: true, version: "2.7" });
+const client = new Client({
+  host: "hl7.example.com",
+  tls: true,
+  version: "2.7",
+});
 ```
 
 ---
 
 ## 🛡️ Mutual TLS (mTLS)
 
-Many hospital networks require **client-certificate authentication**. Provide your own `key` + `cert` so the server can validate *you* in addition to validating the server cert:
+Many hospital networks require **client-certificate authentication**. Provide your own `key` + `cert` so the server can validate _you_ in addition to validating the server cert:
 
 ```ts
 import fs from "node:fs";
@@ -404,13 +415,13 @@ const OB_ADT = client.createConnection({ port: 6661 }, async (res) => {
 await OB_ADT.sendMessage(message);
 ```
 
-| Option | What it does |
-|---|---|
-| `key` + `cert` | Your client identity. The server validates these against its trusted CAs. |
-| `ca` | The trusted issuer(s) for the **server**'s certificate. |
+| Option               | What it does                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------------ |
+| `key` + `cert`       | Your client identity. The server validates these against its trusted CAs.                  |
+| `ca`                 | The trusted issuer(s) for the **server**'s certificate.                                    |
 | `rejectUnauthorized` | If `true`, the connection drops on any cert validation error. Always `true` in production. |
-| `servername` | SNI / expected server hostname. Defaults to `host`; override only if the cert CN differs. |
-| `passphrase` | Passphrase for an encrypted private key. |
+| `servername`         | SNI / expected server hostname. Defaults to `host`; override only if the cert CN differs.  |
+| `passphrase`         | Passphrase for an encrypted private key.                                                   |
 
 > 💡 The matching server-side configuration lives in [`node-hl7-server`](https://www.npmjs.com/package/node-hl7-server) — see its [TLS / mTLS docs](../node-hl7-server/README.md#-mutual-tls-mtls).
 
@@ -424,12 +435,16 @@ The same `Message` class powers parsing:
 import { Message, Batch, FileBatch } from "node-hl7-client";
 
 const msg = new Message({ text: hl7String });
-msg.get("MSH.9.1").toString();   // ADT
-msg.get("PID.5.1").toString();   // DOE
+msg.get("MSH.9.1").toString(); // ADT
+msg.get("PID.5.1").toString(); // DOE
 
 // Batches and files:
-new Batch({ text: hl7BatchString }).messages().forEach((m) => { /* ... */ });
-new FileBatch({ fullFilePath: "ADT.20240101.hl7" }).messages().forEach(/* ... */);
+new Batch({ text: hl7BatchString }).messages().forEach((m) => {
+  /* ... */
+});
+new FileBatch({ fullFilePath: "ADT.20240101.hl7" })
+  .messages()
+  .forEach(/* ... */);
 ```
 
 > ⚠️ The parser is strict — malformed HL7 throws. Wrap untrusted input in a try/catch.
@@ -442,7 +457,11 @@ By default outbound messages are queued in memory, capped at 10,000 per connecti
 
 ```ts
 import { createClient } from "@redis/client";
-import Client, { Message, MessageItem, NotifyPendingCount } from "node-hl7-client";
+import Client, {
+  Message,
+  MessageItem,
+  NotifyPendingCount,
+} from "node-hl7-client";
 
 const redis = createClient();
 await redis.connect();

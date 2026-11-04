@@ -33,8 +33,18 @@ import { Server } from "node-hl7-server";
 // IPv4 only by default (binds 0.0.0.0).
 const server = new Server();
 
-const IB_ADT = server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => { /* … */ });
-const IB_ORU = server.createInbound({ port: 6662, version: "2.7" }, async (req, res) => { /* … */ });
+const IB_ADT = server.createInbound(
+  { port: 6661, version: "2.7" },
+  async (req, res) => {
+    /* … */
+  },
+);
+const IB_ORU = server.createInbound(
+  { port: 6662, version: "2.7" },
+  async (req, res) => {
+    /* … */
+  },
+);
 ```
 
 ---
@@ -44,9 +54,9 @@ const IB_ORU = server.createInbound({ port: 6662, version: "2.7" }, async (req, 
 ```ts
 new Server({
   // bindAddress: "0.0.0.0",  // default depends on ipv4/ipv6 (see below)
-  encoding: "utf-8",          // default: utf-8
-  ipv4: true,                 // default: true
-  ipv6: false,                // default: false (set true alongside ipv4 for dual-stack)
+  encoding: "utf-8", // default: utf-8
+  ipv4: true, // default: true
+  ipv6: false, // default: false (set true alongside ipv4 for dual-stack)
   // tls: { /* see TLS docs */ },
 });
 ```
@@ -55,11 +65,11 @@ new Server({
 
 `node-hl7-server` listens on **IPv4 only by default**. Opt into dual-stack by setting both `ipv4: true` and `ipv6: true` — a single socket bound to the IPv6 wildcard (`::`) with `ipv6Only: false` then accepts traffic from either family. No second listener required.
 
-| Mode | Set this | Default `bindAddress` | `ipv6Only` |
-|---|---|---|---|
-| IPv4 only (default) | `ipv4: true` (or omit)                  | `"0.0.0.0"` | `false` |
-| Dual-stack          | `ipv4: true, ipv6: true`                | `"::"`      | `false` |
-| IPv6 only           | `ipv6: true` (alone)                    | `"::"`      | `true`  |
+| Mode                | Set this                 | Default `bindAddress` | `ipv6Only` |
+| ------------------- | ------------------------ | --------------------- | ---------- |
+| IPv4 only (default) | `ipv4: true` (or omit)   | `"0.0.0.0"`           | `false`    |
+| Dual-stack          | `ipv4: true, ipv6: true` | `"::"`                | `false`    |
+| IPv6 only           | `ipv6: true` (alone)     | `"::"`                | `true`     |
 
 ```ts
 // IPv4 only on every v4 interface (default)
@@ -73,7 +83,7 @@ new Server({ ipv6: true });
 
 // Pin a specific termination address when the host has multiple
 new Server({ bindAddress: "10.50.0.4", ipv4: true });
-new Server({ bindAddress: "fd12::4",   ipv6: true });
+new Server({ bindAddress: "fd12::4", ipv6: true });
 ```
 
 **Fallback.** When dual-stack is opted in, if the kernel refuses the IPv6 wildcard bind (no v6 stack, hardened container, etc.), the listener automatically retries as IPv4-only on `0.0.0.0`. Errors that aren't address-family-related (e.g. `EADDRINUSE`) propagate as the regular `error` event.
@@ -87,28 +97,31 @@ new Server({ bindAddress: "fd12::4",   ipv6: true });
 ```ts
 server.createInbound(
   {
-    port: 6661,                                  // required, 0 < port < 65353
-    version: "2.7",                              // required — the HL7 version this listener accepts
-    name: "IB_EPIC_ADT",                         // optional, for logging
+    port: 6661, // required, 0 < port < 65353
+    version: "2.7", // required — the HL7 version this listener accepts
+    name: "IB_EPIC_ADT", // optional, for logging
     encoding: "utf-8",
-    mshOverrides: {                              // see Responses docs
+    mshOverrides: {
+      // see Responses docs
       "3": "MY_APP",
       "9.3": "ACK",
     },
     // responseClass: MyCustomSendResponse,      // advanced — extend BaseSendResponse
   },
-  async (req, res) => { /* … */ },
+  async (req, res) => {
+    /* … */
+  },
 );
 ```
 
-| Option | Purpose |
-|---|---|
-| `port` | TCP port to listen on. Required. |
-| `version` | HL7 version this listener accepts (`2.1`–`2.8`). Required — there is no implicit default. A message whose `MSH.12` differs is rejected with an `AR` and the handler is skipped. |
-| `name` | Human‑readable identifier; defaults to a random string. |
-| `encoding` | Buffer encoding for inbound bytes. Default `utf-8`. |
-| `mshOverrides` | Per‑field MSH overrides for the auto‑ACK. See [Responses](../responses/index.md). |
-| `responseClass` | Custom subclass of `BaseSendResponse` if you want full control of ACK behavior. |
+| Option          | Purpose                                                                                                                                                                         |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `port`          | TCP port to listen on. Required.                                                                                                                                                |
+| `version`       | HL7 version this listener accepts (`2.1`–`2.8`). Required — there is no implicit default. A message whose `MSH.12` differs is rejected with an `AR` and the handler is skipped. |
+| `name`          | Human‑readable identifier; defaults to a random string.                                                                                                                         |
+| `encoding`      | Buffer encoding for inbound bytes. Default `utf-8`.                                                                                                                             |
+| `mshOverrides`  | Per‑field MSH overrides for the auto‑ACK. See [Responses](../responses/index.md).                                                                                               |
+| `responseClass` | Custom subclass of `BaseSendResponse` if you want full control of ACK behavior.                                                                                                 |
 
 ---
 
@@ -140,18 +153,20 @@ server.createInbound({ port: 6661, version: "2.7" }, async (req, res) => {
 
 ## 📨 Reading the `req`
 
-| Method | Returns | Notes |
-|---|---|---|
-| `req.getMessage()` | `Message` | The parsed message. Throws `HL7ListenerError` if missing. |
-| `req.getType()` | `'message' \| 'batch' \| 'file'` | Whether the original frame was a single MSH, BHS batch, or FHS file. |
-| `req.getSocket()` | `net.Socket` | The underlying TCP/TLS socket. Throws if the request was constructed without one. |
+| Method             | Returns                          | Notes                                                                             |
+| ------------------ | -------------------------------- | --------------------------------------------------------------------------------- |
+| `req.getMessage()` | `Message`                        | The parsed message. Throws `HL7ListenerError` if missing.                         |
+| `req.getType()`    | `'message' \| 'batch' \| 'file'` | Whether the original frame was a single MSH, BHS batch, or FHS file.              |
+| `req.getSocket()`  | `net.Socket`                     | The underlying TCP/TLS socket. Throws if the request was constructed without one. |
 
 ```ts
-const msg  = req.getMessage();
+const msg = req.getMessage();
 const type = req.getType();
 const sock = req.getSocket();
 
-console.log(`📨 ${msg.get("MSH.10")} (${type}) from ${sock.remoteAddress}:${sock.remotePort}`);
+console.log(
+  `📨 ${msg.get("MSH.10")} (${type}) from ${sock.remoteAddress}:${sock.remotePort}`,
+);
 ```
 
 The full reading API (`get`, `set`, `addSegment`, repetitions, sub‑components) lives in the [client parser docs](../../client/parser/index.md) — `req.getMessage()` returns the same `Message` class.
@@ -162,23 +177,23 @@ The full reading API (`get`, `set`, `addSegment`, repetitions, sub‑components)
 
 `Inbound` extends `EventEmitter`:
 
-| Event | Payload | Fires when… |
-|---|---|---|
-| `listen` | _none_ | the TCP/TLS server is bound and accepting connections. |
-| `client.connect` | `socket: Socket` | a new client connects. |
-| `client.close` | `hadError: boolean` | a client disconnects. |
-| `client.error` | `err: Error` | a per‑connection error occurs (closes the socket). |
-| `error` | `err: Error` | the underlying TCP/TLS server emits an error. |
-| `data.raw` | `string` | a complete MLLP message has been buffered, just before parsing. Useful for debug capture. |
-| `data.error` | `err: Error` | a frame couldn't be parsed (malformed HL7, unexpected bytes). |
-| `response.sent` | _none_ | an ACK was just written to the socket. |
+| Event            | Payload             | Fires when…                                                                               |
+| ---------------- | ------------------- | ----------------------------------------------------------------------------------------- |
+| `listen`         | _none_              | the TCP/TLS server is bound and accepting connections.                                    |
+| `client.connect` | `socket: Socket`    | a new client connects.                                                                    |
+| `client.close`   | `hadError: boolean` | a client disconnects.                                                                     |
+| `client.error`   | `err: Error`        | a per‑connection error occurs (closes the socket).                                        |
+| `error`          | `err: Error`        | the underlying TCP/TLS server emits an error.                                             |
+| `data.raw`       | `string`            | a complete MLLP message has been buffered, just before parsing. Useful for debug capture. |
+| `data.error`     | `err: Error`        | a frame couldn't be parsed (malformed HL7, unexpected bytes).                             |
+| `response.sent`  | _none_              | an ACK was just written to the socket.                                                    |
 
 ```ts
-IB_ADT.on("listen",        () => console.log("🎧 listening"));
+IB_ADT.on("listen", () => console.log("🎧 listening"));
 IB_ADT.on("client.connect", (s) => console.log("🤝", s.remoteAddress));
-IB_ADT.on("data.raw",       (raw) => console.log("📥", raw.length, "bytes"));
-IB_ADT.on("response.sent",  () => console.log("✅ ACK sent"));
-IB_ADT.on("data.error",     (err) => console.error("💥 parse error", err));
+IB_ADT.on("data.raw", (raw) => console.log("📥", raw.length, "bytes"));
+IB_ADT.on("response.sent", () => console.log("✅ ACK sent"));
+IB_ADT.on("data.error", (err) => console.error("💥 parse error", err));
 ```
 
 ---
@@ -188,7 +203,7 @@ IB_ADT.on("data.error",     (err) => console.error("💥 parse error", err));
 HL7 servers are typically long‑lived — designed to be up at all times. When you do shut down (deploys, scale-down):
 
 ```ts
-await IB_ADT.close();   // close one listener
+await IB_ADT.close(); // close one listener
 // or close many in parallel:
 await Promise.all([IB_ADT.close(), IB_ORU.close()]);
 ```

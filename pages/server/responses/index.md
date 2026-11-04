@@ -57,7 +57,7 @@ MSA|AA|MSG00001
 
 ## 🧩 MSH field overrides
 
-When the auto-ACK is *almost* right but a few MSH fields need tweaking, set `mshOverrides` on the listener. Each entry is a literal value or a callback that receives the inbound `Message`:
+When the auto-ACK is _almost_ right but a few MSH fields need tweaking, set `mshOverrides` on the listener. Each entry is a literal value or a callback that receives the inbound `Message`:
 
 ```ts
 import { format } from "date-fns";
@@ -67,11 +67,11 @@ server.createInbound(
     port: 3000,
     version: "2.5",
     mshOverrides: {
-      "3": "MY_APP",                                       // literal
-      "7": () => format(new Date(), "yyyyMMddHHmmssxx"),   // calculated timestamp
-      "9.3": "ACK",                                        // composite trigger
-      "12": (msg) => msg.get("MSH.12").toString(),         // copy from inbound
-      "18": "UNICODE UTF-8",                               // charset
+      "3": "MY_APP", // literal
+      "7": () => format(new Date(), "yyyyMMddHHmmssxx"), // calculated timestamp
+      "9.3": "ACK", // composite trigger
+      "12": (msg) => msg.get("MSH.12").toString(), // copy from inbound
+      "18": "UNICODE UTF-8", // charset
     },
   },
   async (req, res) => {
@@ -80,7 +80,7 @@ server.createInbound(
 );
 ```
 
-> ❗ Overrides apply only to `sendResponse(...)`. They are intentionally skipped by `sendCustomResponse(...)` — the whole point of a custom ACK is that *you* control every byte.
+> ❗ Overrides apply only to `sendResponse(...)`. They are intentionally skipped by `sendCustomResponse(...)` — the whole point of a custom ACK is that _you_ control every byte.
 
 ---
 
@@ -110,7 +110,7 @@ server.createInbound({ port: 3000, version: "2.5" }, async (req, res) => {
     ].join("\r"),
   });
 
-  await res.sendCustomResponse(ack);     // Message instance
+  await res.sendCustomResponse(ack); // Message instance
 });
 ```
 
@@ -136,7 +136,7 @@ After either `sendResponse` or `sendCustomResponse`, the ACK is stored on the re
 
 ```ts
 const ack = res.getAckMessage();
-console.log(ack?.get("MSA.1").toString());  // "AA"
+console.log(ack?.get("MSA.1").toString()); // "AA"
 console.log(ack?.get("MSH.10").toString()); // ACK control id
 ```
 
