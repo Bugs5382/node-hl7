@@ -221,11 +221,11 @@ export interface ClientOptions {
    * Has to be greater than 1. You cannot exceed 50.
    * @default 10 */
   maxAttempts?: number;
-  /** If we are trying to establish an initial connection to the server, let's end it after this many attempts.
-   * The time between re-connecting is determined by {@link connectionTimeout}.
-   * You cannot exceed 50.
+  /** Maximum reconnect attempts (1–50). Set to 0 to retry without an attempt cap.
+   * Retry delays use exponential backoff; {@link connectionTimeout} and
+   * {@link maxTimeout} remain independent timeout settings.
    * @since 1.1.0
-   * @default 30
+   * @default 10
    */
   maxConnectionAttempts?: number;
   /** The number of times a connection timeout occurs until it stops attempting and just stops.
