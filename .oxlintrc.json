@@ -26,14 +26,19 @@
     "unicorn/filename-case": "off",
     "unicorn-js/prevent-abbreviations": "off",
     "unicorn-js/better-dom-traversing": "off",
-    "unicorn-js/consistent-compound-words": "off",
-    "import/no-default-export": "off",
-    "unicorn/prefer-module": "off",
-    "unicorn/prefer-string-replace-all": "off",
-    "unicorn-js/prefer-https": "off",
-    "unicorn-js/prefer-includes-over-repeated-comparisons": "off"
+    "unicorn-js/consistent-compound-words": "off"
   },
   "overrides": [
+    {
+      "files": [
+        "packages/*/src/index.ts",
+        "vitest.workspace.ts",
+        "**/vitest.config.*"
+      ],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    },
     {
       "files": ["scripts/**/*"],
       "rules": {
@@ -44,6 +49,7 @@
       "files": ["docker/**/*.{js,mjs,cjs}"],
       "rules": {
         "typescript/no-require-imports": "off",
+        "unicorn/prefer-module": "off",
         "unicorn/no-process-exit": "off"
       }
     },

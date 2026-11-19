@@ -645,5 +645,3 @@ export class Connection extends EventEmitter implements IConnection {
     }
   }
 }
-
-export default Connection;
