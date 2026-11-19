@@ -21,8 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 import { Client, HL7FatalError } from "node-hl7-client/src";
+import portfinder from "portfinder";
 import { beforeEach, describe, expect, test } from "vitest";
 
+import { expectEvent } from "../server/__utils__";
 import { expectHL7FatalError } from "./__utils__/expectHL7FatalError";
 
 describe("node hl7 client", () => {
@@ -191,6 +193,37 @@ describe("node hl7 client", () => {
       } catch (error) {
         expectHL7FatalError(error, "enqueueMessage is not set.");
       }
+    });
+  });
+
+  describe("connection retries", () => {
+    test("closes after the last retry attempt instead of going silent", async () => {
+      // nothing listens on this port, so every attempt is refused
+      const port = await portfinder.getPortPromise();
+      const client = new Client({ host: "localhost", version: "2.7" });
+      const outbound = client.createConnection(
+        { maxConnectionAttempts: 2, port, retryHigh: 20, retryLow: 5 },
+        async () => {},
+      );
+
+      let errors = 0;
+      outbound.on("client.error", () => {
+        errors++;
+      });
+      let closed = false;
+      outbound.on("close", () => {
+        closed = true;
+      });
+
+      await Promise.race([
+        expectEvent(outbound, "close"),
+        new Promise((resolve) => setTimeout(resolve, 3000)),
+      ]);
+
+      // the library retried exactly maxConnectionAttempts times, then closed
+      expect(errors).toBe(2);
+      expect(closed).toBe(true);
+      client.closeAll();
     });
   });
 });
