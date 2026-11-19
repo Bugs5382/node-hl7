@@ -1,5 +1,21 @@
 # Node HL7 Server
 
+## v4.2.0 - 2026-11-19
+
+### What Changed 👀
+
+#### 🚀 Features
+
+- feat(client): allow unlimited connection retries @Bugs5382 (#83)
+
+#### 🐛 Bug Fixes
+
+- fix(client): handle the last retry attempt @Bugs5382 (#80)
+
+### Extra
+
+**Full Changelog**: https://github.com/Bugs5382/node-hl7/compare/v4.1.2...v4.2.0
+
 ## v4.1.3 - 2026-11-19
 
 ### What Changed 👀
