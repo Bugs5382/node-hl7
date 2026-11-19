@@ -476,8 +476,9 @@ export class Connection extends EventEmitter implements IConnection {
       this._connectionTimer = undefined;
       // accepting connections
       this._readyState = ReadyState.CONNECTED;
-      // reset retryCount count
-      this._retryCount = 1;
+      // reset the retry count to its starting value (0, as in the constructor),
+      // so the next outage gets the full maxConnectionAttempts budget
+      this._retryCount = 0;
       // flush queue
       this._flushQueueFn((message: MessageItem) => {
         void this.sendMessage(message);

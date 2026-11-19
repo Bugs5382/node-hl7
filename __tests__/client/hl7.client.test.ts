@@ -21,11 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 import { Client, HL7FatalError } from "node-hl7-client/src";
-import portfinder from "portfinder";
+import net from "node:net";
 import { beforeEach, describe, expect, test } from "vitest";
 
 import { expectEvent } from "../server/__utils__";
 import { expectHL7FatalError } from "./__utils__/expectHL7FatalError";
+
+// An OS-assigned port: portfinder starts every worker at the same base port, so parallel
+// test files can collide on it and a "refused" port ends up with a live listener.
+async function closedPort(): Promise<number> {
+  const probe = net.createServer();
+  await new Promise<void>((resolve) => probe.listen(0, "127.0.0.1", resolve));
+  const { port } = probe.address() as net.AddressInfo;
+  await new Promise<void>((resolve) => probe.close(() => resolve()));
+  return port;
+}
 
 describe("node hl7 client", () => {
   describe("Client class", () => {
@@ -199,8 +209,8 @@ describe("node hl7 client", () => {
   describe("connection retries", () => {
     test("closes after the last retry attempt instead of going silent", async () => {
       // nothing listens on this port, so every attempt is refused
-      const port = await portfinder.getPortPromise();
-      const client = new Client({ host: "localhost", version: "2.7" });
+      const port = await closedPort();
+      const client = new Client({ host: "127.0.0.1", version: "2.7" });
       const outbound = client.createConnection(
         { maxConnectionAttempts: 2, port, retryHigh: 20, retryLow: 5 },
         async () => {},
@@ -223,6 +233,46 @@ describe("node hl7 client", () => {
       // the library retried exactly maxConnectionAttempts times, then closed
       expect(errors).toBe(2);
       expect(closed).toBe(true);
+      client.closeAll();
+    });
+
+    test("gives every outage the full retry budget, including after a reconnect", async () => {
+      const sockets = new Set<net.Socket>();
+      const listener = net.createServer((socket) => {
+        sockets.add(socket);
+        socket.on("error", () => {});
+      });
+      await new Promise<void>((resolve) =>
+        listener.listen(0, "127.0.0.1", resolve),
+      );
+      const { port } = listener.address() as net.AddressInfo;
+
+      const client = new Client({ host: "127.0.0.1", version: "2.7" });
+      const outbound = client.createConnection(
+        { maxConnectionAttempts: 2, port, retryHigh: 20, retryLow: 5 },
+        async () => {},
+      );
+
+      let errors = 0;
+      outbound.on("client.error", () => {
+        errors++;
+      });
+
+      // the connection is up once, then the server goes away for good
+      await expectEvent(outbound, "connect");
+      const closed = expectEvent(outbound, "close");
+      listener.close();
+      for (const socket of sockets) {
+        socket.destroy();
+      }
+
+      await Promise.race([
+        closed,
+        new Promise((resolve) => setTimeout(resolve, 3000)),
+      ]);
+
+      // same budget as a first outage: maxConnectionAttempts retries, then close
+      expect(errors).toBe(2);
       client.closeAll();
     });
   });
