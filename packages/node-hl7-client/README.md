@@ -281,7 +281,7 @@ const OB_ADT = client.createConnection(
   {
     port: 3000,
     waitAck: true, // default: wait for ACK before next send
-    maxConnectionAttempts: 10, // reconnect attempts before giving up
+    maxConnectionAttempts: 10, // reconnect attempts before giving up (1-50; 0 retries forever)
   },
   async (res) => {
     const status = res.getMessage().get("MSA.1").toString();

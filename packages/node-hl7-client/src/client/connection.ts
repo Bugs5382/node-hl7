@@ -456,7 +456,10 @@ export class Connection extends EventEmitter implements IConnection {
           this._opt.retryHigh,
           retryCount,
         );
-        if (retryCount < this._opt.maxConnectionAttempts) {
+        if (
+          this._opt.maxConnectionAttempts === 0 ||
+          retryCount < this._opt.maxConnectionAttempts
+        ) {
           this._retryTimer = setTimeout(this._connect, delay);
           this.emit("client.error", connectionError);
         } else {
