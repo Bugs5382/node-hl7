@@ -137,7 +137,8 @@ export function normalizeClientListenerOptions(
 
   assertNumber(properties, "maxLimit", 1);
   assertNumber(properties, "maxAttempts", 1, 50);
-  assertNumber(properties, "maxConnectionAttempts", 1, 50);
+  // Zero opts into an unlimited reconnect loop; positive limits keep the existing 50 cap.
+  assertNumber(properties, "maxConnectionAttempts", 0, 50);
   assertNumber(properties, "port", 1, 65_353);
 
   return properties;
