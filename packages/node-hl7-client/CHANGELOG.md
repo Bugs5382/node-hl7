@@ -10,6 +10,7 @@
 
 #### 🐛 Bug Fixes
 
+- fix(client): reset the retry count to 0 after a successful connect @Bugs5382 (#85)
 - fix(client): handle the last retry attempt @Bugs5382 (#80)
 
 ### Extra
