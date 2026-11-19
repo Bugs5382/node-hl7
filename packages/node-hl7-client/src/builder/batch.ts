@@ -161,7 +161,9 @@ export class Batch extends RootBase {
       const message: Message[] = [];
       const re = new RegExp(`${this._opt.newLine}$`, "g");
       for (let index = 0; index < this._lines.length; index++) {
-        message.push(new Message({ text: this._lines[index].replace(re, "") }));
+        message.push(
+          new Message({ text: this._lines[index].replaceAll(re, "") }),
+        );
       }
       return message;
     }
@@ -319,5 +321,3 @@ export class Batch extends RootBase {
     throw new HL7FatalError("Unable to process _getFirstSegment.");
   }
 }
-
-export default Batch;

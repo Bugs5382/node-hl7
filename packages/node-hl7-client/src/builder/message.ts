@@ -383,5 +383,3 @@ export class Message extends RootBase {
     return undefined;
   }
 }
-
-export default Message;

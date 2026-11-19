@@ -22,4 +22,4 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 import { createVitestConfig } from "../../vitest.config.base.mjs";
 
-export default createVitestConfig(__dirname, "node-hl7-client");
+export default createVitestConfig(import.meta.dirname, "node-hl7-client");
